@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime
 
 def toUnixTime(eventTime):
     # Split the date and time parts
@@ -7,7 +7,7 @@ def toUnixTime(eventTime):
     time = parts[1].split(":")
 
     # Create datetime object
-    dt = datetime.datetime(int(date[2]), int(date[1]), int(date[0]), int(time[0]), int(time[1]))
+    dt = datetime(int(date[2]), int(date[1]), int(date[0]), int(time[0]), int(time[1]))
     return dt.timestamp()
 
 def toSeconds(time):
@@ -28,3 +28,17 @@ def timeOut(timeString):
     else:
         #TODO Make this logic better
         raise Exception("Invalid time format")
+
+def toShortHumanTime(unixTime):
+
+    realTime = datetime.fromtimestamp(unixTime).strftime('%A, %B %d')
+
+    return realTime
+
+def toHumanHour(unixTime):
+
+    realTime = datetime.fromtimestamp(unixTime).strftime('%I:%M %p')
+
+    return realTime
+
+print(toHumanHour(1749495600))

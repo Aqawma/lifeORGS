@@ -14,7 +14,7 @@ Dependencies:
 """
 
 import sqlite3
-from utils.pyUtils import toUnixTime, toSeconds
+from utils.timeUtils import toUnixTime, toSeconds
 
 def addEvent(event, description, startTime, endTime):
     """
