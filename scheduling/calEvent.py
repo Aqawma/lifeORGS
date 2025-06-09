@@ -16,15 +16,13 @@ Dependencies:
 import sqlite3
 from utils.pyUtils import toUnixTime, toSeconds
 
-def addEvent(event, description, startDate, endDate, startTime, endTime):
+def addEvent(event, description, startTime, endTime):
     """
     Adds a new event to the calendar database.
     
     Args:
         event (str): Name of the event
         description (str): Description of the event
-        startDate (str): Start date in format 'DD/MM/YYYY'
-        endDate (str): End date in format 'DD/MM/YYYY'
         startTime (str): Start time in format 'HH:MM'
         endTime (str): End time in format 'HH:MM'
     """
@@ -35,12 +33,13 @@ def addEvent(event, description, startDate, endDate, startTime, endTime):
     event text,
     description text,
     unixtimeStart integer,
-    unixtimeEnd integer); """
+    unixtimeEnd integer,
+    task boolean default 0); """
 
     conn.execute(table)
 
-    start = toUnixTime(startDate, startTime)
-    end = toUnixTime(endDate, endTime)
+    start = toUnixTime(startTime)
+    end = toUnixTime(endTime)
 
     conn.execute("INSERT INTO events VALUES (?,?,?,?)", (event, description, start, end))
     conn.commit()
@@ -58,7 +57,7 @@ def removeEvent(event):
     conn.execute("DELETE FROM events WHERE event=?", (event,))
     conn.commit()
 
-def modifyEvent(event, description, startDate, endDate, startTime, endTime):
+def modifyEvent(event, description, startTime, endTime):
     """
     Modifies an existing event in the calendar database.
     Implements modification by removing the old event and adding a new one.
@@ -66,14 +65,12 @@ def modifyEvent(event, description, startDate, endDate, startTime, endTime):
     Args:
         event (str): Name of the event to modify
         description (str): New description
-        startDate (str): New start date in format 'DD/MM/YYYY'
-        endDate (str): New end date in format 'DD/MM/YYYY'
         startTime (str): New start time in format 'HH:MM'
         endTime (str): New end time in format 'HH:MM'
     """
 
     removeEvent(event)
-    addEvent(event, description, startDate, endDate, startTime, endTime)
+    addEvent(event, description, startTime, endTime)
 
 def addTask(task, time, urgency):
     """
@@ -126,3 +123,8 @@ def modifyTask(task, time, urgency):
 
     removeTask(task)
     addTask(task, time, urgency)
+
+
+# addEvent("test2", "wow", "09/06/2025 12:00", "09/06/2025 13:00")
+# addEvent("test3", "wow", "10/06/2025 12:00", "10/06/2025 13:00")
+addEvent("birthday", "yay", "26/07/2025 00:00", "26/07/2025 23:59")
