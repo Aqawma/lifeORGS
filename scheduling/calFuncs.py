@@ -21,6 +21,18 @@ def giveEvents(timeForecast):
 
     return events
 
+def giveTasks():
+
+    conn = sqlite3.connect('calendar.db')
+    c = conn.cursor()
+
+    selection = """ SELECT * FROM tasks WHERE scheduled = 0"""
+
+    c.execute(selection)
+    tasks = c.fetchall()
+    conn.close()
+    return tasks
+
 def viewEvents(timeForecast):
 
     events = giveEvents(timeForecast)
@@ -45,3 +57,5 @@ def viewEvents(timeForecast):
             output.append(f"{event[0]} from {toHumanHour(event[2])} to {toHumanHour(event[3])}")
 
     return output
+
+# def scheduleTasks():

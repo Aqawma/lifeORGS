@@ -40,5 +40,3 @@ def toHumanHour(unixTime):
     realTime = datetime.fromtimestamp(unixTime).strftime('%I:%M %p')
 
     return realTime
-
-print(toHumanHour(1749495600))
