@@ -1,6 +1,19 @@
 from datetime import datetime
 
 def toUnixTime(eventTime):
+    """
+    Converts a date and time string to Unix timestamp.
+
+    Args:
+        eventTime (str): Date and time in format 'DD/MM/YYYY HH:MM'
+
+    Returns:
+        float: Unix timestamp (seconds since January 1, 1970)
+
+    Example:
+        >>> toUnixTime("25/12/2023 14:30")
+        # Returns the Unix timestamp for December 25, 2023 at 2:30 PM
+    """
     # Split the date and time parts
     parts = eventTime.split(" ")
     date = parts[0].split("/")
@@ -11,6 +24,21 @@ def toUnixTime(eventTime):
     return dt.timestamp()
 
 def toSeconds(time):
+    """
+    Converts a time string in HH:MM or HH:MM:SS format to total seconds.
+
+    Args:
+        time (str): Time string in format 'HH:MM' or 'HH:MM:SS'
+
+    Returns:
+        int: Total seconds (hours*3600 + minutes*60 + seconds)
+
+    Example:
+        >>> toSeconds("14:30")
+        # Returns 52200 (14 hours and 30 minutes in seconds)
+        >>> toSeconds("14:30:15")
+        # Returns 52215 (14 hours, 30 minutes, and 15 seconds)
+    """
     time = time.split(':')
     combinedTime = int(time[0])*3600 + int(time[1])*60
     if len(time) == 3:
@@ -18,7 +46,27 @@ def toSeconds(time):
     return combinedTime
 
 def timeOut(timeString):
+    """
+    Converts a time period string to total seconds.
 
+    Currently supports only day format (e.g., "7 D" for 7 days).
+
+    Args:
+        timeString (str): Time period string in format "<number> D" for days
+
+    Returns:
+        int: Total seconds in the specified time period
+
+    Raises:
+        Exception: If the time format is not supported
+
+    Example:
+        >>> timeOut("7 D")
+        # Returns 604800 (7 days in seconds)
+
+    Note:
+        Future enhancement planned to support more time formats.
+    """
     time = timeString.split(" ")
 
     if time[1] == "D":
@@ -30,13 +78,39 @@ def timeOut(timeString):
         raise Exception("Invalid time format")
 
 def toShortHumanTime(unixTime):
+    """
+    Converts a Unix timestamp to a human-readable date string.
 
+    Args:
+        unixTime (float): Unix timestamp (seconds since January 1, 1970)
+
+    Returns:
+        str: Formatted date string in the format "Weekday, Month Day"
+             (e.g., "Monday, January 1")
+
+    Example:
+        >>> toShortHumanTime(1640430600)
+        # Returns "Saturday, December 25" (for December 25, 2021)
+    """
     realTime = datetime.fromtimestamp(unixTime).strftime('%A, %B %d')
 
     return realTime
 
 def toHumanHour(unixTime):
+    """
+    Converts a Unix timestamp to a human-readable time string.
 
+    Args:
+        unixTime (float): Unix timestamp (seconds since January 1, 1970)
+
+    Returns:
+        str: Formatted time string in 12-hour format with AM/PM indicator
+             (e.g., "02:30 PM")
+
+    Example:
+        >>> toHumanHour(1640430600)
+        # Returns "10:30 AM" (assuming this timestamp corresponds to 10:30 AM)
+    """
     realTime = datetime.fromtimestamp(unixTime).strftime('%I:%M %p')
 
     return realTime

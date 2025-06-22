@@ -4,7 +4,17 @@ from utils.timeUtils import timeOut, toShortHumanTime, toHumanHour
 from scheduling.calEvent import addEvent, modifyTask
 
 def giveEvents(timeForecast):
+    """
+    Retrieves events from the calendar database within a specified time period.
 
+    Args:
+        timeForecast (str): Time period to look ahead in format "<number> D"
+                           (e.g., "7 D" for 7 days)
+
+    Returns:
+        list: List of events where each event is a tuple containing event details
+              (name, description, start_time, end_time)
+    """
     currentTime = time.time()
     timeForecast = timeOut(timeForecast)
 
@@ -22,7 +32,13 @@ def giveEvents(timeForecast):
     return events
 
 def giveTasks():
+    """
+    Retrieves all unscheduled tasks from the calendar database.
 
+    Returns:
+        list: List of unscheduled tasks where each task is a tuple containing task details
+              (name, description, urgency, due_date, scheduled_status)
+    """
     conn = sqlite3.connect('calendar.db')
     c = conn.cursor()
 
@@ -34,7 +50,16 @@ def giveTasks():
     return tasks
 
 def giveBlocks():
+    """
+    Retrieves all time blocks from the calendar database.
 
+    Time blocks represent recurring periods when events can be scheduled
+    (e.g., working hours, study time, etc.).
+
+    Returns:
+        list: List of time blocks where each block is a tuple containing block details
+              (start_time, end_time, day_of_week)
+    """
     conn = sqlite3.connect('calendar.db')
     c = conn.cursor()
 
@@ -46,7 +71,19 @@ def giveBlocks():
     return blocks
 
 def viewEvents(timeForecast):
+    """
+    Formats events into a human-readable list grouped by day.
 
+    This function retrieves events for the specified time period and organizes them
+    chronologically by day, creating a formatted list suitable for display.
+
+    Args:
+        timeForecast (str): Time period to look ahead in format "<number> D"
+                           (e.g., "7 D" for 7 days)
+
+    Returns:
+        list: List of strings containing formatted event information grouped by day
+    """
     events = giveEvents(timeForecast)
     dayCheck = []
     output = []
@@ -133,21 +170,35 @@ def findAvailableTimeSlots(blocks):
 
 def assignTasksToSlots(tasks, availableTime):
     """
-    Assigns tasks to available time slots.
+    Assigns tasks to available time slots based on task urgency and time slot availability.
+
+    The function iterates through tasks (sorted by urgency) and available time slots,
+    scheduling each task in the first available slot that has enough time for the task.
+    When a task is scheduled, the time slot is removed from the available slots to prevent
+    double booking.
 
     Args:
-        tasks (list): List of tasks sorted by urgency
-        availableTime (list): List of available time slots
+        tasks (list): List of tasks sorted by urgency. Each task is a tuple containing:
+                     - [0]: Duration needed for the task (in seconds)
+                     - [1]: Priority level
+                     - [2]: Urgency value
+                     - [4]: Task ID or identifier
+        availableTime (list): List of available time slots. Each slot is a tuple containing:
+                             - [0]: Duration of the slot (in seconds)
+                             - [1]: Tuple of (start_time, end_time) in unix timestamp format
+
+    Side Effects:
+        - Adds events to the calendar database for each scheduled task
+        - Modifies task status in the database to mark them as scheduled
 
     Returns:
-        list: List of scheduled tasks
+        list: List of scheduled tasks that were successfully assigned to time slots
     """
     scheduledTasks = []
 
     for i in range(len(tasks)):
         for j in range(len(availableTime)):
             if availableTime[j][0] > tasks[i][0]:
-                # Fix: Use availableTime[j] instead of availableTime[0]
                 addEvent(tasks[i][0], f"Level {tasks[i][1]} urgency", 
                          availableTime[j][1][0], availableTime[j][1][1], True)
                 modifyTask(tasks[i][0], tasks[i][1], tasks[i][2], tasks[i][4], True)

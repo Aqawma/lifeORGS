@@ -14,29 +14,35 @@ Dependencies:
 """
 
 import sqlite3
+import datetime
 from utils.timeUtils import toUnixTime, toSeconds
 
-
 def addEvent(event, description, startTime, endTime, task:bool = False):
-    # Adds a new event to the calendar database.
-    #
-    # Args:
-    #     event (str): Name of the event
-    #     description (str): Description of the event
-    #     startTime (str): Start time in format 'DD/MM/YYYY HH:MM'
-    #     endTime (str): End time in format 'DD/MM/YYYY HH:MM'
-    #
-    # Example:
-    #     addEvent("Meeting", "Team sync", "26/07/2025 13:30", "26/07/2025 14:30")
-    #
-    # Note:
-    #     Creates events table if it doesn't exist with columns:
-    #     - event: text field for event name
-    #     - description: text field for event details
-    #     - unixtimeStart: integer field for start time in unix format
-    #     - unixtimeEnd: integer field for end time in unix format
-    #     - task: boolean indicating if entry is a task (default: 0)
-    #     - completed: boolean indicating completion status (default: 0)
+    """
+    Adds a new event to the calendar database.
+
+    Args:
+        event (str): Name of the event
+        description (str): Description of the event
+        startTime (str): Start time in format 'DD/MM/YYYY HH:MM'
+        endTime (str): End time in format 'DD/MM/YYYY HH:MM'
+        task (bool, optional): Indicates if this is a task event. Defaults to False.
+
+    Example:
+        addEvent("Meeting", "Team sync", "26/07/2025 13:30", "26/07/2025 14:30")
+
+    Note:
+        Creates events table if it doesn't exist with columns:
+        - event: text field for event name
+        - description: text field for event details
+        - unixtimeStart: integer field for start time in unix format
+        - unixtimeEnd: integer field for end time in unix format
+        - task: boolean indicating if entry is a task (default: 0)
+        - completed: boolean indicating completion status (default: 0)
+
+    Returns:
+        str: Success message or error message if event already exists
+    """
 
     conn = sqlite3.connect('calendar.db')
 
@@ -52,12 +58,23 @@ def addEvent(event, description, startTime, endTime, task:bool = False):
 
     conn.execute(table)
 
-    start = toUnixTime(startTime)
-    end = toUnixTime(endTime)
+    currentUnixTime = datetime.datetime.now().timestamp()
 
-    conn.execute("INSERT INTO events VALUES (?,?,?,?,?,?)", (event, description, start, end, task, 0))
-    conn.commit()
-    conn.close()
+    conn.execute("SELECT event FROM events WHERE event=? AND unixtimeEnd>?", (event,currentUnixTime,))
+    rows = conn.fetchall()
+
+    if len(rows) != 0:
+        output = f"Event '{event}' already exists in the calendar. \n Please choose a different name."
+        return output
+    else:
+        start = toUnixTime(startTime)
+        end = toUnixTime(endTime)
+
+        conn.execute("INSERT INTO events VALUES (?,?,?,?,?,?)", (event, description, start, end, task, 0))
+        conn.commit()
+        conn.close()
+
+        return f"{event} added successfully."
 
 def removeEvent(event):
     """
@@ -133,12 +150,21 @@ def addTask(task, time, urgency, due, scheduled:bool = False):
 
     conn.execute(table)
 
-    time = toSeconds(time)
+    conn.execute("SELECT task FROM tasks WHERE task=?", (task,))
+    rows = conn.fetchall()
 
-    conn.execute("INSERT INTO tasks VALUES (?,?,?,?,?)", (task, time, urgency, scheduled, due))
+    if len(rows) != 0:
+        output = f"Event '{task}' already exists in the database. \n Please choose a different name."
+        return output
+    else:
+        time = toSeconds(time)
 
-    conn.commit()
-    conn.close()
+        conn.execute("INSERT INTO tasks VALUES (?,?,?,?,?)", (task, time, urgency, scheduled, due))
+
+        conn.commit()
+        conn.close()
+
+        return f"{task} added successfully."
 
 def removeTask(task):
     """
@@ -169,9 +195,36 @@ def modifyTask(task, time, urgency, due, scheduled:bool = False):
     addTask(task, time, urgency, due, scheduled)
 
 def addTimeBlock(day, timeStart, timeEnd):
+    """
+    Adds a time block to the calendar database for scheduling purposes.
 
+    Time blocks represent periods when events or tasks can be scheduled.
+    The function converts day and time information into Unix time format
+    for consistent storage and retrieval.
+
+    Args:
+        day (int): Day of the week (1-7, where 1 is Monday)
+        timeStart (str): Start time in format 'HH:MM' or 'HH:MM:SS'
+        timeEnd (str): End time in format 'HH:MM' or 'HH:MM:SS'
+
+    Database Schema:
+        Creates blocks table if it doesn't exist with columns:
+        - timeStart: integer field for block start time in seconds
+        - timeEnd: integer field for block end time in seconds
+
+    Example:
+        >>> addTimeBlock(1, "09:00", "12:00")
+        # Creates a time block for Monday from 9 AM to 12 PM
+
+    Note:
+        - Day values: 1=Monday, 2=Tuesday, ..., 7=Sunday
+        - Times are converted to seconds since the start of the week
+        - 86400 represents the number of seconds in a day (24*60*60)
+    """
+    # Connect to the calendar database
     conn = sqlite3.connect('calendar.db')
 
+    # Create blocks table if it doesn't exist
     table = """ CREATE TABLE IF NOT EXISTS blocks
                 (
                     timeStart  integer,
@@ -180,16 +233,42 @@ def addTimeBlock(day, timeStart, timeEnd):
 
     conn.execute(table)
 
+    # Convert day and time to seconds since start of week
+    # (day-1) gives days since start of week (0 for Monday)
+    # Multiply by seconds per day and add time in seconds
     timeStart = (86400*(day-1)) + toSeconds(timeStart)
     timeEnd = (86400*(day-1)) + toSeconds(timeEnd)
 
+    # Insert the time block into the database
     conn.execute("INSERT INTO blocks VALUES (?,?)", (timeStart, timeEnd))
     conn.commit()
     conn.close()
 
 def removeTimeBlock(timeStart, timeEnd):
+    """
+    Removes a specific time block from the calendar database.
 
+    This function deletes a time block that matches the exact start and end times provided.
+    The times should be in the same format as stored in the database (seconds since start of week).
+
+    Args:
+        timeStart (int): Start time of the block to remove (in seconds)
+        timeEnd (int): End time of the block to remove (in seconds)
+
+    Example:
+        >>> removeTimeBlock(36000, 43200)
+        # Removes a time block that starts at 36000 seconds and ends at 43200 seconds
+        # (For example, a Monday 10:00-12:00 block would be at 36000-43200 seconds)
+
+    Note:
+        - Both timeStart and timeEnd must match exactly for the block to be removed
+        - Times should be in seconds since the start of the week
+        - To remove a block added with addTimeBlock, you need to use the converted values
+    """
+    # Connect to the calendar database
     conn = sqlite3.connect('calendar.db')
+
+    # Delete the time block that matches both start and end times exactly
     conn.execute("DELETE FROM blocks WHERE timeStart=? AND timeEnd=?", (timeStart, timeEnd))
     conn.commit()
-
+    conn.close()
