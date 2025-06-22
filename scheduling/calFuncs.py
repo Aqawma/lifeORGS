@@ -119,11 +119,10 @@ def getSchedulingData(timeForecast):
             - tasks: List of unscheduled tasks sorted by urgency
             - blocks: Combined list of time blocks and events sorted chronologically
     """
-    timeForecastSeconds = timeOut(timeForecast)
 
     tasks = giveTasks()
     blocks = giveBlocks()
-    events = giveEvents(timeForecastSeconds)
+    events = giveEvents(timeForecast)
 
     # Sort tasks by urgency
     tasks.sort(key=lambda x: x[2])
