@@ -21,8 +21,7 @@ def giveEvents(timeForecast):
     conn = sqlite3.connect('calendar.db')
     c = conn.cursor()
 
-    selection = """ SELECT * FROM events WHERE unixtimeEnd > ? AND unixtimeStart < ?
-    """
+    selection = """SELECT * FROM events WHERE unixtimeEnd > ? AND unixtimeStart < ?"""
 
     c.execute(selection, (currentTime, currentTime + timeForecast))
     events = c.fetchall()

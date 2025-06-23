@@ -45,6 +45,7 @@ def addEvent(event, description, startTime, endTime, task:bool = False):
     """
 
     conn = sqlite3.connect('calendar.db')
+    c = conn.cursor()
 
     table = """ CREATE TABLE IF NOT EXISTS events
                 (
@@ -61,10 +62,12 @@ def addEvent(event, description, startTime, endTime, task:bool = False):
     currentUnixTime = datetime.datetime.now().timestamp()
 
     conn.execute("SELECT event FROM events WHERE event=? AND unixtimeEnd>?", (event,currentUnixTime,))
-    rows = conn.fetchall()
+    rows = c.fetchall()
 
     if len(rows) != 0:
         output = f"Event '{event}' already exists in the calendar. \n Please choose a different name."
+
+        conn.close()
         return output
     else:
         start = toUnixTime(startTime)
@@ -87,21 +90,6 @@ def removeEvent(event):
     conn = sqlite3.connect('calendar.db')
     conn.execute("DELETE FROM events WHERE event=?", (event,))
     conn.commit()
-
-def modifyEvent(event, description, startTime, endTime):
-    """
-    Modifies an existing event in the calendar database.
-    Implements modification by removing the old event and adding a new one.
-
-    Args:
-        event (str): Name of the event to modify
-        description (str): New description
-        startTime (str): New start time in format 'HH:MM'
-        endTime (str): New end time in format 'HH:MM'
-    """
-
-    removeEvent(event)
-    addEvent(event, description, startTime, endTime)
 
 def addTask(task, time, urgency, due, scheduled:bool = False):
     """
@@ -138,6 +126,7 @@ def addTask(task, time, urgency, due, scheduled:bool = False):
     due = toUnixTime(due)
 
     conn = sqlite3.connect('calendar.db')
+    c = conn.cursor()
 
     table = """ CREATE TABLE IF NOT EXISTS tasks
                 (
@@ -151,7 +140,7 @@ def addTask(task, time, urgency, due, scheduled:bool = False):
     conn.execute(table)
 
     conn.execute("SELECT task FROM tasks WHERE task=?", (task,))
-    rows = conn.fetchall()
+    rows = c.fetchall()
 
     if len(rows) != 0:
         output = f"Event '{task}' already exists in the database. \n Please choose a different name."

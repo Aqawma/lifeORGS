@@ -12,7 +12,7 @@ def toUnixTime(eventTime):
 
     Example:
         >>> toUnixTime("25/12/2023 14:30")
-        # Returns the Unix timestamp for December 25, 2023 at 2:30 PM
+        # Returns the Unix timestamp for December 25, 2023, at 2:30 PM
     """
     # Split the date and time parts
     parts = eventTime.split(" ")
@@ -35,9 +35,9 @@ def toSeconds(time):
 
     Example:
         >>> toSeconds("14:30")
-        # Returns 52200 (14 hours and 30 minutes in seconds)
+        # Returns 52,200 (14 hours and 30 minutes in seconds)
         >>> toSeconds("14:30:15")
-        # Returns 52215 (14 hours, 30 minutes, and 15 seconds)
+        # Returns 52,215 (14 hours, 30 minutes, and 15 seconds)
     """
     time = time.split(':')
     combinedTime = int(time[0])*3600 + int(time[1])*60
@@ -49,7 +49,7 @@ def timeOut(timeString):
     """
     Converts a time period string to total seconds.
 
-    Currently supports only day format (e.g., "7 D" for 7 days).
+    Currently, supports only day format (e.g., "7 D" for 7 days).
 
     Args:
         timeString (str): Time period string in format "<number> D" for days
@@ -62,7 +62,7 @@ def timeOut(timeString):
 
     Example:
         >>> timeOut("7 D")
-        # Returns 604800 (7 days in seconds)
+        # Returns 604,800 (7 days in seconds)
 
     Note:
         Future enhancement planned to support more time formats.
