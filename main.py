@@ -4,6 +4,7 @@ from scheduling.calEvent import addEvent, removeEvent, addTask, modifyTask
 from scheduling.calFuncs import viewEvents, scheduleTasks
 from utils.regex import smartSplit
 from utils.timeUtils import toUnixTime, toSeconds
+from utils.dbUtils import getDBPath
 
 """
 Main module for the lifeORGS application.
@@ -33,7 +34,7 @@ def parseCommand(command):
         followed by the command type (EVENT, CALENDAR, TASK).
     """
 
-    conn = sqlite3.connect('calendar.db')
+    conn = sqlite3.connect(getDBPath())
     c = conn.cursor()
 
     # Split the command string into components using smart splitting to handle quoted strings
@@ -113,9 +114,10 @@ def parseCommand(command):
         if splitCommand[1] == "ADD":
             # Add a new task with name, estimated time, due date, and urgency
             addTask(splitCommand[2],  # Task name
-                    (splitCommand[3] + " " + splitCommand[4]),  # Estimated time
-                    (splitCommand[5] + " " + splitCommand[6]),  # Due date
-                    splitCommand[7])  # Urgency
+                    (splitCommand[3]),  # Estimated time
+                    splitCommand[6],    # Urgency
+                    (splitCommand[4] + " " + splitCommand[5]))  # Due date
+
 
         elif splitCommand[1] == "DELETE":
             # Remove a task by its name

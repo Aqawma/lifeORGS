@@ -2,6 +2,7 @@ import sqlite3
 import time
 from utils.timeUtils import timeOut, toShortHumanTime, toHumanHour
 from scheduling.calEvent import addEvent, modifyTask
+from utils.dbUtils import getDBPath
 
 def giveEvents(timeForecast):
     """
@@ -18,7 +19,7 @@ def giveEvents(timeForecast):
     currentTime = time.time()
     timeForecast = timeOut(timeForecast)
 
-    conn = sqlite3.connect('calendar.db')
+    conn = sqlite3.connect(getDBPath())
     c = conn.cursor()
 
     selection = """SELECT * FROM events WHERE unixtimeEnd > ? AND unixtimeStart < ?"""
@@ -38,7 +39,7 @@ def giveTasks():
         list: List of unscheduled tasks where each task is a tuple containing task details
               (name, description, urgency, due_date, scheduled_status)
     """
-    conn = sqlite3.connect('calendar.db')
+    conn = sqlite3.connect(getDBPath())
     c = conn.cursor()
 
     selection = """ SELECT * FROM tasks WHERE scheduled = 0"""
@@ -59,7 +60,7 @@ def giveBlocks():
         list: List of time blocks where each block is a tuple containing block details
               (start_time, end_time, day_of_week)
     """
-    conn = sqlite3.connect('calendar.db')
+    conn = sqlite3.connect(getDBPath())
     c = conn.cursor()
 
     selection = """ SELECT * FROM blocks"""

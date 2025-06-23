@@ -16,6 +16,7 @@ Dependencies:
 import sqlite3
 import datetime
 from utils.timeUtils import toUnixTime, toSeconds
+from utils.dbUtils import getDBPath
 
 def addEvent(event, description, startTime, endTime, task:bool = False):
     """
@@ -44,7 +45,7 @@ def addEvent(event, description, startTime, endTime, task:bool = False):
         str: Success message or error message if event already exists
     """
 
-    conn = sqlite3.connect('calendar.db')
+    conn = sqlite3.connect(getDBPath())
     c = conn.cursor()
 
     table = """ CREATE TABLE IF NOT EXISTS events
@@ -87,7 +88,7 @@ def removeEvent(event):
         event (str): Name of the event to remove
     """
 
-    conn = sqlite3.connect('calendar.db')
+    conn = sqlite3.connect(getDBPath())
     conn.execute("DELETE FROM events WHERE event=?", (event,))
     conn.commit()
 
@@ -125,7 +126,7 @@ def addTask(task, time, urgency, due, scheduled:bool = False):
 
     due = toUnixTime(due)
 
-    conn = sqlite3.connect('calendar.db')
+    conn = sqlite3.connect(getDBPath())
     c = conn.cursor()
 
     table = """ CREATE TABLE IF NOT EXISTS tasks
@@ -163,7 +164,7 @@ def removeTask(task):
         task (str): Name of the task to remove
     """
 
-    conn = sqlite3.connect('calendar.db')
+    conn = sqlite3.connect(getDBPath())
     conn.execute("DELETE FROM tasks WHERE task=?", (task,))
     conn.commit()
 
@@ -211,7 +212,7 @@ def addTimeBlock(day, timeStart, timeEnd):
         - 86400 represents the number of seconds in a day (24*60*60)
     """
     # Connect to the calendar database
-    conn = sqlite3.connect('calendar.db')
+    conn = sqlite3.connect(getDBPath())
 
     # Create blocks table if it doesn't exist
     table = """ CREATE TABLE IF NOT EXISTS blocks
@@ -255,7 +256,7 @@ def removeTimeBlock(timeStart, timeEnd):
         - To remove a block added with addTimeBlock, you need to use the converted values
     """
     # Connect to the calendar database
-    conn = sqlite3.connect('calendar.db')
+    conn = sqlite3.connect(getDBPath())
 
     # Delete the time block that matches both start and end times exactly
     conn.execute("DELETE FROM blocks WHERE timeStart=? AND timeEnd=?", (timeStart, timeEnd))
