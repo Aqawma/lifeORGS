@@ -116,6 +116,28 @@ def toHumanHour(unixTime):
     return realTime
 
 def deltaToStartOfWeek(currentTime):
+    """
+    Calculates the number of seconds elapsed since the start of the current week.
+
+    The week is considered to start on Monday at 00:00:00. This function calculates
+    how many seconds have passed from the beginning of the week to the given time.
+
+    Args:
+        currentTime (float): Unix timestamp (seconds since January 1, 1970)
+
+    Returns:
+        int: Number of seconds elapsed since the start of the current week (Monday 00:00:00)
+
+    Example:
+        # >>> deltaToStartOfWeek(1640430600)  # Assuming this is a Wednesday at 10:30 AM
+        # Returns the number of seconds from Monday 00:00:00 to Wednesday 10:30 AM
+        # (2 days * 86400 seconds/day + 10.5 hours * 3600 seconds/hour)
+
+    Note:
+        - Monday is considered day 0 of the week
+        - The calculation includes weekday, hour, minute, and second components
+        - Result is in seconds and can be used for scheduling calculations
+    """
     weekStart = (datetime.fromtimestamp(currentTime).weekday() * 86400
                  + datetime.fromtimestamp(currentTime).hour * 3600
                  + datetime.fromtimestamp(currentTime).minute * 60

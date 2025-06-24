@@ -91,6 +91,7 @@ def removeEvent(event):
     conn = sqlite3.connect(getDBPath())
     conn.execute("DELETE FROM events WHERE event=?", (event,))
     conn.commit()
+    conn.close()
 
 def addTask(task, time, urgency, due, scheduled:bool = False):
     """
@@ -167,6 +168,7 @@ def removeTask(task):
     conn = sqlite3.connect(getDBPath())
     conn.execute("DELETE FROM tasks WHERE task=?", (task,))
     conn.commit()
+    conn.close()
 
 def modifyTask(task, time, urgency, due, scheduled:bool = False):
     """
@@ -174,11 +176,11 @@ def modifyTask(task, time, urgency, due, scheduled:bool = False):
     Implements modification by removing the old task and adding a new one.
 
     Args:
-        scheduled (bool, optional): Whether the task has been scheduled. Defaults to False:
         task (str): Name of the task to modify
         time (str): New time in format 'HH:MM' or 'HH:MM:SS'
         urgency (int): New urgency level
         due (str): Due date and time in format 'DD/MM/YYYY HH:MM'
+        scheduled (bool, optional): Whether the task has been scheduled. Defaults to False
     """
 
     removeTask(task)

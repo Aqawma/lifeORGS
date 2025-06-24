@@ -1,3 +1,29 @@
+"""
+Calendar Functions Module
+
+This module provides high-level functions for calendar operations including viewing events,
+scheduling tasks, and managing time blocks. It serves as the main interface for calendar
+functionality, coordinating between the database layer and user interface.
+
+Key Features:
+- Event retrieval and formatting for display
+- Task scheduling algorithm that finds available time slots
+- Time block management for recurring availability periods
+- Integration between events, tasks, and time blocks
+
+The module implements an intelligent scheduling system that:
+1. Retrieves unscheduled tasks and available time blocks
+2. Combines existing events with time blocks to find free periods
+3. Assigns tasks to available time slots based on urgency and duration
+4. Automatically creates calendar events for scheduled tasks
+
+Dependencies:
+- sqlite3: For database operations
+- time: For current time operations
+- utils.timeUtils: Time conversion and formatting utilities
+- utils.dbUtils: Database path management
+"""
+
 import sqlite3
 import time
 from utils.timeUtils import timeOut, toShortHumanTime, toHumanHour, deltaToStartOfWeek
