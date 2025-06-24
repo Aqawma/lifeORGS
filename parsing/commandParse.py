@@ -81,11 +81,12 @@ def parseCommand(command):
                      splitCommand[7],  # Description
                      (splitCommand[3] + " " + splitCommand[4]),  # Start time (date + time)
                      (splitCommand[5] + " " + splitCommand[6]))  # End time (date + time)
-            print("Event added successfully.")
+            return f"{splitCommand[2]} added successfully."
 
         elif splitCommand[1] == "DELETE":
             # Remove an event by its name
             removeEvent(splitCommand[2])
+            return f"{splitCommand[2]} deleted successfully."
 
         elif splitCommand[1] == "MODIFY":
             # Modify different aspects of an existing event
@@ -96,6 +97,7 @@ def parseCommand(command):
                           (splitCommand[4], splitCommand[2]))
                 conn.commit()
                 conn.close()
+                return f"{splitCommand[2]} modified successfully."
 
             elif splitCommand[3] == "STARTTIME":
                 # Update the start time of an event
@@ -103,6 +105,7 @@ def parseCommand(command):
                           (toUnixTime(splitCommand[4] + " " + splitCommand[5]), splitCommand[2]))
                 conn.commit()
                 conn.close()
+                return f"{splitCommand[2]} modified successfully."
 
             elif splitCommand[3] == "ENDTIME":
                 # Update the end time of an event
@@ -110,6 +113,7 @@ def parseCommand(command):
                           (toUnixTime(splitCommand[4] + " " + splitCommand[5]), splitCommand[2]))
                 conn.commit()
                 conn.close()
+                return f"{splitCommand[2]} modified successfully."
 
             elif splitCommand[3] == "STARTEND":
                 # Update both start and end times of an event
@@ -119,21 +123,32 @@ def parseCommand(command):
                           (toUnixTime(splitCommand[6] + " " + splitCommand[7]), splitCommand[2]))
                 conn.commit()
                 conn.close()
+                return f"{splitCommand[2]} modified successfully."
+
+            else:
+                return "Invalid command. Please try again."
+
+        else:
+            return "Invalid command. Please try again."
 
     # Process CALENDAR commands (view, schedule)
     elif splitCommand[0] == "CALENDAR":
 
         if splitCommand[1] == "VIEW":
             # View events within a specified time period
-            viewEvents((splitCommand[2] + " " + splitCommand[3]))  # Time period format (e.g., "14 D" for 14 days)
+            scheduledEvents = viewEvents((splitCommand[2] + " " + splitCommand[3]))
+            # Time period format (e.g., "14 D" for 14 days)
+            return scheduledEvents
 
         elif splitCommand[1] == "SCHEDULE":
             # Schedule tasks and view the resulting calendar
             # TODO: Add some sort of configuration for scheduling threshold. Goes with other issues with timeOut().
             scheduleTasks("14 D")  # Schedule tasks for the next 14 days
-            formatted_events = viewEvents("14 D")  # Get formatted events for the next 14 days
-            for event_line in formatted_events:
-                print(event_line)
+            formattedEvents = viewEvents("14 D")  # Get formatted events for the next 14 days
+            return formattedEvents
+
+        else:
+            return "Invalid command. Please try again."
 
     # Process TASK commands (add, delete, modify tasks)
     elif splitCommand[0] == "TASK":
@@ -144,10 +159,12 @@ def parseCommand(command):
                     (splitCommand[3]),  # Estimated time
                     splitCommand[6],    # Urgency
                     (splitCommand[4] + " " + splitCommand[5]))  # Due date
+            return f"{splitCommand[2]} added successfully."
 
         elif splitCommand[1] == "DELETE":
             # Remove a task by its name
             removeEvent(splitCommand[2])
+            return f"{splitCommand[2]} deleted successfully."
 
         elif splitCommand[1] == "MODIFY":
             # Modify different aspects of an existing task
@@ -163,6 +180,7 @@ def parseCommand(command):
                 row = c.fetchone()
                 removeEvent(splitCommand[2])
                 modifyTask(row[0], row[1], row[2], row[4], False)
+                return f"{splitCommand[2]} modified successfully."
 
             if splitCommand[3] == "DUEDATE":
                 # Update the due date of a task
@@ -170,6 +188,7 @@ def parseCommand(command):
                           (toUnixTime(splitCommand[4] + " " + splitCommand[5]), splitCommand[2]))
                 conn.commit()
                 conn.close()
+                return f"{splitCommand[2]} modified successfully."
 
             elif splitCommand[3] == "TIME":
                 # Update the estimated time of a task
@@ -177,6 +196,7 @@ def parseCommand(command):
                           (toSeconds(splitCommand[4]), splitCommand[2]))
                 conn.commit()
                 conn.close()
+                return f"{splitCommand[2]} modified successfully."
 
             elif splitCommand[3] == "URGENCY":
                 # Update the urgency level of a task
@@ -184,6 +204,13 @@ def parseCommand(command):
                           (int(splitCommand[4]), splitCommand[2]))
                 conn.commit()
                 conn.close()
+                return f"{splitCommand[2]} modified successfully."
+
+            else:
+                return "Invalid command. Please try again."
+
+        else:
+            return "Invalid command. Please try again."
 
     # Process BLOCK commands (add, delete time blocks for scheduling)
     elif splitCommand[0] == "BLOCK":
@@ -193,9 +220,12 @@ def parseCommand(command):
             # Expected format: BLOCK ADD <day> <start_time> <end_time>
             # Example: BLOCK ADD 1 09:00 17:00 (Monday 9 AM to 5 PM)
             addTimeBlock(splitCommand[2],  # Day of week (1-7, where 1=Monday)
-                        splitCommand[3],   # Start time (HH:MM format)
-                        splitCommand[4])   # End time (HH:MM format)
+                         splitCommand[3],   # Start time (HH:MM format)
+                         splitCommand[4])   # End time (HH:MM format)
+            return "Time block added successfully."
 
+        else:
+            return "Invalid command. Please try again."
         # TODO: Implement BLOCK DELETE functionality
         # elif splitCommand[1] == "DELETE":
         #     # Remove a time block by day and time range
@@ -210,3 +240,6 @@ def parseCommand(command):
     #     elif splitCommand[1] == "EXPORT":
     #         # Export calendar data to external file
     #         pass
+
+    else:
+        return "Invalid command. Please try again."
