@@ -11,7 +11,7 @@ def toUnixTime(eventTime):
         float: Unix timestamp (seconds since January 1, 1970)
 
     Example:
-        >>> toUnixTime("25/12/2023 14:30")
+        # >>> toUnixTime("25/12/2023 14:30")
         # Returns the Unix timestamp for December 25, 2023, at 2:30 PM
     """
     # Split the date and time parts
@@ -34,9 +34,9 @@ def toSeconds(time):
         int: Total seconds (hours*3600 + minutes*60 + seconds)
 
     Example:
-        >>> toSeconds("14:30")
+        # >>> toSeconds("14:30")
         # Returns 52,200 (14 hours and 30 minutes in seconds)
-        >>> toSeconds("14:30:15")
+        # >>> toSeconds("14:30:15")
         # Returns 52,215 (14 hours, 30 minutes, and 15 seconds)
     """
     time = time.split(':')
@@ -61,7 +61,7 @@ def timeOut(timeString):
         Exception: If the time format is not supported
 
     Example:
-        >>> timeOut("7 D")
+        # >>> timeOut("7 D")
         # Returns 604,800 (7 days in seconds)
 
     Note:
@@ -89,7 +89,7 @@ def toShortHumanTime(unixTime):
              (e.g., "Monday, January 1")
 
     Example:
-        >>> toShortHumanTime(1640430600)
+        # >>> toShortHumanTime(1640430600)
         # Returns "Saturday, December 25" (for December 25, 2021)
     """
     realTime = datetime.fromtimestamp(unixTime).strftime('%A, %B %d')
@@ -108,9 +108,16 @@ def toHumanHour(unixTime):
              (e.g., "02:30 PM")
 
     Example:
-        >>> toHumanHour(1640430600)
+        # >>> toHumanHour(1640430600)
         # Returns "10:30 AM" (assuming this timestamp corresponds to 10:30 AM)
     """
     realTime = datetime.fromtimestamp(unixTime).strftime('%I:%M %p')
 
     return realTime
+
+def deltaToStartOfWeek(currentTime):
+    weekStart = (datetime.fromtimestamp(currentTime).weekday() * 86400
+                 + datetime.fromtimestamp(currentTime).hour * 3600
+                 + datetime.fromtimestamp(currentTime).minute * 60
+                 + datetime.fromtimestamp(currentTime).second)
+    return weekStart  # Seconds since start of week (Monday)

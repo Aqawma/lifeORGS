@@ -1,6 +1,6 @@
 import sqlite3
 
-from scheduling.calEvent import addEvent, removeEvent, addTask, modifyTask
+from scheduling.calEvent import addEvent, removeEvent, addTask, modifyTask, addTimeBlock
 from scheduling.calFuncs import viewEvents, scheduleTasks
 from utils.regex import smartSplit
 from utils.timeUtils import toUnixTime, toSeconds
@@ -106,7 +106,9 @@ def parseCommand(command):
             # Schedule tasks and view the resulting calendar
             #TODO Add some sort of configuration for scheduling threshold. Goes with other issues with timeOut().
             scheduleTasks("14 D")  # Schedule tasks for the next 14 days
-            viewEvents("14 D")  # View events for the next 14 days
+            thing = viewEvents("14 D")  # View events for the next 14 days
+            for things in thing:
+                print(things)
 
     # Process TASK commands (add, delete, modify tasks)
     elif splitCommand[0] == "TASK":
@@ -117,7 +119,6 @@ def parseCommand(command):
                     (splitCommand[3]),  # Estimated time
                     splitCommand[6],    # Urgency
                     (splitCommand[4] + " " + splitCommand[5]))  # Due date
-
 
         elif splitCommand[1] == "DELETE":
             # Remove a task by its name
@@ -159,9 +160,18 @@ def parseCommand(command):
                 conn.commit()
                 conn.close()
 
+    elif splitCommand[0] == "BLOCK":
+
+        if splitCommand[1] == "ADD":
+            addTimeBlock(splitCommand[2], splitCommand[3], splitCommand[4])
+
+        # elif splitCommand[1] == "DELETE":
+
     # Future implementation for FILE commands
     # elif splitCommand[1] == "FILE":
 
-
-while True:
-    parseCommand(input("Enter a command: "))
+counter = 0
+while counter < 1:
+    # parseCommand(input("Enter a command: "))
+    parseCommand("calendar schedule")
+    counter += 1

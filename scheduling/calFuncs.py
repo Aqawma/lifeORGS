@@ -1,7 +1,6 @@
 import sqlite3
 import time
-from utils.timeUtils import timeOut, toShortHumanTime, toHumanHour
-from scheduling.calEvent import addEvent, modifyTask
+from utils.timeUtils import timeOut, toShortHumanTime, toHumanHour, deltaToStartOfWeek
 from utils.dbUtils import getDBPath
 
 def giveEvents(timeForecast):
@@ -16,7 +15,7 @@ def giveEvents(timeForecast):
         list: List of events where each event is a tuple containing event details
               (name, description, start_time, end_time)
     """
-    currentTime = time.time()
+    currentTime = int(round(time.time(), 0))
     timeForecast = timeOut(timeForecast)
 
     conn = sqlite3.connect(getDBPath())
@@ -121,8 +120,25 @@ def getSchedulingData(timeForecast):
     """
 
     tasks = giveTasks()
-    blocks = giveBlocks()
+    tupleBlocks = giveBlocks()
     events = giveEvents(timeForecast)
+
+    currentTime = int(round(time.time(), 0))
+    weekSecDelta = deltaToStartOfWeek(currentTime)
+    startOfWeek = currentTime - weekSecDelta
+
+
+    for block in tupleBlocks:
+        if block[1] < weekSecDelta:
+            tupleBlocks.remove(block)
+
+    blocks = []
+
+    for tupleBlock in tupleBlocks:
+        block = list(tupleBlock)
+        block[0] = block[0] + startOfWeek
+        block[1] = block[1] + startOfWeek
+        blocks.append(tuple(block))
 
     # Sort tasks by urgency
     tasks.sort(key=lambda x: x[2])
@@ -133,14 +149,16 @@ def getSchedulingData(timeForecast):
         # Remove name and description fields
         event.remove(event[0])
         event.remove(event[0])
+        event.remove(event[2])
+        event.remove(event[2])
 
         event = tuple(event)
-        blocks.append(event)
+        tupleBlocks.append(event)
 
     # Sort blocks chronologically
     blocks.sort(key=lambda x: x[0])
 
-    return tasks, blocks
+    return tasks, blocks \
 
 def findAvailableTimeSlots(blocks):
     """
@@ -155,15 +173,15 @@ def findAvailableTimeSlots(blocks):
     availableTime = []
 
     for n in range(len(blocks)):
-        if (n != (len(blocks)-1)) and (n != 0):
+        if (n != (len(blocks)-1)) and (n != 0):  # TODO this is broken for the first block and last(?)
             # Calculate time between current block end and next block start
             delta = blocks[n+1][0] - blocks[n][1]
-
-            # Create time slot with 5-minute buffers on each end
-            timeslot = (delta-600, (blocks[n][1]+300, blocks[n+1][0]-300))
-            availableTime.append(timeslot)
+            if delta > 600:
+                # Create time slot with 5-minute buffers on each end
+                timeslot = (delta-600, (blocks[n][1]+300, blocks[n+1][0]-300))
+                availableTime.append(timeslot)
         else:
-            break
+            continue
 
     return availableTime
 
@@ -195,16 +213,29 @@ def assignTasksToSlots(tasks, availableTime):
     """
     scheduledTasks = []
 
+    conn = sqlite3.connect(getDBPath())
+
     for i in range(len(tasks)):
         for j in range(len(availableTime)):
-            if availableTime[j][0] > tasks[i][0]:
-                addEvent(tasks[i][0], f"Level {tasks[i][1]} urgency", 
-                         availableTime[j][1][0], availableTime[j][1][1], True)
-                modifyTask(tasks[i][0], tasks[i][1], tasks[i][2], tasks[i][4], True)
+
+            if availableTime[j][0] > tasks[i][1]:
+
+                conn.execute("INSERT INTO events VALUES (?,?,?,?,?,?)",
+                             (tasks[i][0],
+                              f"""Due on {toShortHumanTime(tasks[i][4])} at {toHumanHour(tasks[i][4])}. 
+                              Level {tasks[i][2]} urgency""",
+                              (availableTime[j][1][0]),
+                              (availableTime[j][1][1]),
+                              1, 0,))
+                conn.execute("UPDATE tasks SET scheduled = 1 WHERE task=?", (tasks[i][0],))
+
                 scheduledTasks.append(tasks[i])
                 # Remove this time slot from available slots to avoid double booking
                 availableTime.pop(j)
                 break
+
+    # conn.commit()
+    conn.close()
 
     return scheduledTasks
 

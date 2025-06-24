@@ -223,6 +223,8 @@ def addTimeBlock(day, timeStart, timeEnd):
 
     conn.execute(table)
 
+    day = int(day)
+
     # Convert day and time to seconds since start of week
     # (day-1) gives days since start of week (0 for Monday)
     # Multiply by seconds per day and add time in seconds
