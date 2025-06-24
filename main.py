@@ -41,14 +41,14 @@ def main():
     while True:
         try:
             # Get user input with a clear prompt
-            user_input = input("Enter command: ")
+            userInput = input("Enter command: ")
 
             # Skip empty inputs
-            if not user_input.strip():
+            if not userInput.strip():
                 continue
 
             # Parse and execute the command
-            result = parseCommand(user_input)
+            result = parseCommand(userInput)
 
             # Display results - handle both single strings and lists
             if isinstance(result, list):
