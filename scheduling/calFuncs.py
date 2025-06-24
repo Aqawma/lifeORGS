@@ -138,7 +138,7 @@ def getSchedulingData(timeForecast):
         block = list(tupleBlock)
         block[0] = block[0] + startOfWeek
         block[1] = block[1] + startOfWeek
-        blocks.append(tuple(block))
+        blocks.append(block)
 
     # Sort tasks by urgency
     tasks.sort(key=lambda x: x[2])
@@ -152,7 +152,6 @@ def getSchedulingData(timeForecast):
         event.remove(event[2])
         event.remove(event[2])
 
-        event = tuple(event)
         blocks.append(event)
 
     # Sort blocks chronologically
@@ -178,7 +177,7 @@ def findAvailableTimeSlots(blocks):
             delta = blocks[n+1][0] - blocks[n][1]
             if delta > 600:
                 # Create time slot with 5-minute buffers on each end
-                timeslot = (delta-600, (blocks[n][1]+300, blocks[n+1][0]-300))
+                timeslot = [delta-600, [blocks[n][1]+300, blocks[n+1][0]-300]]
                 availableTime.append(timeslot)
         else:
             continue
@@ -220,21 +219,24 @@ def assignTasksToSlots(tasks, availableTime):
 
             if availableTime[j][0] > tasks[i][1]:
 
+                taskStart = availableTime[j][1][0]
+                taskEnd = availableTime[j][1][0] + tasks[i][1]
+
                 conn.execute("INSERT INTO events VALUES (?,?,?,?,?,?)",
                              (tasks[i][0],
                               f"""Due on {toShortHumanTime(tasks[i][4])} at {toHumanHour(tasks[i][4])}. 
                               Level {tasks[i][2]} urgency""",
-                              (availableTime[j][1][0]),
-                              (availableTime[j][1][1]),
+                              taskStart,
+                              taskEnd,
                               1, 0,))
                 conn.execute("UPDATE tasks SET scheduled = 1 WHERE task=?", (tasks[i][0],))
 
                 scheduledTasks.append(tasks[i])
                 # Remove this time slot from available slots to avoid double booking
-                availableTime.pop(j)
+                availableTime[j][1][0] = availableTime[j][1][0] + tasks[i][1] + 300
                 break
 
-    # conn.commit()
+    conn.commit()
     conn.close()
 
     return scheduledTasks
