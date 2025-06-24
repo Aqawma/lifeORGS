@@ -172,7 +172,7 @@ def findAvailableTimeSlots(blocks):
     availableTime = []
 
     for n in range(len(blocks)):
-        if (n != (len(blocks)-1)) and (n != 0):  # TODO this is broken for the first block and last(?)
+        if n != (len(blocks)-1):
             # Calculate time between current block end and next block start
             delta = blocks[n+1][0] - blocks[n][1]
             if delta > 600:
