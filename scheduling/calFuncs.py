@@ -153,7 +153,7 @@ def getSchedulingData(timeForecast):
         event.remove(event[2])
 
         event = tuple(event)
-        tupleBlocks.append(event)
+        blocks.append(event)
 
     # Sort blocks chronologically
     blocks.sort(key=lambda x: x[0])
