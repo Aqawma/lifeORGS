@@ -19,5 +19,9 @@ def verify(request: Request):
 @app.post("/webhook")
 async def receive(request: Request):
     body = await request.json()
-    print(body)
+    try:
+        message = body["entry"][0]["changes"][0]["value"]["messages"][0]["text"]["body"]
+        print("User message:", message)
+    except Exception as e:
+        print("Could not extract message:", e)
     return {"status": "received"}
