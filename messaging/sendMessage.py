@@ -1,7 +1,6 @@
 from utils.jsonUtils import loadConfig
 import requests
 import json
-from flask import current_app
 
 def getTextMessageInput(recipient, text):
     return json.dumps({
