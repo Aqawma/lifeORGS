@@ -17,7 +17,7 @@ def smartSplit(text):
         >>> smartSplit('simple test "with quotes" and "multiple parts"')
         ['simple', 'test', '"with quotes"', 'and', '"multiple parts"']
     """
-    pattern = r'[^\s"]+|"([^"]*)"'
+    pattern = r'[^\s"\u201c\u201d\u2018\u2019]+|"([^"]*)"|[\u201c]([^\u201d]*)[\u201d]|[\u2018]([^\u2019]*)[\u2019]'
 
     # Create the result list combining non-quoted and quoted parts
     result = []

@@ -67,10 +67,17 @@ def parseCommand(command):
 
     # Convert all non-quoted strings to uppercase for case-insensitive command processing
     for n in range(len(splitCommand)):
-        if splitCommand[n][0] != '"':
+        # Check if the string starts with any type of quote (regular or curly)
+        if splitCommand[n][0] not in ['"', '\u201c', '\u2018']:
             splitCommand[n] = splitCommand[n].upper()
-        elif splitCommand[n][0] == '"':
-            splitCommand[n] = splitCommand[n].strip('"')
+        else:
+            # Strip quotes (regular double, curly double, or curly single)
+            if splitCommand[n][0] == '"' and splitCommand[n][-1] == '"':
+                splitCommand[n] = splitCommand[n].strip('"')
+            elif splitCommand[n][0] == '\u201c' and splitCommand[n][-1] == '\u201d':
+                splitCommand[n] = splitCommand[n][1:-1]  # Remove curly double quotes
+            elif splitCommand[n][0] == '\u2018' and splitCommand[n][-1] == '\u2019':
+                splitCommand[n] = splitCommand[n][1:-1]  # Remove curly single quotes
 
     # Process EVENT commands (add, delete, modify events)
     if splitCommand[0] == "EVENT":
