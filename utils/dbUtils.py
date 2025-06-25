@@ -20,3 +20,7 @@ def getDBPath():
     db_path = os.path.join(project_root, 'calendar.db')
     
     return db_path
+
+def convertListToText(list):
+    outputString = "\n".join(list)
+    return outputString

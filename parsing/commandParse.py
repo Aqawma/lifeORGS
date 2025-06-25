@@ -4,7 +4,7 @@ from scheduling.calEvent import addEvent, removeEvent, addTask, modifyTask, addT
 from scheduling.calFuncs import viewEvents, scheduleTasks
 from utils.regex import smartSplit
 from utils.timeUtils import toUnixTime, toSeconds
-from utils.dbUtils import getDBPath
+from utils.dbUtils import getDBPath, convertListToText
 
 """
 Main module for the lifeORGS application.
@@ -143,7 +143,7 @@ def parseCommand(command):
 
         if splitCommand[1] == "VIEW":
             # View events within a specified time period
-            scheduledEvents = viewEvents((splitCommand[2] + " " + splitCommand[3]))
+            scheduledEvents = convertListToText(viewEvents((splitCommand[2] + " " + splitCommand[3])))
             # Time period format (e.g., "14 D" for 14 days)
             return scheduledEvents
 
@@ -151,7 +151,8 @@ def parseCommand(command):
             # Schedule tasks and view the resulting calendar
             # TODO: Add some sort of configuration for scheduling threshold. Goes with other issues with timeOut().
             scheduleTasks("14 D")  # Schedule tasks for the next 14 days
-            formattedEvents = viewEvents("14 D")  # Get formatted events for the next 14 days
+            formattedEvents = convertListToText(viewEvents("14 D"))
+            # Get formatted events for the next 14 days
             return formattedEvents
 
         else:
