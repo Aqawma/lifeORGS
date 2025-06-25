@@ -47,3 +47,4 @@ venv.bak/
 .Trashes
 ehthumbs.db
 Thumbs.db
+messaging/templates/config.json
