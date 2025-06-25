@@ -14,9 +14,13 @@ lifeORGS/
 ├── scheduling/
 │   ├── calEvent.py           # Event and task management functions
 │   └── calFuncs.py           # Calendar viewing and scheduling functions
+├── messaging/
+│   ├── sendMessage.py        # WhatsApp message sending functionality
+│   └── recieveMessage.py     # WhatsApp webhook receiver
 ├── utils/
 │   ├── timeUtils.py          # Time conversion utilities
 │   ├── dbUtils.py            # Database path utilities
+│   ├── jsonUtils.py          # JSON configuration utilities
 │   └── regex.py              # String parsing utilities
 ├── tests/
 │   └── calendarbackup.db     # Test database backup
@@ -87,6 +91,34 @@ lifeORGS/
 **Purpose**: Database path management
 **Functions**:
 - `getDBPath()` - Returns absolute path to calendar.db file
+
+### messaging/sendMessage.py
+**Purpose**: WhatsApp message sending functionality
+**Key Features**:
+- Integration with Meta WhatsApp Business API
+- JSON message payload formatting
+- HTTP request handling with authentication
+- Error handling and response logging
+**Functions**:
+- `getTextMessageInput(recipient, text)` - Create WhatsApp message payload
+- `sendToUser(data)` - Send message via WhatsApp API
+- `messageUser(message)` - Send message to default recipient
+
+### messaging/recieveMessage.py
+**Purpose**: WhatsApp webhook receiver for incoming messages
+**Key Features**:
+- FastAPI-based webhook server
+- Webhook verification for Meta API
+- Incoming message processing and extraction
+- Echo bot functionality
+**Functions**:
+- `verify(request)` - Webhook verification endpoint (GET /webhook)
+- `receive(request)` - Message processing endpoint (POST /webhook)
+
+### utils/jsonUtils.py
+**Purpose**: JSON configuration file management
+**Functions**:
+- `loadConfig()` - Load application configuration from config.json
 
 ### utils/regex.py
 **Purpose**: String parsing utilities
