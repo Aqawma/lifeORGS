@@ -2,6 +2,7 @@ from fastapi import FastAPI, Request
 from fastapi.responses import PlainTextResponse
 
 from messaging.sendMessage import messageUser
+from parsing.commandParse import parseCommand
 from utils.jsonUtils import loadConfig
 
 app = FastAPI()
@@ -24,7 +25,8 @@ async def receive(request: Request):
     try:
         message = body["entry"][0]["changes"][0]["value"]["messages"][0]["text"]["body"]
         print("User message:", message)
-        messageUser(message)
+        toSend = parseCommand(message)
+        messageUser(toSend)
     except Exception as e:
         print("Could not extract message:", e)
     return {"status": "received"}
