@@ -40,6 +40,3 @@ def messageUser(message):
     config = loadConfig()
     data = getTextMessageInput(config['RECIPIENT_WAID'], message)
     sendToUser(data)
-
-
-messageUser(input("Enter message to send to user:"))
