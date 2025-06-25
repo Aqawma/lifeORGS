@@ -1,4 +1,4 @@
 Flask[async]>=2.0.0
 aiohttp>=3.8.0
-
 requests~=2.32.4
+fastapi~=0.115.13
