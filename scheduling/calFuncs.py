@@ -153,9 +153,8 @@ def getSchedulingData(timeForecast):
     weekSecDelta = deltaToStartOfWeek(currentTime)
     startOfWeek = currentTime - weekSecDelta
 
-
     for block in tupleBlocks:
-        if block[1] < weekSecDelta:
+        if block[1] < startOfWeek:
             tupleBlocks.remove(block)
 
     blocks = []
