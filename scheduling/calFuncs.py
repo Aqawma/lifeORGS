@@ -74,27 +74,6 @@ def giveTasks():
     conn.close()
     return tasks
 
-def giveBlocks():
-    """
-    Retrieves all time blocks from the calendar database.
-
-    Time blocks represent recurring periods when events can be scheduled
-    (e.g., working hours, study time, etc.).
-
-    Returns:
-        list: List of time blocks where each block is a tuple containing block details
-              (start_time, end_time, day_of_week)
-    """
-    conn = sqlite3.connect(getDBPath())
-    c = conn.cursor()
-
-    selection = """ SELECT * FROM blocks"""
-
-    c.execute(selection)
-    blocks = c.fetchall()
-    conn.close()
-    return blocks
-
 def viewEvents(timeForecast):
     """
     Formats events into a human-readable list grouped by day.
