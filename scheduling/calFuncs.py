@@ -146,27 +146,29 @@ def getSchedulingData(timeForecast):
     """
 
     tasks = giveTasks()
-    tupleBlocks = giveBlocks()
     events = giveEvents(timeForecast)
 
     currentTime = int(round(time.time(), 0))
     weekSecDelta = deltaToStartOfWeek(currentTime)
     startOfWeek = currentTime - weekSecDelta
 
-    for block in tupleBlocks:
-        if block[1] < startOfWeek:
-            tupleBlocks.remove(block)
+    conn = sqlite3.connect(getDBPath())
+    tupleBlocks = conn.execute("SELECT * FROM blocks WHERE timeEnd > ?", (weekSecDelta,))
+    conn.close()
 
     blocks = []
 
-    for tupleBlock in tupleBlocks:
-        block = list(tupleBlock)
-        block[0] = block[0] + startOfWeek
-        block[1] = block[1] + startOfWeek
-        blocks.append(block)
+    for bloc in tupleBlocks:
+        bloc = list(bloc)
+        bloc[0] = bloc[0] + startOfWeek
+        bloc[1] = bloc[1] + startOfWeek
+        blocks.append(bloc)
 
     # Sort tasks by urgency
     tasks.sort(key=lambda x: x[2])
+    blocks.sort(key=lambda x: x[0])
+
+    print(blocks)
 
     # Combine events with blocks
     for event in events:
