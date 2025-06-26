@@ -154,7 +154,6 @@ def getSchedulingData(timeForecast):
 
     conn = sqlite3.connect(getDBPath())
     tupleBlocks = conn.execute("SELECT * FROM blocks WHERE timeEnd > ?", (weekSecDelta,))
-    conn.close()
 
     blocks = []
 
