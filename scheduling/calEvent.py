@@ -12,11 +12,9 @@ Dependencies:
 - sqlite3: For database operations
 - utils.pyUtils: Contains time conversion utilities (toUnixTime, toSeconds)
 """
-
-import sqlite3
 import datetime
+from utils.dbUtils import ConnectDB
 from utils.timeUtils import toUnixTime, toSeconds
-from utils.dbUtils import getDBPath
 
 def addEvent(event, description, startTime, endTime, task:bool = False):
     """
@@ -45,8 +43,7 @@ def addEvent(event, description, startTime, endTime, task:bool = False):
         str: Success message or error message if event already exists
     """
 
-    conn = sqlite3.connect(getDBPath())
-    c = conn.cursor()
+    connector = ConnectDB()
 
     table = """ CREATE TABLE IF NOT EXISTS events
                 (
@@ -58,25 +55,24 @@ def addEvent(event, description, startTime, endTime, task:bool = False):
                     completed     boolean default 0
                 ); """
 
-    conn.execute(table)
+    connector.conn.execute(table)
 
     currentUnixTime = datetime.datetime.now().timestamp()
 
-    conn.execute("SELECT event FROM events WHERE event=? AND unixtimeEnd>?", (event,currentUnixTime,))
-    rows = c.fetchall()
+    connector.conn.execute("SELECT event FROM events WHERE event=? AND unixtimeEnd>?", (event,currentUnixTime,))
+    rows = connector.c.fetchall()
 
     if len(rows) != 0:
         output = f"Event '{event}' already exists in the calendar. \n Please choose a different name."
 
-        conn.close()
+        connector.conn.close()
         return output
     else:
         start = toUnixTime(startTime)
         end = toUnixTime(endTime)
 
-        conn.execute("INSERT INTO events VALUES (?,?,?,?,?,?)", (event, description, start, end, task, 0))
-        conn.commit()
-        conn.close()
+        connector.conn.execute("INSERT INTO events VALUES (?,?,?,?,?,?)", (event, description, start, end, task, 0))
+        connector.conn.commit()
 
         return f"{event} added successfully."
 
@@ -88,10 +84,9 @@ def removeEvent(event):
         event (str): Name of the event to remove
     """
 
-    conn = sqlite3.connect(getDBPath())
-    conn.execute("DELETE FROM events WHERE event=?", (event,))
-    conn.commit()
-    conn.close()
+    connector = ConnectDB()
+    connector.conn.execute("DELETE FROM events WHERE event=?", (event,))
+    connector.conn.commit()
 
 def addTask(task, time, urgency, due, scheduled:bool = False):
     """
@@ -127,8 +122,7 @@ def addTask(task, time, urgency, due, scheduled:bool = False):
 
     due = toUnixTime(due)
 
-    conn = sqlite3.connect(getDBPath())
-    c = conn.cursor()
+    connector = ConnectDB()
 
     table = """ CREATE TABLE IF NOT EXISTS tasks
                 (
@@ -139,10 +133,10 @@ def addTask(task, time, urgency, due, scheduled:bool = False):
                     dueDate   integer
                 ); """
 
-    conn.execute(table)
+    connector.conn.execute(table)
 
-    conn.execute("SELECT task FROM tasks WHERE task=?", (task,))
-    rows = c.fetchall()
+    connector.conn.execute("SELECT task FROM tasks WHERE task=?", (task,))
+    rows = connector.c.fetchall()
 
     if len(rows) != 0:
         output = f"Event '{task}' already exists in the database. \n Please choose a different name."
@@ -150,10 +144,9 @@ def addTask(task, time, urgency, due, scheduled:bool = False):
     else:
         time = toSeconds(time)
 
-        conn.execute("INSERT INTO tasks VALUES (?,?,?,?,?)", (task, time, urgency, scheduled, due))
+        connector.conn.execute("INSERT INTO tasks VALUES (?,?,?,?,?)", (task, time, urgency, scheduled, due))
 
-        conn.commit()
-        conn.close()
+        connector.conn.commit()
 
         return f"{task} added successfully."
 
@@ -165,10 +158,9 @@ def removeTask(task):
         task (str): Name of the task to remove
     """
 
-    conn = sqlite3.connect(getDBPath())
-    conn.execute("DELETE FROM tasks WHERE task=?", (task,))
-    conn.commit()
-    conn.close()
+    connector = ConnectDB()
+    connector.conn.execute("DELETE FROM tasks WHERE task=?", (task,))
+    connector.conn.commit()
 
 def modifyTask(task, time, urgency, due, scheduled:bool = False):
     """
@@ -214,7 +206,7 @@ def addTimeBlock(day, timeStart, timeEnd):
         - 86400 represents the number of seconds in a day (24*60*60)
     """
     # Connect to the calendar database
-    conn = sqlite3.connect(getDBPath())
+    connector = ConnectDB()
 
     # Create blocks table if it doesn't exist
     table = """ CREATE TABLE IF NOT EXISTS blocks
@@ -223,7 +215,7 @@ def addTimeBlock(day, timeStart, timeEnd):
                     timeEnd   integer
                 ); """
 
-    conn.execute(table)
+    connector.conn.execute(table)
 
     day = int(day)
 
@@ -234,9 +226,9 @@ def addTimeBlock(day, timeStart, timeEnd):
     timeEnd = (86400*(day-1)) + toSeconds(timeEnd)
 
     # Insert the time block into the database
-    conn.execute("INSERT INTO blocks VALUES (?,?)", (timeStart, timeEnd))
-    conn.commit()
-    conn.close()
+    connector.conn.execute("INSERT INTO blocks VALUES (?,?)", (timeStart, timeEnd))
+    connector.conn.commit()
+
 
 def removeTimeBlock(timeStart, timeEnd):
     """
@@ -260,9 +252,8 @@ def removeTimeBlock(timeStart, timeEnd):
         - To remove a block added with addTimeBlock, you need to use the converted values
     """
     # Connect to the calendar database
-    conn = sqlite3.connect(getDBPath())
+    connector = ConnectDB()
 
     # Delete the time block that matches both start and end times exactly
-    conn.execute("DELETE FROM blocks WHERE timeStart=? AND timeEnd=?", (timeStart, timeEnd))
-    conn.commit()
-    conn.close()
+    connector.conn.execute("DELETE FROM blocks WHERE timeStart=? AND timeEnd=?", (timeStart, timeEnd))
+    connector.conn.commit()
