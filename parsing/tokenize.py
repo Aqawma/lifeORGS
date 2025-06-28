@@ -9,10 +9,35 @@ commands to the appropriate functions in other modules.
 """
 
 class Tokens:
+    """
+    A data class that represents parsed command tokens for the lifeORGS application.
+
+    This class stores all the relevant information extracted from user commands
+    for events, tasks, and time blocks. It serves as a structured container
+    for command data that can be used by other parts of the application.
+    """
+
     def __init__(self, location: str, verb: str, iD: str = None, modVerb: str = None,
                  startTime: float = None, endTime: float = None, description: str = None,
                  dueDate: float = None, taskTime: float = None, urgency: int = None,
                  blockStart: float = None, blockEnd: float = None,):
+        """
+        Initialize a Tokens object with command information.
+
+        Args:
+            location (str): The target location/type of the command (EVENT, TASK, BLOCK, etc.)
+            verb (str): The action to be performed (ADD, REMOVE, MODIFY, etc.)
+            iD (str, optional): Identifier for the item being operated on
+            modVerb (str, optional): Modification verb for MODIFY commands (DISC, STARTTIME, etc.)
+            startTime (float, optional): Unix timestamp for event start time
+            endTime (float, optional): Unix timestamp for event end time
+            description (str, optional): Description text for events
+            dueDate (float, optional): Unix timestamp for task due date
+            taskTime (float, optional): Time allocation for tasks
+            urgency (int, optional): Urgency level for tasks (1-5 scale)
+            blockStart (float, optional): Start time for time blocks (seconds from week start)
+            blockEnd (float, optional): End time for time blocks (seconds from week start)
+        """
         self.location = location
         self.verb = verb
         self.iD = iD
@@ -27,6 +52,17 @@ class Tokens:
         self.blockEnd = blockEnd
 
 class CommandTokenizer:
+    """
+    A command parser and tokenizer for the lifeORGS application.
+
+    This class handles the parsing of user input commands and converts them into
+    structured Token objects that can be processed by other parts of the application.
+    It supports commands for managing events, tasks, and time blocks with various
+    operations like ADD, REMOVE, and MODIFY.
+
+    The tokenizer handles complex command parsing including quoted strings,
+    date/time parsing, and command validation.
+    """
 
     @staticmethod
     def _smartSplit(text) -> list[str]:
@@ -123,6 +159,28 @@ class CommandTokenizer:
 
     @staticmethod
     def _getContext(tokens):
+        """
+        Extract context tokens from a parsed command.
+
+        This method takes a list of parsed command tokens and returns all tokens
+        except the first two (location and verb), which represent the command context
+        or arguments needed to execute the command.
+
+        Args:
+            tokens (list): List of parsed command tokens where:
+                          - tokens[0] is the location/type (EVENT, TASK, BLOCK)
+                          - tokens[1] is the verb/action (ADD, REMOVE, MODIFY)
+                          - tokens[2: ] are the context/arguments
+
+        Returns:
+            list: List containing all tokens from index 2 onwards, representing
+                  the command arguments and context information.
+
+        Example:
+            #>>> tokens = ['EVENT', 'ADD', 'meeting', '25/12/2023', '14:00', '25/12/2023', '15:00', 'Team meeting']
+            #>>> _getContext(tokens)
+            ['meeting', '25/12/2023', '14:00', '25/12/2023', '15:00', 'Team meeting']
+        """
         context = []
 
         for token in range(len(tokens)):
@@ -134,6 +192,28 @@ class CommandTokenizer:
         return context
 
     def _createTokenObject(self):
+        """
+        Create and populate a Tokens object based on the parsed command.
+
+        This method creates a Tokens object and populates it with the appropriate
+        attributes based on the command location (EVENT, TASK, BLOCK) and verb
+        (ADD, REMOVE, MODIFY). It handles the conversion of date/time strings to
+        Unix timestamps and validates command structure.
+
+        Returns:
+            Tokens: A fully populated Tokens object with all relevant attributes
+                   set based on the command type and context.
+
+        Raises:
+            Exception: If the command format is invalid or unsupported.
+
+        Note:
+            - For EVENT ADD: Expects [id, start_date, start_time, end_date, end_time, description]
+            - For TASK ADD: Expects [id, task_time, due_date, due_time, urgency]
+            - For BLOCK ADD: Expects [day, start_time, end_time]
+            - For REMOVE commands: Expects [id] for EVENT/TASK, [day, start_time, end_time] for BLOCK
+            - For MODIFY commands: Expects [id, mod_verb, ...additional_args]
+        """
 
         tokenObj = Tokens(self.location, self.verb)
 
@@ -216,6 +296,35 @@ class CommandTokenizer:
         # TODO Calendar scheduling
 
     def __init__(self, command):
+        """
+        Initialize a CommandTokenizer instance and parse the given command.
+
+        This constructor takes a command string, parses it into tokens, extracts
+        the location and verb, gets the context, and creates a fully populated
+        Tokens object that can be used by other parts of the application.
+
+        Args:
+            command (str): The command string to parse. Should follow the format:
+                          "<LOCATION> <VERB> <context_arguments>"
+                          where LOCATION is EVENT/TASK/BLOCK/CALENDAR,
+                          VERB is ADD/REMOVE/MODIFY/etc., and context_arguments
+                          are the specific parameters for the command.
+
+        Attributes:
+            self.tokens (list): The parsed command tokens
+            self.location (str): The command location/type (first token)
+            self.verb (str): The command verb/action (second token)
+            self.context (list): The command arguments (remaining tokens)
+            self.tokenObject (Tokens): The fully populated Tokens object
+
+        Raises:
+            Exception: If the command format is invalid or cannot be parsed.
+
+        Example:
+            >>> tokenizer = CommandTokenizer('EVENT ADD meeting 25/12/2023 14:00 25/12/2023 15:00 "Team meeting"')
+            >>> tokenizer.location  # 'EVENT'
+            >>> tokenizer.verb      # 'ADD'
+        """
         self.tokens = self._parseCommand(command)
         self.location = self.tokens[0]
         self.verb = self.tokens[1]
