@@ -294,11 +294,12 @@ class CommandTokenizer:
             # TODO This logic is generally bad, I should make an obj and pass into factory but I don't have time.
             elif self.location == "CALENDAR":
                 if self.verb == "VIEW":
-                    CalendarView.viewEvents("14 D")
+                    return CalendarView.viewEvents("14 D")
                     # TODO you hardcoded this stuff because viewEvents is a bad func
 
                 elif self.verb == "SCHEDULE":
                     Scheduler.scheduleTasks("14 D")
+                    return CalendarView.viewEvents("14 D")
                     # TODO you actually need to fix the view tasks logic here
 
                 else:
@@ -309,7 +310,6 @@ class CommandTokenizer:
 
         else:
             raise Exception("Invalid command. Do it right.")
-
 
     def __init__(self, command):
         """

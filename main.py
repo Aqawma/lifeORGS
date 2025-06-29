@@ -19,8 +19,9 @@ following the format: <COMMAND_TYPE> <ACTION> [parameters...]
 
 For detailed command reference, see docs/README.md or docs/API.md
 """
+from parsing.tokenFactory import TokenFactory
+from parsing.tokenize import CommandTokenizer
 
-from parsing.commandParse import parseCommand
 
 def main():
     """
@@ -48,7 +49,8 @@ def main():
                 continue
 
             # Parse and execute the command
-            result = parseCommand(userInput)
+            tokened = CommandTokenizer(userInput)
+            result = TokenFactory.doToken(tokened.tokens)
 
             # Display results - handle both single strings and lists
             if isinstance(result, list):
