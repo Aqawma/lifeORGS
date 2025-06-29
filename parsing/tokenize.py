@@ -19,7 +19,7 @@ class Tokens:
     for command data that can be used by other parts of the application.
     """
 
-    def __init__(self, location: str, verb: str, iD: str = None, modVerb: str = None,
+    def __init__(self, location: str, verb: str, iD: str = None, modVerb: str = None, modContext: str = None,
                  startTime: float = None, endTime: float = None, description: str = None,
                  dueDate: float = None, taskTime: float = None, urgency: int = None,
                  blockStart: float = None, blockEnd: float = None,):
@@ -44,6 +44,7 @@ class Tokens:
         self.verb = verb
         self.iD = iD
         self.modVerb = modVerb
+        self.modContext = modContext
         self.startTime = startTime
         self.endTime = endTime
         self.description = description
@@ -265,13 +266,13 @@ class CommandTokenizer:
 
             if tokenObj.location == "EVENT":
                 if tokenObj.modVerb == "DISC":
-                    tokenObj.description = self.context[2]
+                    tokenObj.modContext = self.context[2]
                     return tokenObj
                 elif tokenObj.modVerb == "STARTTIME":
-                    tokenObj.startTime = toUnixTime(f"{self.context[2]} {self.context[3]}")
+                    tokenObj.modContext = toUnixTime(f"{self.context[2]} {self.context[3]}")
                     return tokenObj
                 elif tokenObj.modVerb == "ENDTIME":
-                    tokenObj.endTime = toUnixTime(f"{self.context[2]} {self.context[3]}")
+                    tokenObj.modContext = toUnixTime(f"{self.context[2]} {self.context[3]}")
                     return tokenObj
                 else:
                     raise Exception("Invalid command. Do it right.")
