@@ -1,6 +1,5 @@
-from parsing.tokenize import ConnectDB, Tokens
-from utils.timeUtils import toSeconds
-
+from parsing.tokenize import Tokens
+from utils.dbUtils import ConnectDB
 
 class TokenRemove:
     def __init__(self, tokenObject: Tokens):
@@ -24,4 +23,3 @@ class TokenRemove:
                                                                                       self.tokens.blockEnd))
         connector.conn.commit()
         return f"Time block removed successfully."
-
