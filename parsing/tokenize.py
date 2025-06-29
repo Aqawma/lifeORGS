@@ -1,4 +1,6 @@
 import re
+
+from parsing.tokenAdd import TokenAdd
 from utils.timeUtils import toUnixTime, toSeconds
 
 """
@@ -227,7 +229,7 @@ class CommandTokenizer:
 
             elif tokenObj.location == "TASK":
                 tokenObj.iD = self.context[0]
-                tokenObj.taskTime = self.context[1]
+                tokenObj.taskTime = toSeconds(self.context[1])
                 tokenObj.dueDate = toUnixTime(f"{self.context[2]} {self.context[3]}")
                 tokenObj.urgency = int(self.context[4])
                 return tokenObj
