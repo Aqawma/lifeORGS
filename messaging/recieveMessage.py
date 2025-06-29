@@ -26,9 +26,9 @@ Configuration Requirements:
 
 from fastapi import FastAPI, Request
 from fastapi.responses import PlainTextResponse
-
 from messaging.sendMessage import messageUser
-from parsing.commandParse import parseCommand
+from parsing.tokenFactory import TokenFactory
+from parsing.tokenize import CommandTokenizer
 from utils.jsonUtils import loadConfig
 
 # Initialize FastAPI application
@@ -122,7 +122,8 @@ async def receive(request: Request):
         # Following Meta's WhatsApp webhook payload format
         message = body["entry"][0]["changes"][0]["value"]["messages"][0]["text"]["body"]
         print("User message:", message)
-        toSend = parseCommand(message)
+        tokened = CommandTokenizer(message)
+        toSend = TokenFactory.doToken(tokened.tokens)
         messageUser(toSend)
     except Exception as e:
         # Log extraction errors but continue processing

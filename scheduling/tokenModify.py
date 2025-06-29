@@ -2,7 +2,7 @@ from parsing.tokenize import Tokens
 from utils.dbUtils import ConnectDB
 from scheduling.tokenRemove import TokenRemove
 
-class tokenModify:
+class TokenModify:
     def __init__(self, tokenObject: Tokens):
         self.tokens = tokenObject
 
