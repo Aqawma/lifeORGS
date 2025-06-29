@@ -1,4 +1,7 @@
 import re
+
+from scheduling.calendarView import CalendarView
+from scheduling.eventScheduler import Scheduler
 from utils.timeUtils import toUnixTime, toSeconds
 
 """
@@ -288,13 +291,25 @@ class CommandTokenizer:
                 else:
                     raise Exception("Invalid command. Do it right.")
 
+            # TODO This logic is generally bad, I should make an obj and pass into factory but I don't have time.
+            elif self.location == "CALENDAR":
+                if self.verb == "VIEW":
+                    CalendarView.viewEvents("14 D")
+                    # TODO you hardcoded this stuff because viewEvents is a bad func
+
+                elif self.verb == "SCHEDULE":
+                    Scheduler.scheduleTasks("14 D")
+                    # TODO you actually need to fix the view tasks logic here
+
+                else:
+                    raise Exception("Invalid command. Do it right.")
+
             else:
                 raise Exception("Invalid command. Do it right.")
 
         else:
             raise Exception("Invalid command. Do it right.")
 
-        # TODO Calendar scheduling
 
     def __init__(self, command):
         """

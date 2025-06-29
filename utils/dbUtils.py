@@ -41,6 +41,3 @@ class ConnectDB:
             self.conn, self.c = self.initConnection(self._getDBPath())
             self.initialized = True
 
-def convertListToText(lists):
-    outputString = "\n".join(lists)
-    return outputString
