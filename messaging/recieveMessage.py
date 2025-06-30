@@ -124,7 +124,8 @@ async def receive(request: Request):
         message = body["entry"][0]["changes"][0]["value"]["messages"][0]["text"]["body"]
         print("User message:", message)
         tokened = CommandTokenizer(message)
-        toSend = TokenFactory.doToken(tokened.tokens)
+        factory = TokenFactory(tokened.tokenObject)  # Use tokenObject, not tokens
+        toSend = factory.doToken()  # Call doToken on the instance
         connector = ConnectDB()
         connector.dbCleanup()
         messageUser(toSend)
