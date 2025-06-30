@@ -29,6 +29,7 @@ from fastapi.responses import PlainTextResponse
 from messaging.sendMessage import messageUser
 from parsing.tokenFactory import TokenFactory
 from parsing.tokenize import CommandTokenizer
+from utils.dbUtils import ConnectDB
 from utils.jsonUtils import loadConfig
 
 # Initialize FastAPI application
@@ -124,6 +125,8 @@ async def receive(request: Request):
         print("User message:", message)
         tokened = CommandTokenizer(message)
         toSend = TokenFactory.doToken(tokened.tokens)
+        connector = ConnectDB()
+        connector.dbCleanup()
         messageUser(toSend)
     except Exception as e:
         # Log extraction errors but continue processing
