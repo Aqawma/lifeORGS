@@ -7,6 +7,7 @@ This document provides detailed information about all functions and modules in t
 - [Command Parsing](#command-parsing)
 - [Event Management](#event-management)
 - [Calendar Functions](#calendar-functions)
+- [Messaging Functions](#messaging-functions)
 - [Utility Functions](#utility-functions)
 
 ## Command Parsing
@@ -150,6 +151,64 @@ Schedules tasks within available time blocks while considering existing events.
 
 **Returns:** tuple - (available_time_slots, scheduled_tasks)
 
+## Messaging Functions
+
+### messaging/sendMessage.py
+
+#### getTextMessageInput(recipient, text)
+Creates a JSON-formatted WhatsApp text message payload.
+
+**Parameters:**
+- `recipient` (str): WhatsApp ID of the message recipient
+- `text` (str): Text content of the message to send
+
+**Returns:** str - JSON-formatted string containing the message payload ready for API submission
+
+#### sendToUser(data)
+Sends a WhatsApp message using the Meta WhatsApp Business API.
+
+**Parameters:**
+- `data` (str): JSON-formatted message payload (typically from getTextMessageInput)
+
+**Side Effects:**
+- Prints status and response information to console
+- Prints error information if the request fails
+
+**Note:** Uses SSL verification disabled (verify=False) for development
+
+#### messageUser(message)
+Sends a text message to the default recipient configured in the system.
+
+**Parameters:**
+- `message` (str): Text content of the message to send
+
+**Note:** Uses RECIPIENT_WAID from config.json as the default recipient
+
+### messaging/recieveMessage.py
+
+#### verify(request)
+Webhook verification endpoint for Meta WhatsApp Business API.
+
+**Parameters:**
+- `request` (Request): FastAPI request object containing query parameters
+
+**Query Parameters:**
+- `hub.mode` (str): Should be "subscribe" for verification
+- `hub.verify_token` (str): Verification token that must match configured token
+- `hub.challenge` (str): Challenge string to return if verification succeeds
+
+**Returns:** PlainTextResponse - Challenge string if verification succeeds (HTTP 200), or "Forbidden" message if verification fails (HTTP 403)
+
+#### receive(request)
+Webhook endpoint for receiving incoming WhatsApp messages.
+
+**Parameters:**
+- `request` (Request): FastAPI request object containing the webhook payload
+
+**Returns:** dict - Status response indicating the message was received
+
+**Note:** Currently implements a simple echo bot functionality
+
 ## Utility Functions
 
 ### utils/timeUtils.py
@@ -218,6 +277,19 @@ Splits a string by whitespace while preserving content within quotes.
 - `text` (str): The input string to split
 
 **Returns:** list - List of tokens with quoted content preserved
+
+### utils/jsonUtils.py
+
+#### loadConfig()
+Loads the application configuration from config.json file.
+
+**Returns:** dict - Dictionary containing all configuration settings from config.json
+
+**Raises:**
+- FileNotFoundError: If config.json is not found in the project root
+- json.JSONDecodeError: If config.json contains invalid JSON syntax
+
+**Note:** The config.json file should be located in the project root directory
 
 ## Database Schema
 

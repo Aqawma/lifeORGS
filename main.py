@@ -19,8 +19,10 @@ following the format: <COMMAND_TYPE> <ACTION> [parameters...]
 
 For detailed command reference, see docs/README.md or docs/API.md
 """
+from parsing.tokenFactory import TokenFactory
+from parsing.tokenize import CommandTokenizer
+from utils.dbUtils import ConnectDB
 
-from parsing.commandParse import parseCommand
 
 def main():
     """
@@ -48,7 +50,12 @@ def main():
                 continue
 
             # Parse and execute the command
-            result = parseCommand(userInput)
+            tokened = CommandTokenizer(userInput)
+            factory = TokenFactory(tokened.tokenObject)
+            result = factory.doToken()
+
+            connector = ConnectDB()
+            connector.conn.close()
 
             # Display results - handle both single strings and lists
             if isinstance(result, list):
