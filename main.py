@@ -21,6 +21,7 @@ For detailed command reference, see docs/README.md or docs/API.md
 """
 from parsing.tokenFactory import TokenFactory
 from parsing.tokenize import CommandTokenizer
+from utils.dbUtils import ConnectDB
 
 
 def main():
@@ -50,7 +51,11 @@ def main():
 
             # Parse and execute the command
             tokened = CommandTokenizer(userInput)
-            result = TokenFactory.doToken(tokened.tokens)
+            factory = TokenFactory(tokened.tokenObject)
+            result = factory.doToken()
+
+            connector = ConnectDB()
+            connector.conn.close()
 
             # Display results - handle both single strings and lists
             if isinstance(result, list):

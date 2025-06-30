@@ -1,11 +1,10 @@
 from scheduling.eventScheduler import Scheduler
 from utils.timeUtils import toShortHumanTime, toHumanHour
 
-
 class CalendarView:
 
     @staticmethod
-    def _convertListToText(lists):
+    def convertListToText(lists):
         outputString = "\n".join(lists)
         return outputString
 
@@ -46,3 +45,5 @@ class CalendarView:
                 output.append(f"{event[0]} from {toHumanHour(event[2])} to {toHumanHour(event[3])}")
 
         return output
+
+CalendarView.viewEvents("7 D")

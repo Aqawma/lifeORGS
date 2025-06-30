@@ -2,15 +2,9 @@ import os
 import sqlite3
 
 class ConnectDB:
-    
-    instance = None
 
-    def __new__(cls):
-        if cls.instance is None:
-            cls.instance = super(ConnectDB, cls).__new__(cls)
-        return cls.instance
-
-    def _getDBPath(self):
+    @staticmethod
+    def getDBPath():
         """
         Returns the absolute path to the calendar database file.
 
@@ -33,11 +27,11 @@ class ConnectDB:
 
     def initConnection(self, dbPath):
         conn = sqlite3.connect(dbPath)
-        c = conn.cursor()
-        return conn, c
+        cursor = conn.cursor()
+        return conn, cursor
 
     def __init__(self):
-        if not hasattr(self, 'initialized'):
-            self.conn, self.c = self.initConnection(self._getDBPath())
-            self.initialized = True
+        self.conn, self.cursor = self.initConnection(self.getDBPath())
+
+
 

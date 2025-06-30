@@ -23,6 +23,7 @@ Dependencies:
 - utils.timeUtils: Time conversion and formatting utilities
 - utils.dbUtils: Database path management
 """
+import sqlite3
 import time
 
 from utils.dbUtils import ConnectDB
@@ -43,15 +44,29 @@ class Scheduler:
             list: List of events where each event is a tuple containing event details
                   (name, description, start_time, end_time)
         """
+        connector = ConnectDB()
+
+        # Create events table if it doesn't exist
+        table = """ CREATE TABLE IF NOT EXISTS events
+                    (
+                        event         text,
+                        description   text,
+                        unixtimeStart integer,
+                        unixtimeEnd   integer,
+                        task          boolean default 0,
+                        completed     boolean default 0
+                    ); """
+
+        connector.cursor.execute(table)
+        connector.conn.commit()
+
         currentTime = int(round(time.time(), 0))
         timeForecast = timeOut(timeForecast)
 
-        connector = ConnectDB()
-
-        selection = """SELECT * FROM events WHERE unixtimeEnd > ? AND unixtimeStart < ?"""
-
-        connector.conn.execute(selection, (currentTime, currentTime + timeForecast))
-        events = connector.c.fetchall()
+        connector.cursor.execute("SELECT * FROM events WHERE unixtimeEnd > ? AND unixtimeStart < ?", (currentTime,
+                                                                                          (currentTime +
+                                                                                           timeForecast)))
+        events = connector.cursor.fetchall()
 
         return events
 
@@ -66,10 +81,24 @@ class Scheduler:
         """
         connector = ConnectDB()
 
+        # Create tasks table if it doesn't exist
+        table = """ CREATE TABLE IF NOT EXISTS tasks
+                    (
+                        task      text,
+                        unixtime  integer,
+                        urgency   integer,
+                        scheduled boolean default 0,
+                        dueDate   integer,
+                        completed boolean default 0
+                    ); """
+
+        connector.cursor.execute(table)
+        connector.conn.commit()
+
         selection = """ SELECT * FROM tasks WHERE scheduled = 0"""
 
-        connector.conn.execute(selection)
-        tasks = connector.c.fetchall()
+        connector.cursor.execute(selection)
+        tasks = connector.cursor.fetchall()
 
         return tasks
 
@@ -95,7 +124,18 @@ class Scheduler:
         startOfWeek = currentTime - weekSecDelta
 
         connector = ConnectDB()
-        tupleBlocks = connector.conn.execute("SELECT * FROM blocks WHERE timeEnd > ?", (weekSecDelta,))
+
+        # Create blocks table if it doesn't exist
+        table = """ CREATE TABLE IF NOT EXISTS blocks
+                    (
+                        timeStart integer,
+                        timeEnd   integer
+                    ); """
+
+        connector.cursor.execute(table)
+        connector.conn.commit()
+
+        tupleBlocks = connector.cursor.execute("SELECT * FROM blocks WHERE timeEnd > ?", (weekSecDelta,))
 
         blocks = []
 
@@ -119,13 +159,13 @@ class Scheduler:
             event.remove(event[0])
             event.remove(event[2])
             event.remove(event[2])
-
             blocks.append(event)
 
         # Sort blocks chronologically
         blocks.sort(key=lambda x: x[0])
 
         return tasks, blocks \
+
 
     @staticmethod
     def _findAvailableTimeSlots(blocks):
@@ -192,14 +232,14 @@ class Scheduler:
                     taskStart = availableTime[j][1][0]
                     taskEnd = availableTime[j][1][0] + tasks[i][1]
 
-                    connector.conn.execute("INSERT INTO events VALUES (?,?,?,?,?,?)",
+                    connector.cursor.execute("INSERT INTO events VALUES (?,?,?,?,?,?)",
                                            (tasks[i][0],
                                             f"""Due on {toShortHumanTime(tasks[i][4])} at {toHumanHour(tasks[i][4])}. 
                                              Level {tasks[i][2]} urgency""",
                                             taskStart,
                                             taskEnd,
                                             1, 0,))
-                    connector.conn.execute("UPDATE tasks SET scheduled = 1 WHERE task=?", (tasks[i][0],))
+                    connector.cursor.execute("UPDATE tasks SET scheduled = 1 WHERE task=?", (tasks[i][0],))
 
                     scheduledTasks.append(tasks[i])
                     # Remove this time slot from available slots to avoid double booking
@@ -257,4 +297,4 @@ class Scheduler:
         availableTime = Scheduler._findAvailableTimeSlots(blocks)
 
         # Step 3: Assign tasks to available slots
-        scheduledTasks = Scheduler._assignTasksToSlots(tasks, availableTime)
+        Scheduler._assignTasksToSlots(tasks, availableTime)

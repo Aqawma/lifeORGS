@@ -1,7 +1,5 @@
 import re
 
-from scheduling.calendarView import CalendarView
-from scheduling.eventScheduler import Scheduler
 from utils.timeUtils import toUnixTime, toSeconds
 
 """
@@ -10,6 +8,7 @@ This module serves as the command parser for the application, handling various c
 related to events, tasks, and calendar management. It interprets user input and routes
 commands to the appropriate functions in other modules.
 """
+
 
 class Tokens:
     """
@@ -23,7 +22,8 @@ class Tokens:
     def __init__(self, location: str, verb: str, iD: str = None, modVerb: str = None, modContext: str = None,
                  startTime: float = None, endTime: float = None, description: str = None,
                  dueDate: float = None, taskTime: float = None, urgency: int = None,
-                 blockStart: float = None, blockEnd: float = None,):
+                 blockStart: float = None, blockEnd: float = None,
+                 viewTime: str = None):
         """
         Initialize a Tokens object with command information.
 
@@ -54,6 +54,7 @@ class Tokens:
         self.urgency = urgency
         self.blockStart = blockStart
         self.blockEnd = blockEnd
+        self.viewTime = viewTime
 
 class CommandTokenizer:
     """
@@ -291,22 +292,12 @@ class CommandTokenizer:
                 else:
                     raise Exception("Invalid command. Do it right.")
 
-            # TODO This logic is generally bad, I should make an obj and pass into factory but I don't have time.
-            elif self.location == "CALENDAR":
-                if self.verb == "VIEW":
-                    return CalendarView.viewEvents("14 D")
-                    # TODO you hardcoded this stuff because viewEvents is a bad func
-
-                elif self.verb == "SCHEDULE":
-                    Scheduler.scheduleTasks("14 D")
-                    return CalendarView.viewEvents("14 D")
-                    # TODO you actually need to fix the view tasks logic here
-
-                else:
-                    raise Exception("Invalid command. Do it right.")
-
             else:
                 raise Exception("Invalid command. Do it right.")
+
+        elif self.location == "CALENDAR":
+            tokenObj.viewTime = "14 D"
+            return tokenObj
 
         else:
             raise Exception("Invalid command. Do it right.")
