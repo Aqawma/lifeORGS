@@ -73,7 +73,7 @@ class TokenFactory:
                     case "BLOCK":
                         TokenAdd.addBlock(TokenAdd(self.tokens))
                         return "Time block added."
-                return None
+                return "Action could not be completed please check your input."
 
             case "REMOVE":
                 match self.tokens.location:
@@ -86,7 +86,7 @@ class TokenFactory:
                     case "BLOCK":
                         TokenRemove.removeBlock(TokenRemove(self.tokens))
                         return "Time block removed successfully."
-                return None
+                return "Action could not be completed please check your input."
 
             case "MODIFY":
                 match self.tokens.location:
@@ -96,7 +96,7 @@ class TokenFactory:
                     case "TASK":
                         TokenModify.modifyTask(TokenModify(self.tokens))
                         return f"{self.tokens.iD} modified successfully."
-                return None
+                return "Action could not be completed please check your input."
 
             case "VIEW":
                 eventList = CalendarView.viewEvents(self.tokens.viewTime)
@@ -108,4 +108,4 @@ class TokenFactory:
                 eventList = CalendarView.viewEvents(self.tokens.viewTime)
                 formattedEventStr = CalendarView.convertListToText(eventList)
                 return formattedEventStr
-        return None
+        return "Action could not be completed please check your input."
