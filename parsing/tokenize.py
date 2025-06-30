@@ -1,13 +1,21 @@
+"""
+Command Tokenization Module
+
+This module provides command parsing and tokenization functionality for the lifeORGS application.
+It handles the conversion of user input strings into structured Token objects that can be
+processed by other parts of the application.
+
+The module includes:
+- Tokens class: A data container for parsed command information
+- CommandTokenizer class: Handles parsing and tokenization of user commands
+
+The tokenizer supports complex command parsing including quoted strings, date/time parsing,
+and command validation for events, tasks, and time blocks.
+"""
+
 import re
 
 from utils.timeUtils import toUnixTime, toSeconds
-
-"""
-Main module for the lifeORGS application.
-This module serves as the command parser for the application, handling various commands
-related to events, tasks, and calendar management. It interprets user input and routes
-commands to the appropriate functions in other modules.
-"""
 
 
 class Tokens:

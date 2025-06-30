@@ -9,24 +9,28 @@ lifeORGS is a command-line calendar and task management application built in Pyt
 lifeORGS/
 ├── main.py                    # Main application entry point
 ├── calendar.db               # SQLite database file
+├── config.json               # Configuration file for API tokens and settings
 ├── parsing/
-│   └── commandParse.py       # Command parsing and routing logic
+│   ├── tokenize.py           # Command tokenization and parsing logic
+│   └── tokenFactory.py       # Command routing and execution factory
 ├── scheduling/
-│   ├── calEvent.py           # Event and task management functions
-│   └── calFuncs.py           # Calendar viewing and scheduling functions
+│   ├── calendarView.py       # Calendar display and formatting functions
+│   ├── eventScheduler.py     # Task scheduling and event retrieval
+│   ├── tokenAdd.py           # Add operations for events, tasks, and blocks
+│   ├── tokenModify.py        # Modify operations for events and tasks
+│   └── tokenRemove.py        # Remove operations for events, tasks, and blocks
 ├── messaging/
 │   ├── sendMessage.py        # WhatsApp message sending functionality
 │   └── recieveMessage.py     # WhatsApp webhook receiver
 ├── utils/
 │   ├── timeUtils.py          # Time conversion utilities
-│   ├── dbUtils.py            # Database path utilities
-│   ├── jsonUtils.py          # JSON configuration utilities
-│   └── regex.py              # String parsing utilities
-├── tests/
-│   └── calendarbackup.db     # Test database backup
+│   ├── dbUtils.py            # Database connection and path utilities
+│   └── jsonUtils.py          # JSON configuration utilities
+├── requirements.txt          # Python package dependencies
 └── docs/
     ├── README.md             # User guide and quick start
     ├── DOCUMENTATION.md      # Technical documentation
+    ├── API.md                # API reference documentation
     └── CHANGELOG.md          # Project change history
 ```
 
@@ -35,47 +39,78 @@ lifeORGS/
 ### main.py
 **Purpose**: Application entry point and main loop
 **Key Features**:
-- Simple main loop that continuously prompts for user input
-- Imports and calls parseCommand from parsing.commandParse module
-- Provides the interactive command-line interface
+- Interactive command-line interface with continuous user input loop
+- Integrates CommandTokenizer for parsing user commands into Token objects
+- Uses TokenFactory to route and execute commands based on parsed tokens
+- Comprehensive error handling and graceful shutdown
+- Database connection management and cleanup
 
-### parsing/commandParse.py
-**Purpose**: Command parser and routing logic
-**Key Features**:
-- Parses user commands using smart string splitting
-- Routes commands to appropriate functions
-- Handles EVENT, CALENDAR, TASK, and BLOCK command types
-- Case-insensitive command processing with quoted string preservation
-- Contains the main parseCommand function with comprehensive documentation
+### parsing/tokenize.py
+**Purpose**: Command tokenization and parsing logic
+**Key Components**:
+- `Tokens` class: Data container for parsed command information
+- `CommandTokenizer` class: Handles parsing of user input into structured tokens
+- Smart string splitting that preserves quoted content
+- Support for various quote types (regular, curly quotes)
+- Date/time parsing and Unix timestamp conversion
+- Command validation and structure verification
 
 **Command Types Supported**:
-- `EVENT ADD/DELETE/MODIFY` - Event management
-- `CALENDAR VIEW/SCHEDULE` - Calendar operations
-- `TASK ADD/DELETE/MODIFY` - Task management
-- `BLOCK ADD` - Time block management
+- `EVENT ADD/REMOVE/MODIFY` - Event management operations
+- `TASK ADD/REMOVE/MODIFY` - Task management operations  
+- `BLOCK ADD/REMOVE` - Time block management
+- `VIEW` - Calendar viewing operations
+- `SCHEDULE` - Automatic task scheduling
 
-### scheduling/calEvent.py
-**Purpose**: Core event and task management functionality
-**Functions**:
-- `addEvent(event, description, startTime, endTime, task=False)` - Add new events
-- `removeEvent(event)` - Remove events by name
-- `addTask(task, time, urgency, due, scheduled=False)` - Add new tasks
-- `removeTask(task)` - Remove tasks by name
-- `modifyTask(task, time, urgency, due, scheduled=False)` - Modify existing tasks
-- `addTimeBlock(day, timeStart, timeEnd)` - Add time blocks for scheduling
-- `removeTimeBlock(timeStart, timeEnd)` - Remove time blocks
+### parsing/tokenFactory.py
+**Purpose**: Command routing and execution factory
+**Key Features**:
+- Factory pattern implementation for command processing
+- Routes tokenized commands to appropriate handler classes
+- Supports ADD, REMOVE, MODIFY, VIEW, and SCHEDULE operations
+- Returns formatted responses for user feedback
+- Centralized command execution with consistent error handling
 
-### scheduling/calFuncs.py
-**Purpose**: Calendar viewing and task scheduling functionality
-**Functions**:
-- `giveEvents(timeForecast)` - Retrieve events from database
-- `giveTasks()` - Retrieve tasks from database
-- `giveBlocks()` - Retrieve time blocks from database
-- `viewEvents(timeForecast)` - Display events in human-readable format
-- `getSchedulingData(timeForecast)` - Prepare data for scheduling algorithm
-- `findAvailableTimeSlots(blocks)` - Find available time slots for task scheduling
-- `assignTasksToSlots(tasks, availableTime)` - Assign tasks to available time slots
-- `scheduleTasks(timeForecast)` - Main scheduling algorithm
+### scheduling/tokenAdd.py
+**Purpose**: Add operations for events, tasks, and time blocks
+**Key Features**:
+- `addEvent()` - Creates new calendar events with duplicate checking
+- `addTask()` - Creates new tasks with urgency and due date handling
+- `addBlock()` - Creates time blocks for scheduling constraints
+- Database table creation and management
+- Comprehensive input validation and error handling
+
+### scheduling/tokenModify.py
+**Purpose**: Modify operations for events and tasks
+**Key Features**:
+- Event modification (description, start time, end time)
+- Task modification (due date, time allocation, urgency)
+- Database update operations with validation
+- Flexible modification options based on command parameters
+
+### scheduling/tokenRemove.py
+**Purpose**: Remove operations for events, tasks, and time blocks
+**Key Features**:
+- Event deletion with existence verification
+- Task removal with completion status handling
+- Time block deletion for scheduling management
+- Safe database operations with transaction handling
+
+### scheduling/calendarView.py
+**Purpose**: Calendar display and formatting functions
+**Key Features**:
+- `viewEvents(timeForecast)` - Formats events into human-readable lists
+- `convertListToText(lists)` - Converts event lists to formatted text
+- Date grouping and chronological organization
+- Time formatting for user-friendly display
+
+### scheduling/eventScheduler.py
+**Purpose**: Task scheduling and event retrieval
+**Key Features**:
+- Event and task retrieval from database
+- Automatic task scheduling algorithms
+- Time block management for scheduling constraints
+- Integration with calendar view for formatted output
 
 ### utils/timeUtils.py
 **Purpose**: Time conversion and formatting utilities
@@ -88,9 +123,13 @@ lifeORGS/
 - `deltaToStartOfWeek(currentTime)` - Calculate seconds since start of week
 
 ### utils/dbUtils.py
-**Purpose**: Database path management
-**Functions**:
+**Purpose**: Database connection and path management
+**Key Features**:
+- `ConnectDB` class: Manages SQLite database connections
 - `getDBPath()` - Returns absolute path to calendar.db file
+- `initConnection()` - Establishes database connection and cursor
+- `dbCleanup()` - Handles connection cleanup and transaction commits
+- Portable database path resolution
 
 ### messaging/sendMessage.py
 **Purpose**: WhatsApp message sending functionality
@@ -126,10 +165,53 @@ lifeORGS/
 - `smartSplit(text)` - Split strings while preserving quoted content
 
 ## Database Schema
-The application uses SQLite with the following implied tables:
-- `events` - Stores event information (event, description, unixtimeStart, unixtimeEnd)
-- `tasks` - Stores task information (task, unixtime, urgency, scheduled, dueDate)
-- Time blocks table (structure inferred from usage)
+The application uses SQLite with the following tables that are automatically created as needed:
+
+### events table
+```sql
+CREATE TABLE IF NOT EXISTS events (
+    event         text,
+    description   text,
+    unixtimeStart integer,
+    unixtimeEnd   integer,
+    task          boolean default 0,
+    completed     boolean default 0
+);
+```
+- `event`: Event name/identifier
+- `description`: Event description text
+- `unixtimeStart`: Event start time as Unix timestamp
+- `unixtimeEnd`: Event end time as Unix timestamp
+- `task`: Boolean flag indicating if this is a task (default: False)
+- `completed`: Boolean flag indicating completion status (default: False)
+
+### tasks table
+```sql
+CREATE TABLE IF NOT EXISTS tasks (
+    task      text,
+    unixtime  integer,
+    urgency   integer,
+    scheduled boolean default 0,
+    dueDate   integer,
+    completed boolean default 0
+);
+```
+- `task`: Task name/identifier
+- `unixtime`: Estimated time to complete task in seconds
+- `urgency`: Task urgency level (1-5, where 5 is most urgent)
+- `scheduled`: Boolean flag indicating if task has been scheduled (default: False)
+- `dueDate`: Task due date as Unix timestamp
+- `completed`: Boolean flag indicating completion status (default: False)
+
+### blocks table
+```sql
+CREATE TABLE IF NOT EXISTS blocks (
+    timeStart integer,
+    timeEnd   integer
+);
+```
+- `timeStart`: Block start time as Unix timestamp or seconds from week start
+- `timeEnd`: Block end time as Unix timestamp or seconds from week start
 
 ## Key Features Implemented
 
@@ -160,23 +242,33 @@ The application uses SQLite with the following implied tables:
 
 ## Recent Changes and Improvements
 
+### Architecture Refactoring
+- Migrated from direct command parsing to token-based architecture
+- Implemented factory pattern with TokenFactory for command routing
+- Separated concerns with dedicated Token* classes for different operations
+- Enhanced modularity with clear separation between parsing, scheduling, and messaging
+
 ### Documentation Enhancements
-- Added comprehensive docstrings to all utility functions
-- Improved code comments throughout the project
-- Added type hints and parameter descriptions
-- Included usage examples in function documentation
+- Added comprehensive module docstrings to all core files
+- Implemented detailed class and method documentation with parameter descriptions
+- Updated technical documentation to reflect current codebase structure
+- Added database schema documentation with actual table structures
+- Included usage examples and error handling information
 
 ### Code Organization
-- Modular structure with clear separation of concerns
-- Utility functions organized by purpose
-- Consistent error handling patterns
-- Database path abstraction for portability
+- Token-based command processing with structured data flow
+- Dedicated classes for add, modify, and remove operations
+- Centralized database connection management with ConnectDB class
+- Improved error handling with proper exception management
+- Consistent code patterns across all modules
 
 ### Functionality Additions
-- Time block management for scheduling constraints
-- Smart string parsing for command input
-- Flexible time format support
-- Automatic task scheduling algorithm
+- WhatsApp integration with Meta Business API
+- Comprehensive time block management for scheduling constraints
+- Smart string parsing with support for various quote types
+- Flexible time format support with Unix timestamp conversion
+- Automatic task scheduling algorithm with calendar integration
+- Database table auto-creation and management
 
 ## Usage Examples
 
@@ -202,7 +294,7 @@ CALENDAR SCHEDULE
 
 ### Adding Time Block
 ```
-BLOCK ADD Monday 09:00 17:00
+BLOCK ADD 1 09:00 17:00
 ```
 
 ## Technical Notes
