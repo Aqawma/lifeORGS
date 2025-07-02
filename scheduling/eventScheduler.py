@@ -23,7 +23,6 @@ Dependencies:
 - utils.timeUtils: Time conversion and formatting utilities
 - utils.dbUtils: Database path management
 """
-import sqlite3
 import time
 
 from utils.dbUtils import ConnectDB
@@ -31,6 +30,87 @@ from utils.timeUtils import timeOut, toShortHumanTime, toHumanHour, deltaToStart
 
 
 class Scheduler:
+
+    @staticmethod
+    def _calculatePriorityScore(task):
+
+        timeDueDelta = task['dueDate'] - time.time()
+        priorityScore = 0.0
+
+        if timeDueDelta < 0:
+            if timeDueDelta >= -86400 and (task['urgency'] + 1 <= 5):
+                task['urgency'] += 1
+            elif timeDueDelta >= -172800 and (task['urgency'] + 2 <= 5):
+                task['urgency'] += 2
+            elif timeDueDelta >= -259200 and (task['urgency'] + 3 <= 5):
+                task['urgency'] += 3
+            elif timeDueDelta >= -345600 and (task['urgency'] + 4 <= 5):
+                task['urgency'] += 4
+            else:
+                task['urgency'] = 5
+
+        match timeDueDelta:
+            case x if x <= 86400:
+                priorityScore += 35
+
+            case x if x <= 172800:
+                priorityScore += (30 - (70 / 8))
+
+            case x if x <= 259200:
+                priorityScore += (30 - (105 / 8))
+
+            case x if x <= 345600:
+                priorityScore += (30 - (140 / 8))
+
+            case x if x <= 432000:
+                priorityScore += (30 - (175 / 8))
+
+            case x if x <= 518400:
+                priorityScore += (30 - (210 / 8))
+
+            case x if x <= 604800:
+                priorityScore += (30 - (245 / 8))
+
+            case x if x > 604800:
+                priorityScore += 0
+
+        match task['urgency']:
+            case 1:
+                priorityScore += 0
+
+            case 2:
+                priorityScore += 12.5
+
+            case 3:
+                priorityScore += 25
+
+            case 4:
+                priorityScore += 37.5
+
+            case 5:
+                priorityScore += 50
+
+        match task['taskTime']:
+            case x if x <= 300:
+                priorityScore += 15
+
+            case x if x <= 900:
+                priorityScore += 12
+
+            case x if x <= 1800:
+                priorityScore += 9
+
+            case x if x <= 3600:
+                priorityScore += 6
+
+            case x if x <= 7200:
+                priorityScore += 3
+
+            case x if x > 7200:
+                priorityScore += 0
+
+        return priorityScore
+
     @staticmethod
     def giveEvents(timeForecast):
         """
@@ -64,8 +144,8 @@ class Scheduler:
         timeForecast = timeOut(timeForecast)
 
         connector.cursor.execute("SELECT * FROM events WHERE unixtimeEnd > ? AND unixtimeStart < ?", (currentTime,
-                                                                                          (currentTime +
-                                                                                           timeForecast)))
+                                                                                                      (currentTime +
+                                                                                                       timeForecast)))
         events = connector.cursor.fetchall()
 
         return events
@@ -95,30 +175,25 @@ class Scheduler:
         connector.cursor.execute(table)
         connector.conn.commit()
 
-        selection = """ SELECT * FROM tasks WHERE scheduled = 0"""
-
-        connector.cursor.execute(selection)
+        connector.cursor.execute("SELECT * FROM tasks WHERE scheduled = 0 AND completed = 0;")
         tasks = connector.cursor.fetchall()
 
-        return tasks
+        taskList = []
+        for task in tasks:
+            taskDict = {'iD': task[0],
+                        'dueDate': task[4],
+                        'urgency': task[2],
+                        'taskTime': task[1],
+                        }
+
+            priorityScore = Scheduler._calculatePriorityScore(taskDict)
+            taskDict.update({'priorityScore': priorityScore})
+            taskList.append(taskDict)
+
+        return taskList
 
     @staticmethod
-    def _getSchedulingData(timeForecast):
-        """
-        Retrieves and prepares data needed for scheduling tasks.
-
-        Args:
-            timeForecast (str): Time period for scheduling in format "<number> D"
-
-        Returns:
-            tuple: (tasks, blocks) where:
-                - tasks: List of unscheduled tasks sorted by urgency
-                - blocks: Combined list of time blocks and events sorted chronologically
-        """
-
-        tasks = Scheduler._giveTasks()
-        events = Scheduler.giveEvents(timeForecast)
-
+    def _giveBlocks():
         currentTime = int(round(time.time(), 0))
         weekSecDelta = deltaToStartOfWeek(currentTime)
         startOfWeek = currentTime - weekSecDelta
@@ -145,11 +220,28 @@ class Scheduler:
             bloc[1] = bloc[1] + startOfWeek
             blocks.append(bloc)
 
-        # Sort tasks by urgency
-        tasks.sort(key=lambda x: x[2])
-        blocks.sort(key=lambda x: x[0])
+        return blocks
 
-        print(blocks)
+    @staticmethod
+    def _getSchedulingData(timeForecast):
+        """
+        Retrieves and prepares data needed for scheduling tasks.
+
+        Args:
+            timeForecast (str): Time period for scheduling in format "<number> D"
+
+        Returns:
+            tuple: (tasks, blocks) where:
+                - tasks: List of unscheduled tasks sorted by urgency
+                - blocks: Combined list of time blocks and events sorted chronologically
+        """
+
+        tasks = Scheduler._giveTasks()
+        events = Scheduler.giveEvents(timeForecast)
+        blocks = Scheduler._giveBlocks()
+
+        # Sort tasks by urgency
+        tasks.sort(key=lambda x: x['priorityScore'], reverse=True)
 
         # Combine events with blocks
         for event in events:
@@ -164,8 +256,7 @@ class Scheduler:
         # Sort blocks chronologically
         blocks.sort(key=lambda x: x[0])
 
-        return tasks, blocks \
-
+        return tasks, blocks
 
     @staticmethod
     def _findAvailableTimeSlots(blocks):
@@ -186,7 +277,7 @@ class Scheduler:
                 delta = blocks[n+1][0] - blocks[n][1]
                 if delta > 600:
                     # Create time slot with 5-minute buffers on each end
-                    timeslot = [delta-600, [blocks[n][1]+300, blocks[n+1][0]-300]]
+                    timeslot = {'blockTime': delta-600, 'blockStart': blocks[n][1]+300, 'blockEnd': blocks[n+1][0]-300}
                     availableTime.append(timeslot)
             else:
                 continue
@@ -227,23 +318,24 @@ class Scheduler:
         for i in range(len(tasks)):
             for j in range(len(availableTime)):
 
-                if availableTime[j][0] > tasks[i][1]:
+                if availableTime[j]['blockTime'] > tasks[i]['taskTime']:
 
-                    taskStart = availableTime[j][1][0]
-                    taskEnd = availableTime[j][1][0] + tasks[i][1]
+                    taskStart = availableTime[j]['blockStart']
+                    taskEnd = availableTime[j]['blockEnd'] + tasks[i]['taskTime']
 
                     connector.cursor.execute("INSERT INTO events VALUES (?,?,?,?,?,?)",
-                                           (tasks[i][0],
-                                            f"""Due on {toShortHumanTime(tasks[i][4])} at {toHumanHour(tasks[i][4])}. 
-                                             Level {tasks[i][2]} urgency""",
-                                            taskStart,
-                                            taskEnd,
-                                            1, 0,))
-                    connector.cursor.execute("UPDATE tasks SET scheduled = 1 WHERE task=?", (tasks[i][0],))
+                                             (tasks[i]['iD'],
+                                              f"""Due on {toShortHumanTime(tasks[i]['dueDate'])} at 
+                                              {toHumanHour(tasks[i]['dueDate'])}. 
+                                              Level {tasks[i]['urgency']} urgency""",
+                                              taskStart,
+                                              taskEnd,
+                                              1, 0,))
+                    connector.cursor.execute("UPDATE tasks SET scheduled = 1 WHERE task=?", (tasks[i]['iD'],))
 
                     scheduledTasks.append(tasks[i])
                     # Remove this time slot from available slots to avoid double booking
-                    availableTime[j][1][0] = availableTime[j][1][0] + tasks[i][1] + 300
+                    availableTime[j]['blockStart'] = availableTime[j]['blockStart'] + tasks[i]['taskTime'] + 300
                     break
 
         connector.conn.commit()
