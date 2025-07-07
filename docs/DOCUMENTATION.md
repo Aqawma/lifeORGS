@@ -7,31 +7,33 @@ lifeORGS is a command-line calendar and task management application built in Pyt
 
 ```
 lifeORGS/
-├── main.py                    # Main application entry point
-├── calendar.db               # SQLite database file
-├── config.json               # Configuration file for API tokens and settings
+├── main.py                              # Main application entry point
+├── calendar.db                         # SQLite database file
+├── config.json                         # Configuration file for API tokens and settings
 ├── parsing/
-│   ├── tokenize.py           # Command tokenization and parsing logic
-│   └── tokenFactory.py       # Command routing and execution factory
+│   ├── tokenize.py                     # Command tokenization and parsing logic
+│   └── tokenFactory.py                 # Command routing and execution factory
 ├── scheduling/
-│   ├── calendarView.py       # Calendar display and formatting functions
-│   ├── eventScheduler.py     # Task scheduling and event retrieval
-│   ├── tokenAdd.py           # Add operations for events, tasks, and blocks
-│   ├── tokenModify.py        # Modify operations for events and tasks
-│   └── tokenRemove.py        # Remove operations for events, tasks, and blocks
+│   ├── calendarViews/
+│   │   └── calendarView.py             # Calendar display and formatting functions
+│   ├── eventModifiers/
+│   │   ├── tokenAdd.py                 # Add operations for events, tasks, and blocks
+│   │   ├── tokenModify.py              # Modify operations for events and tasks
+│   │   └── tokenRemove.py              # Remove operations for events, tasks, and blocks
+│   └── eventScheduler.py               # Task scheduling and event retrieval
 ├── messaging/
-│   ├── sendMessage.py        # WhatsApp message sending functionality
-│   └── recieveMessage.py     # WhatsApp webhook receiver
+│   ├── sendMessage.py                  # WhatsApp message sending functionality
+│   └── recieveMessage.py               # WhatsApp webhook receiver
 ├── utils/
-│   ├── timeUtils.py          # Time conversion utilities
-│   ├── dbUtils.py            # Database connection and path utilities
-│   └── jsonUtils.py          # JSON configuration utilities
-├── requirements.txt          # Python package dependencies
+│   ├── timeUtils.py                    # Time conversion utilities
+│   ├── dbUtils.py                      # Database connection and path utilities
+│   └── jsonUtils.py                    # JSON configuration utilities
+├── requirements.txt                    # Python package dependencies
 └── docs/
-    ├── README.md             # User guide and quick start
-    ├── DOCUMENTATION.md      # Technical documentation
-    ├── API.md                # API reference documentation
-    └── CHANGELOG.md          # Project change history
+    ├── README.md                       # User guide and quick start
+    ├── DOCUMENTATION.md                # Technical documentation
+    ├── API.md                          # API reference documentation
+    └── CHANGELOG.md                    # Project change history
 ```
 
 ## Core Modules
@@ -71,7 +73,7 @@ lifeORGS/
 - Returns formatted responses for user feedback
 - Centralized command execution with consistent error handling
 
-### scheduling/tokenAdd.py
+### scheduling/eventModifiers/tokenAdd.py
 **Purpose**: Add operations for events, tasks, and time blocks
 **Key Features**:
 - `addEvent()` - Creates new calendar events with duplicate checking
@@ -80,7 +82,7 @@ lifeORGS/
 - Database table creation and management
 - Comprehensive input validation and error handling
 
-### scheduling/tokenModify.py
+### scheduling/eventModifiers/tokenModify.py
 **Purpose**: Modify operations for events and tasks
 **Key Features**:
 - Event modification (description, start time, end time)
@@ -88,7 +90,7 @@ lifeORGS/
 - Database update operations with validation
 - Flexible modification options based on command parameters
 
-### scheduling/tokenRemove.py
+### scheduling/eventModifiers/tokenRemove.py
 **Purpose**: Remove operations for events, tasks, and time blocks
 **Key Features**:
 - Event deletion with existence verification
@@ -96,7 +98,7 @@ lifeORGS/
 - Time block deletion for scheduling management
 - Safe database operations with transaction handling
 
-### scheduling/calendarView.py
+### scheduling/calendarViews/calendarView.py
 **Purpose**: Calendar display and formatting functions
 **Key Features**:
 - `viewEvents(timeForecast)` - Formats events into human-readable lists
@@ -158,11 +160,6 @@ lifeORGS/
 **Purpose**: JSON configuration file management
 **Functions**:
 - `loadConfig()` - Load application configuration from config.json
-
-### utils/regex.py
-**Purpose**: String parsing utilities
-**Functions**:
-- `smartSplit(text)` - Split strings while preserving quoted content
 
 ## Database Schema
 The application uses SQLite with the following tables that are automatically created as needed:
