@@ -14,6 +14,7 @@ class TokenRemove:
     def removeTask(self):
         connector = ConnectDB()
         connector.cursor.execute("DELETE FROM tasks WHERE task=?", (self.tokens.iD,))
+        connector.cursor.execute("DELETE FROM events WHERE event=?", (self.tokens.iD,))
         connector.conn.commit()
         return f"{self.tokens.iD} removed successfully."
 
