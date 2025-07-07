@@ -1,6 +1,6 @@
 from parsing.tokenize import Tokens
 from utils.dbUtils import ConnectDB
-from scheduling.tokenRemove import TokenRemove
+from scheduling.eventModifiers.tokenRemove import TokenRemove
 
 class TokenModify:
     def __init__(self, tokenObject: Tokens):

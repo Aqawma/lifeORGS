@@ -1,322 +1,417 @@
 # lifeORGS API Documentation
 
-This document provides detailed information about all functions and modules in the lifeORGS application.
+This document provides detailed information about all classes, methods, and functions in the lifeORGS application.
 
 ## Table of Contents
 
-- [Command Parsing](#command-parsing)
+- [Command Processing](#command-processing)
 - [Event Management](#event-management)
 - [Calendar Functions](#calendar-functions)
+- [Task Scheduling](#task-scheduling)
 - [Messaging Functions](#messaging-functions)
 - [Utility Functions](#utility-functions)
 
-## Command Parsing
+## Command Processing
 
-### parsing/commandParse.py
+### parsing/tokenize.py
 
-#### parseCommand(command)
-Main command parser that processes user input and routes commands to appropriate functions.
+#### Tokens Class
+Data container class that holds parsed command information.
 
-**Parameters:**
-- `command` (str): Command string to parse and execute
+**Attributes:**
+- `verb` (str): Command action (ADD, REMOVE, MODIFY, VIEW, SCHEDULE)
+- `location` (str): Command target (EVENT, TASK, BLOCK)
+- `iD` (str): Identifier for events/tasks
+- `description` (str): Event/task description
+- `startTime` (int): Start time as Unix timestamp
+- `endTime` (int): End time as Unix timestamp
+- `taskTime` (int): Task duration in seconds
+- `urgency` (int): Task urgency level (1-5)
+- `dueDate` (int): Task due date as Unix timestamp
+- `viewTime` (int): Time period for viewing in seconds
+- `blockStart` (int): Time block start as Unix timestamp
+- `blockEnd` (int): Time block end as Unix timestamp
 
-**Supported Commands:**
-- `EVENT ADD <name> <start_date> <start_time> <end_date> <end_time> "description"`
-- `EVENT DELETE <name>`
-- `EVENT MODIFY <name> DISC "new_description"`
-- `EVENT MODIFY <name> STARTTIME <date> <time>`
-- `EVENT MODIFY <name> ENDTIME <date> <time>`
-- `EVENT MODIFY <name> STARTEND <start_date> <start_time> <end_date> <end_time>`
-- `CALENDAR VIEW <number> D`
-- `CALENDAR SCHEDULE`
-- `TASK ADD <name> <time> <due_date> <due_time> <urgency>`
-- `TASK DELETE <name>`
-- `TASK MODIFY <name> DUEDATE <date> <time>`
-- `TASK MODIFY <name> TIME <time>`
-- `TASK MODIFY <name> URGENCY <level>`
-- `BLOCK ADD <day> <start_time> <end_time>`
+#### CommandTokenizer Class
+Handles parsing of user input into structured tokens.
 
-**Returns:** None
+**Constructor:**
+- `CommandTokenizer(command)`: Initializes with command string and creates tokenObject
+
+**Methods:**
+- `_smartSplit(text)`: Splits strings while preserving quoted content
+- `_parseCommand()`: Main parsing logic that populates the Tokens object
+- `_validateCommand()`: Validates command structure and parameters
+
+**Supported Command Formats:**
+- `EVENT ADD "name" DD/MM/YYYY HH:MM DD/MM/YYYY HH:MM "description"`
+- `EVENT REMOVE "name"`
+- `EVENT MODIFY "name" [DISC/STARTTIME/ENDTIME/STARTEND] [parameters]`
+- `TASK ADD "name" HH:MM DD/MM/YYYY HH:MM urgency_level`
+- `TASK REMOVE "name"`
+- `TASK MODIFY "name" [DUEDATE/TIME/URGENCY] [parameters]`
+- `BLOCK ADD day_number HH:MM HH:MM`
+- `VIEW time_period`
+- `SCHEDULE time_period`
+
+### parsing/tokenFactory.py
+
+#### TokenFactory Class
+Factory class for processing tokenized commands and routing them to appropriate handlers.
+
+**Constructor:**
+- `TokenFactory(tokenObject)`: Initializes with a Tokens object
+
+**Methods:**
+- `doToken()`: Processes the tokenized command and executes the appropriate action
+
+**Returns:**
+- Success messages for ADD/REMOVE/MODIFY operations
+- Formatted event lists for VIEW/SCHEDULE operations
+- Error messages for invalid commands
 
 ## Event Management
 
-### scheduling/calEvent.py
+### scheduling/eventModifiers/tokenAdd.py
 
-#### addEvent(event, description, startTime, endTime, task=False)
-Adds a new event to the calendar database.
+#### TokenAdd Class
+Handler class for adding new events, tasks, and time blocks to the database.
 
-**Parameters:**
-- `event` (str): Name of the event
-- `description` (str): Description of the event
-- `startTime` (str): Start time in format 'DD/MM/YYYY HH:MM'
-- `endTime` (str): End time in format 'DD/MM/YYYY HH:MM'
-- `task` (bool, optional): Indicates if this is a task event. Defaults to False.
+**Constructor:**
+- `TokenAdd(tokenObject)`: Initializes with a Tokens object
 
-**Returns:** str - Success message or error message if event already exists
+**Methods:**
 
-#### removeEvent(event)
-Removes an event from the calendar database.
+##### addEvent()
+Adds a new event to the events database table.
 
-**Parameters:**
-- `event` (str): Name of the event to remove
+**Returns:** str - Success message
 
-**Returns:** None
+**Raises:** Exception if event already exists
 
-#### addTask(task, time, urgency, due, scheduled=False)
-Adds a new task to the calendar database.
+**Database Operations:**
+- Creates events table if not exists
+- Checks for duplicate events
+- Inserts new event record
 
-**Parameters:**
-- `task` (str): Name of the task to be added
-- `time` (str): Execution time in format 'HH:MM' or 'HH:MM:SS'
-- `urgency` (int): Urgency level of the task (1-5, where 5 is most urgent)
-- `due` (str): Due date and time in format 'DD/MM/YYYY HH:MM'
-- `scheduled` (bool, optional): Whether the task has been scheduled. Defaults to False
+##### addTask()
+Adds a new task to the tasks database table.
 
-**Returns:** str - Success message or error message if task already exists
+**Returns:** str - Success message
 
-#### removeTask(task)
-Removes a task from the calendar database.
+**Raises:** Exception if incomplete task already exists
 
-**Parameters:**
-- `task` (str): Name of the task to remove
+**Database Operations:**
+- Creates tasks table if not exists
+- Checks for duplicate incomplete tasks
+- Inserts new task record
 
-**Returns:** None
+##### addBlock()
+Adds a new time block to the blocks database table.
 
-#### modifyTask(task, time, urgency, due, scheduled=False)
-Modifies an existing task in the calendar database.
+**Returns:** str - Success message
 
-**Parameters:**
-- `task` (str): Name of the task to modify
-- `time` (str): New time in format 'HH:MM' or 'HH:MM:SS'
-- `urgency` (int): New urgency level
-- `due` (str): Due date and time in format 'DD/MM/YYYY HH:MM'
-- `scheduled` (bool, optional): Whether the task has been scheduled. Defaults to False
+**Database Operations:**
+- Creates blocks table if not exists
+- Inserts new time block record
 
-**Returns:** None
+### scheduling/eventModifiers/tokenModify.py
 
-#### addTimeBlock(day, timeStart, timeEnd)
-Adds a time block to the calendar database for scheduling purposes.
+#### TokenModify Class
+Handler class for modifying existing events and tasks.
 
-**Parameters:**
-- `day` (int): Day of the week (1-7, where 1 is Monday)
-- `timeStart` (str): Start time in format 'HH:MM' or 'HH:MM:SS'
-- `timeEnd` (str): End time in format 'HH:MM' or 'HH:MM:SS'
+**Constructor:**
+- `TokenModify(tokenObject)`: Initializes with a Tokens object
 
-**Returns:** None
+**Methods:**
+- `modifyEvent()`: Updates event properties (description, times)
+- `modifyTask()`: Updates task properties (due date, time, urgency)
 
-#### removeTimeBlock(timeStart, timeEnd)
-Removes a specific time block from the calendar database.
+### scheduling/eventModifiers/tokenRemove.py
 
-**Parameters:**
-- `timeStart` (int): Start time of the block to remove (in seconds)
-- `timeEnd` (int): End time of the block to remove (in seconds)
+#### TokenRemove Class
+Handler class for removing events, tasks, and time blocks.
 
-**Returns:** None
+**Constructor:**
+- `TokenRemove(tokenObject)`: Initializes with a Tokens object
+
+**Methods:**
+- `removeEvent()`: Deletes events from database
+- `removeTask()`: Deletes tasks from database
+- `removeBlock()`: Deletes time blocks from database
 
 ## Calendar Functions
 
-### scheduling/calFuncs.py
+### scheduling/calendarViews/calendarView.py
 
-#### giveEvents(timeForecast)
-Retrieves events from the calendar database within a specified time period.
+#### CalendarView Class
+Handles calendar display and formatting functions.
 
-**Parameters:**
-- `timeForecast` (str): Time period to look ahead in format "<number> D"
+**Static Methods:**
 
-**Returns:** list - List of events as tuples
-
-#### giveTasks()
-Retrieves all unscheduled tasks from the calendar database.
-
-**Returns:** list - List of unscheduled tasks as tuples
-
-#### giveBlocks()
-Retrieves all time blocks from the calendar database.
-
-**Returns:** list - List of time blocks as tuples
-
-#### viewEvents(timeForecast)
-Formats events into a human-readable list grouped by day.
+##### viewEvents(timeForecast)
+Retrieves and formats events for display.
 
 **Parameters:**
-- `timeForecast` (str): Time period to look ahead in format "<number> D"
+- `timeForecast` (int): Time period in seconds
 
-**Returns:** list - List of formatted event strings
+**Returns:** list - Formatted event data
 
-#### scheduleTasks(timeForecast)
-Schedules tasks within available time blocks while considering existing events.
+##### convertListToText(eventList)
+Converts event lists to formatted text strings.
 
 **Parameters:**
-- `timeForecast` (str): Time period for scheduling in format "<number> D"
+- `eventList` (list): List of event data
 
-**Returns:** tuple - (available_time_slots, scheduled_tasks)
+**Returns:** str - Formatted text representation
+
+## Task Scheduling
+
+### scheduling/eventScheduler.py
+
+#### Scheduler Class
+Handles automatic task scheduling and event retrieval.
+
+**Static Methods:**
+
+##### scheduleTasks(timeForecast)
+Main scheduling function that assigns tasks to available time slots.
+
+**Parameters:**
+- `timeForecast` (int): Time period for scheduling in seconds
+
+**Process:**
+1. Retrieves tasks and existing events
+2. Identifies available time slots
+3. Assigns tasks based on priority and urgency
+4. Updates database with scheduled tasks
+
+##### _calculatePriorityScore(task)
+Calculates priority score for task scheduling.
+
+**Parameters:**
+- `task` (tuple): Task data including urgency and due date
+
+**Returns:** float - Calculated priority score
+
+##### giveEvents(timeForecast)
+Retrieves events from database for specified time period.
+
+**Parameters:**
+- `timeForecast` (int): Time period in seconds
+
+**Returns:** list - Event data
+
+##### _giveTasks()
+Retrieves unscheduled tasks from database.
+
+**Returns:** list - Task data sorted by priority
+
+##### _giveBlocks()
+Retrieves time blocks from database.
+
+**Returns:** list - Time block data
+
+##### _getSchedulingData(timeForecast)
+Combines tasks and events for scheduling analysis.
+
+**Parameters:**
+- `timeForecast` (int): Time period in seconds
+
+**Returns:** tuple - (tasks, blocks) for scheduling
+
+##### _findAvailableTimeSlots(blocks)
+Identifies available time slots between existing events.
+
+**Parameters:**
+- `blocks` (list): List of time blocks sorted chronologically
+
+**Returns:** list - Available time slots with buffers
+
+##### _assignTasksToSlots(tasks, availableTime)
+Assigns tasks to available time slots.
+
+**Parameters:**
+- `tasks` (list): Tasks sorted by priority
+- `availableTime` (list): Available time slots
+
+**Returns:** list - Successfully scheduled tasks
 
 ## Messaging Functions
 
 ### messaging/sendMessage.py
 
-#### getTextMessageInput(recipient, text)
-Creates a JSON-formatted WhatsApp text message payload.
+#### Functions
+
+##### getTextMessageInput(recipient, text)
+Creates WhatsApp message payload.
 
 **Parameters:**
-- `recipient` (str): WhatsApp ID of the message recipient
-- `text` (str): Text content of the message to send
+- `recipient` (str): Phone number of recipient
+- `text` (str): Message text
 
-**Returns:** str - JSON-formatted string containing the message payload ready for API submission
+**Returns:** dict - WhatsApp API message payload
 
-#### sendToUser(data)
-Sends a WhatsApp message using the Meta WhatsApp Business API.
-
-**Parameters:**
-- `data` (str): JSON-formatted message payload (typically from getTextMessageInput)
-
-**Side Effects:**
-- Prints status and response information to console
-- Prints error information if the request fails
-
-**Note:** Uses SSL verification disabled (verify=False) for development
-
-#### messageUser(message)
-Sends a text message to the default recipient configured in the system.
+##### sendToUser(data)
+Sends message via WhatsApp Business API.
 
 **Parameters:**
-- `message` (str): Text content of the message to send
+- `data` (dict): Message payload
 
-**Note:** Uses RECIPIENT_WAID from config.json as the default recipient
+**Returns:** Response from WhatsApp API
+
+##### messageUser(message)
+Sends message to default recipient.
+
+**Parameters:**
+- `message` (str): Message text to send
 
 ### messaging/recieveMessage.py
 
-#### verify(request)
-Webhook verification endpoint for Meta WhatsApp Business API.
+#### Functions
+
+##### verify(request)
+Webhook verification endpoint for Meta API.
 
 **Parameters:**
-- `request` (Request): FastAPI request object containing query parameters
+- `request`: FastAPI request object
 
-**Query Parameters:**
-- `hub.mode` (str): Should be "subscribe" for verification
-- `hub.verify_token` (str): Verification token that must match configured token
-- `hub.challenge` (str): Challenge string to return if verification succeeds
+**Returns:** Verification token or 403 error
 
-**Returns:** PlainTextResponse - Challenge string if verification succeeds (HTTP 200), or "Forbidden" message if verification fails (HTTP 403)
-
-#### receive(request)
-Webhook endpoint for receiving incoming WhatsApp messages.
+##### receive(request)
+Processes incoming WhatsApp messages.
 
 **Parameters:**
-- `request` (Request): FastAPI request object containing the webhook payload
+- `request`: FastAPI request object
 
-**Returns:** dict - Status response indicating the message was received
-
-**Note:** Currently implements a simple echo bot functionality
+**Returns:** HTTP 200 response
 
 ## Utility Functions
 
 ### utils/timeUtils.py
 
-#### toUnixTime(eventTime)
-Converts a date and time string to Unix timestamp.
+#### Functions
+
+##### toUnixTime(eventTime)
+Converts date/time string to Unix timestamp.
 
 **Parameters:**
-- `eventTime` (str): Date and time in format 'DD/MM/YYYY HH:MM'
+- `eventTime` (str): Date/time in format "DD/MM/YYYY HH:MM"
 
-**Returns:** float - Unix timestamp
+**Returns:** int - Unix timestamp
 
-#### toSeconds(time)
-Converts a time string in HH:MM or HH:MM:SS format to total seconds.
+##### toSeconds(time)
+Converts time string to total seconds.
 
 **Parameters:**
-- `time` (str): Time string in format 'HH:MM' or 'HH:MM:SS'
+- `time` (str): Time in format "HH:MM" or "HH:MM:SS"
 
 **Returns:** int - Total seconds
 
-#### timeOut(timeString)
-Converts a time period string to total seconds.
+##### timeOut(timeString)
+Converts time period string to seconds.
 
 **Parameters:**
-- `timeString` (str): Time period string in format "<number> D" for days
+- `timeString` (str): Time period like "7 D" (days)
 
-**Returns:** int - Total seconds in the specified time period
+**Returns:** int - Total seconds
 
-#### toShortHumanTime(unixTime)
-Converts a Unix timestamp to a human-readable date string.
+##### toShortHumanTime(unixTime)
+Converts Unix timestamp to readable date.
 
 **Parameters:**
-- `unixTime` (float): Unix timestamp
+- `unixTime` (int): Unix timestamp
 
 **Returns:** str - Formatted date string
 
-#### toHumanHour(unixTime)
-Converts a Unix timestamp to a human-readable time string.
+##### toHumanHour(unixTime)
+Converts Unix timestamp to readable time.
 
 **Parameters:**
-- `unixTime` (float): Unix timestamp
+- `unixTime` (int): Unix timestamp
 
-**Returns:** str - Formatted time string in 12-hour format
+**Returns:** str - Formatted time string
 
-#### deltaToStartOfWeek(currentTime)
-Calculates the number of seconds elapsed since the start of the current week.
+##### deltaToStartOfWeek(currentTime)
+Calculates seconds since start of week.
 
 **Parameters:**
-- `currentTime` (float): Unix timestamp
+- `currentTime` (int): Current Unix timestamp
 
-**Returns:** int - Number of seconds elapsed since start of week
+**Returns:** int - Seconds since Monday 00:00
 
 ### utils/dbUtils.py
 
-#### getDBPath()
-Returns the absolute path to the calendar database file.
+#### ConnectDB Class
+Manages SQLite database connections.
 
-**Returns:** str - Absolute path to calendar.db file
+**Constructor:**
+- `ConnectDB()`: Initializes database connection and cursor
 
-### utils/regex.py
+**Methods:**
+- `getDBPath()`: Returns absolute path to calendar.db
+- `initConnection()`: Establishes database connection
+- `dbCleanup()`: Handles connection cleanup
 
-#### smartSplit(text)
-Splits a string by whitespace while preserving content within quotes.
-
-**Parameters:**
-- `text` (str): The input string to split
-
-**Returns:** list - List of tokens with quoted content preserved
+**Attributes:**
+- `conn`: SQLite connection object
+- `cursor`: Database cursor object
 
 ### utils/jsonUtils.py
 
-#### loadConfig()
-Loads the application configuration from config.json file.
+#### Functions
 
-**Returns:** dict - Dictionary containing all configuration settings from config.json
+##### loadConfig()
+Loads application configuration from config.json.
 
-**Raises:**
-- FileNotFoundError: If config.json is not found in the project root
-- json.JSONDecodeError: If config.json contains invalid JSON syntax
-
-**Note:** The config.json file should be located in the project root directory
+**Returns:** dict - Configuration data including API tokens
 
 ## Database Schema
 
+The application uses SQLite with three main tables:
+
 ### events table
-- `event` (TEXT) - Event name
-- `description` (TEXT) - Event description
-- `unixtimeStart` (INTEGER) - Start time as Unix timestamp
-- `unixtimeEnd` (INTEGER) - End time as Unix timestamp
-- `task` (BOOLEAN) - Whether this is a task event (default: 0)
-- `completed` (BOOLEAN) - Whether the event is completed (default: 0)
+- `event` (text): Event name/identifier
+- `description` (text): Event description
+- `unixtimeStart` (integer): Start time as Unix timestamp
+- `unixtimeEnd` (integer): End time as Unix timestamp
+- `task` (boolean): Whether this is a task (default: False)
+- `completed` (boolean): Completion status (default: False)
 
 ### tasks table
-- `task` (TEXT) - Task name
-- `unixtime` (INTEGER) - Estimated duration in seconds
-- `urgency` (INTEGER) - Priority level (1-5)
-- `scheduled` (BOOLEAN) - Whether task is scheduled (default: 0)
-- `dueDate` (INTEGER) - Due date as Unix timestamp
+- `task` (text): Task name/identifier
+- `unixtime` (integer): Estimated completion time in seconds
+- `urgency` (integer): Urgency level (1-5)
+- `scheduled` (boolean): Whether scheduled (default: False)
+- `dueDate` (integer): Due date as Unix timestamp
+- `completed` (boolean): Completion status (default: False)
 
 ### blocks table
-- `timeStart` (INTEGER) - Block start time in seconds
-- `timeEnd` (INTEGER) - Block end time in seconds
+- `timeStart` (integer): Block start time as Unix timestamp
+- `timeEnd` (integer): Block end time as Unix timestamp
 
 ## Error Handling
 
-All functions include appropriate error handling for:
-- Database connection issues
-- Invalid time formats
-- Duplicate entries
-- Missing parameters
-- SQL injection prevention through parameterized queries
+All modules implement comprehensive error handling:
+- Input validation for time formats and command structure
+- Database connection error handling
+- Exception propagation with meaningful error messages
+- Graceful handling of duplicate entries and missing records
+
+## Usage Examples
+
+### Adding an Event
+```python
+# Command: EVENT ADD "Meeting" 25/12/2023 14:30 25/12/2023 15:30 "Team standup"
+tokenizer = CommandTokenizer(command)
+factory = TokenFactory(tokenizer.tokenObject)
+result = factory.doToken()
+```
+
+### Scheduling Tasks
+```python
+# Command: SCHEDULE 7 D
+tokenizer = CommandTokenizer(command)
+factory = TokenFactory(tokenizer.tokenObject)
+result = factory.doToken()  # Returns formatted calendar with scheduled tasks
+```

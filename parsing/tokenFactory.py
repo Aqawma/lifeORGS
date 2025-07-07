@@ -10,11 +10,11 @@ token handler based on the parsed command structure.
 """
 
 from parsing.tokenize import Tokens
-from scheduling.calendarView import CalendarView
+from scheduling.calendarViews.calendarView import CalendarView
 from scheduling.eventScheduler import Scheduler
-from scheduling.tokenAdd import TokenAdd
-from scheduling.tokenModify import TokenModify
-from scheduling.tokenRemove import TokenRemove
+from scheduling.eventModifiers.tokenAdd import TokenAdd
+from scheduling.eventModifiers.tokenModify import TokenModify
+from scheduling.eventModifiers.tokenRemove import TokenRemove
 
 
 class TokenFactory:
