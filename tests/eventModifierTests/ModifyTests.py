@@ -116,5 +116,6 @@ class ModifyTests(unittest.TestCase):
         scheduled = connector.cursor.fetchone()
         self.assertEqual(scheduled[0], 0)
 
+
 if __name__ == '__main__':
     unittest.main()
