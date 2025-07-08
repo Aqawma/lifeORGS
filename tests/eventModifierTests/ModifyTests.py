@@ -7,7 +7,6 @@ from utils.dbUtils import ConnectDB
 from utils.jsonUtils import setTestMode
 from utils.timeUtils import toUnixTime
 
-
 class ModifyTests(unittest.TestCase):
 
     def __init__(self, *args, **kwargs):
