@@ -48,3 +48,4 @@ venv.bak/
 ehthumbs.db
 Thumbs.db
 messaging/templates/config.json
+config.json

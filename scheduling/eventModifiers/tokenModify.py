@@ -22,7 +22,7 @@ class TokenModify:
 
             TokenRemove.removeEvent(TokenRemove(self.tokens))
             connector.cursor.execute("UPDATE tasks SET ?=? WHERE task=?", (self.tokens.modVerb,
-                                                                         self.tokens. modContext,
-                                                                         self.tokens.iD))
+                                                                           self.tokens. modContext,
+                                                                           self.tokens.iD))
 
             connector.conn.commit()

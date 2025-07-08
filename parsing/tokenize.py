@@ -64,6 +64,7 @@ class Tokens:
         self.blockEnd = blockEnd
         self.viewTime = viewTime
 
+
 class CommandTokenizer:
     """
     A command parser and tokenizer for the lifeORGS application.
@@ -278,9 +279,11 @@ class CommandTokenizer:
                 if tokenObj.modVerb == "DISC":
                     tokenObj.modContext = self.context[2]
                     return tokenObj
+
                 elif tokenObj.modVerb == "STARTTIME":
                     tokenObj.modContext = toUnixTime(f"{self.context[2]} {self.context[3]}")
                     return tokenObj
+
                 elif tokenObj.modVerb == "ENDTIME":
                     tokenObj.modContext = toUnixTime(f"{self.context[2]} {self.context[3]}")
                     return tokenObj
@@ -289,13 +292,15 @@ class CommandTokenizer:
 
             elif tokenObj.location == "TASK":
                 if tokenObj.modVerb == "DUEDATE":
-                    tokenObj.dueDate = toUnixTime(f"{self.context[2]} {self.context[3]}")
+                    tokenObj.modContext = toUnixTime(f"{self.context[2]} {self.context[3]}")
                     return tokenObj
+
                 elif tokenObj.modVerb == "TIME":
-                    tokenObj.taskTime = self.context[2]
+                    tokenObj.modContext = toSeconds(self.context[2])
                     return tokenObj
+
                 elif tokenObj.modVerb == "URGENCY":
-                    tokenObj.urgency = int(self.context[2])
+                    tokenObj.modContext = int(self.context[2])
                     return tokenObj
                 else:
                     raise Exception("Invalid command. Do it right.")
