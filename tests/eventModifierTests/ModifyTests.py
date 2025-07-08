@@ -115,3 +115,6 @@ class ModifyTests(unittest.TestCase):
         connector.cursor.execute("SELECT scheduled FROM tasks WHERE task=?", (self.tokenTaskScheduled.iD,))
         scheduled = connector.cursor.fetchone()
         self.assertEqual(scheduled[0], 0)
+
+if __name__ == '__main__':
+    unittest.main()
