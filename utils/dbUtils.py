@@ -11,6 +11,7 @@ regardless of the current working directory, making the application portable and
 import os
 import sqlite3
 
+from utils.jsonUtils import loadConfig
 
 class ConnectDB:
     """
@@ -36,6 +37,9 @@ class ConnectDB:
         Returns:
             str: Absolute path to the calendar.db file
         """
+
+        dbName = loadConfig()['DATABASE_NAME']
+
         # Get the directory of the current file (dbUtils.py)
         currentDir = os.path.dirname(os.path.abspath(__file__))
 
@@ -43,11 +47,12 @@ class ConnectDB:
         projectRoot = os.path.dirname(currentDir)
 
         # Construct the path to the database file
-        dbPath = os.path.join(projectRoot, 'calendar.db')
+        dbPath = os.path.join(projectRoot, 'databases', dbName)
 
         return dbPath
 
-    def initConnection(self, dbPath):
+    @staticmethod
+    def initConnection(dbPath):
         """
         Initialize a SQLite database connection and cursor.
 

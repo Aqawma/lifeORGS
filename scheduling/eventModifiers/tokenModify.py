@@ -8,9 +8,8 @@ class TokenModify:
 
     def modifyEvent(self):
         connector = ConnectDB()
-        connector.cursor.execute("UPDATE events SET ?=? WHERE event=?", (self.tokens.modVerb,
-                                                                       self.tokens.modContext,
-                                                                       self.tokens.iD))
+        connector.cursor.execute(f"UPDATE events SET {self.tokens.modVerb}=? WHERE event=?",
+                                 (self.tokens.modContext, self.tokens.iD))
         connector.conn.commit()
 
     def modifyTask(self):
@@ -18,11 +17,11 @@ class TokenModify:
         connector.cursor.execute("SELECT event FROM events WHERE event=?", (self.tokens.iD,))
         row = connector.cursor.fetchone()
 
-        if len(row) != 0:
-
+        if row is not None:
             TokenRemove.removeEvent(TokenRemove(self.tokens))
-            connector.cursor.execute("UPDATE tasks SET ?=? WHERE task=?", (self.tokens.modVerb,
-                                                                           self.tokens. modContext,
-                                                                           self.tokens.iD))
 
-            connector.conn.commit()
+        connector.cursor.execute(f"UPDATE tasks SET {self.tokens.modVerb}=? WHERE task=?",
+                                 (self.tokens. modContext, self.tokens.iD))
+        connector.cursor.execute("UPDATE tasks SET scheduled=0 WHERE task=?", (self.tokens.iD,))
+
+        connector.conn.commit()
