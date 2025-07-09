@@ -9,7 +9,7 @@ The TokenFactory implements a factory pattern to create and execute the appropri
 token handler based on the parsed command structure.
 """
 
-from parsing.tokenize import Tokens
+from userInteraction.parsing.tokenize import Tokens
 from calendarORGS.scheduling.calendarViews.calendarView import CalendarView
 from calendarORGS.scheduling.eventScheduler import Scheduler
 from calendarORGS.scheduling.eventModifiers.tokenAdd import TokenAdd
