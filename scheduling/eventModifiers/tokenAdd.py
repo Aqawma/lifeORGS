@@ -80,7 +80,7 @@ class TokenAdd:
         currentUnixTime = datetime.datetime.now().timestamp()
 
         connector.cursor.execute("SELECT event FROM events WHERE event=? AND unixtimeEnd>?", (self.tokens.iD,
-                                                                                            currentUnixTime,))
+                                                                                              currentUnixTime,))
         rows = connector.cursor.fetchall()
 
         if len(rows) != 0:
@@ -88,11 +88,11 @@ class TokenAdd:
         else:
 
             connector.cursor.execute("INSERT INTO events VALUES (?,?,?,?,?,?)", (self.tokens.iD,
-                                                                               self.tokens.description,
-                                                                               self.tokens.startTime,
-                                                                               self.tokens.endTime,
-                                                                               False,
-                                                                               False))
+                                                                                 self.tokens.description,
+                                                                                 self.tokens.startTime,
+                                                                                 self.tokens.endTime,
+                                                                                 False,
+                                                                                 False))
             connector.conn.commit()
 
             return f"{self.tokens.iD} added successfully."
@@ -143,11 +143,11 @@ class TokenAdd:
         else:
 
             connector.cursor.execute("INSERT INTO tasks VALUES (?,?,?,?,?,?)", (self.tokens.iD,
-                                                                              self.tokens.taskTime,
-                                                                              self.tokens.urgency,
-                                                                              False,
-                                                                              self.tokens.dueDate,
-                                                                              False))
+                                                                                self.tokens.taskTime,
+                                                                                self.tokens.urgency,
+                                                                                False,
+                                                                                self.tokens.dueDate,
+                                                                                False))
 
             connector.conn.commit()
 

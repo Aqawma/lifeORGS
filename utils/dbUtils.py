@@ -8,9 +8,11 @@ The module ensures that the database file is always accessed from the correct lo
 regardless of the current working directory, making the application portable and reliable.
 """
 
+import json
 import os
 import sqlite3
 
+from utils.jsonUtils import loadConfig
 
 class ConnectDB:
     """
@@ -36,6 +38,9 @@ class ConnectDB:
         Returns:
             str: Absolute path to the calendar.db file
         """
+
+        dbName = loadConfig()['DATABASE_NAME']
+
         # Get the directory of the current file (dbUtils.py)
         currentDir = os.path.dirname(os.path.abspath(__file__))
 
@@ -43,11 +48,12 @@ class ConnectDB:
         projectRoot = os.path.dirname(currentDir)
 
         # Construct the path to the database file
-        dbPath = os.path.join(projectRoot, 'calendar.db')
+        dbPath = os.path.join(projectRoot, 'databases', dbName)
 
         return dbPath
 
-    def initConnection(self, dbPath):
+    @staticmethod
+    def initConnection(dbPath):
         """
         Initialize a SQLite database connection and cursor.
 
@@ -94,3 +100,17 @@ class ConnectDB:
         """
         self.conn.commit()
         self.conn.close()
+
+def setMode(testing: bool):
+    configPath = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'config.json')
+
+    if testing:
+        config = loadConfig()
+        config['DATABASE_NAME'] = "testCalendar.db"
+        with open(configPath, 'w') as f:
+            json.dump(config, f, indent=4)
+    else:
+        config = loadConfig()
+        config['DATABASE_NAME'] = "calendar.db"
+        with open(configPath, 'w') as f:
+            json.dump(config, f, indent=4)

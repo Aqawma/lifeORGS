@@ -16,53 +16,28 @@ and command validation for events, tasks, and time blocks.
 import re
 
 from utils.timeUtils import toUnixTime, toSeconds
+from dataclasses import dataclass
+from typing import Optional, Union
 
 
+@dataclass
 class Tokens:
-    """
-    A data class that represents parsed command tokens for the lifeORGS application.
+    """A data class that represents parsed command tokens for the lifeORGS application."""
+    location: str
+    verb: str
+    iD: Optional[str] = None
+    modVerb: Optional[str] = None
+    modContext: Optional[Union[str, int, float]] = None
+    startTime: Optional[float] = None
+    endTime: Optional[float] = None
+    description: Optional[str] = None
+    dueDate: Optional[float] = None
+    taskTime: Optional[float] = None
+    urgency: Optional[int] = None
+    blockStart: Optional[float] = None
+    blockEnd: Optional[float] = None
+    viewTime: Optional[str] = None
 
-    This class stores all the relevant information extracted from user commands
-    for events, tasks, and time blocks. It serves as a structured container
-    for command data that can be used by other parts of the application.
-    """
-
-    def __init__(self, location: str, verb: str, iD: str = None, modVerb: str = None, modContext: str = None,
-                 startTime: float = None, endTime: float = None, description: str = None,
-                 dueDate: float = None, taskTime: float = None, urgency: int = None,
-                 blockStart: float = None, blockEnd: float = None,
-                 viewTime: str = None):
-        """
-        Initialize a Tokens object with command information.
-
-        Args:
-            location (str): The target location/type of the command (EVENT, TASK, BLOCK, etc.)
-            verb (str): The action to be performed (ADD, REMOVE, MODIFY, etc.)
-            iD (str, optional): Identifier for the item being operated on
-            modVerb (str, optional): Modification verb for MODIFY commands (DISC, STARTTIME, etc.)
-            startTime (float, optional): Unix timestamp for event start time
-            endTime (float, optional): Unix timestamp for event end time
-            description (str, optional): Description text for events
-            dueDate (float, optional): Unix timestamp for task due date
-            taskTime (float, optional): Time allocation for tasks
-            urgency (int, optional): Urgency level for tasks (1-5 scale)
-            blockStart (float, optional): Start time for time blocks (seconds from week start)
-            blockEnd (float, optional): End time for time blocks (seconds from week start)
-        """
-        self.location = location
-        self.verb = verb
-        self.iD = iD
-        self.modVerb = modVerb
-        self.modContext = modContext
-        self.startTime = startTime
-        self.endTime = endTime
-        self.description = description
-        self.dueDate = dueDate
-        self.taskTime = taskTime
-        self.urgency = urgency
-        self.blockStart = blockStart
-        self.blockEnd = blockEnd
-        self.viewTime = viewTime
 
 class CommandTokenizer:
     """
@@ -276,12 +251,17 @@ class CommandTokenizer:
 
             if tokenObj.location == "EVENT":
                 if tokenObj.modVerb == "DISC":
+                    tokenObj.modVerb = "description"
                     tokenObj.modContext = self.context[2]
                     return tokenObj
+
                 elif tokenObj.modVerb == "STARTTIME":
+                    tokenObj.modVerb = "unixtimeStart"
                     tokenObj.modContext = toUnixTime(f"{self.context[2]} {self.context[3]}")
                     return tokenObj
+
                 elif tokenObj.modVerb == "ENDTIME":
+                    tokenObj.modVerb = "unixtimeEnd"
                     tokenObj.modContext = toUnixTime(f"{self.context[2]} {self.context[3]}")
                     return tokenObj
                 else:
@@ -289,13 +269,18 @@ class CommandTokenizer:
 
             elif tokenObj.location == "TASK":
                 if tokenObj.modVerb == "DUEDATE":
-                    tokenObj.dueDate = toUnixTime(f"{self.context[2]} {self.context[3]}")
+                    tokenObj.modVerb = "dueDate"
+                    tokenObj.modContext = toUnixTime(f"{self.context[2]} {self.context[3]}")
                     return tokenObj
+
                 elif tokenObj.modVerb == "TIME":
-                    tokenObj.taskTime = self.context[2]
+                    tokenObj.modVerb = "unixtime"
+                    tokenObj.modContext = toSeconds(self.context[2])
                     return tokenObj
+
                 elif tokenObj.modVerb == "URGENCY":
-                    tokenObj.urgency = int(self.context[2])
+                    tokenObj.modVerb = "urgency"
+                    tokenObj.modContext = int(self.context[2])
                     return tokenObj
                 else:
                     raise Exception("Invalid command. Do it right.")
