@@ -1,7 +1,7 @@
 import unittest
 from parsing.tokenize import CommandTokenizer
 
-class tokenizeTests(unittest.TestCase):
+class ParsingTests(unittest.TestCase):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
