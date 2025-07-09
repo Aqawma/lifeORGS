@@ -1,5 +1,5 @@
 import unittest
-from parsing.tokenize import CommandTokenizer
+from userInteraction.parsing.tokenize import CommandTokenizer
 
 class ParsingTests(unittest.TestCase):
 
