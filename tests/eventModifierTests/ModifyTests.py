@@ -2,16 +2,16 @@ import unittest
 
 from parsing.tokenize import Tokens
 from scheduling.eventModifiers.tokenModify import TokenModify
-from tests.makeTestDB.makeTestDB import makeTestDB
+from tests.makeTestDB.makeTestDB import TestDBUtils
 from utils.dbUtils import ConnectDB
-from utils.jsonUtils import setTestMode
+from utils.dbUtils import setMode
 from utils.timeUtils import toUnixTime
 
 class ModifyTests(unittest.TestCase):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        setTestMode(True)
+        setMode(True)
 
         self.tokenEventDisc = Tokens('EVENT',
                                      'MODIFY',
@@ -51,7 +51,7 @@ class ModifyTests(unittest.TestCase):
 
     def test_modifyEvent(self):
         connector = ConnectDB()
-        makeTestDB.makeTestDB()
+        TestDBUtils.makeTestDB()
 
         print(f"For tokenEventDisc\n"
               f"Expected: modVerb:description modContext:Biannual Doctors Appointment")
@@ -79,7 +79,7 @@ class ModifyTests(unittest.TestCase):
 
     def test_modifyTask(self):
         connector = ConnectDB()
-        makeTestDB.makeTestDB()
+        TestDBUtils.makeTestDB()
 
         print(f"For tokenTaskTaskTime\nExpected: modVerb: taskTime modContext: {self.tokenTaskTaskTime.modContext} ")
         modifyTaskTaskTimeObj = TokenModify(self.tokenTaskTaskTime)
@@ -103,7 +103,7 @@ class ModifyTests(unittest.TestCase):
 
     def test_unscheduleModifiedTask(self):
         connector = ConnectDB()
-        makeTestDB.makeTestDB()
+        TestDBUtils.makeTestDB()
 
         print(f"")
         modifyTaskScheduledObj = TokenModify(self.tokenTaskScheduled)

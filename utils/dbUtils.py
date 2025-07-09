@@ -8,6 +8,7 @@ The module ensures that the database file is always accessed from the correct lo
 regardless of the current working directory, making the application portable and reliable.
 """
 
+import json
 import os
 import sqlite3
 
@@ -99,3 +100,17 @@ class ConnectDB:
         """
         self.conn.commit()
         self.conn.close()
+
+def setMode(testing: bool):
+    configPath = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'config.json')
+
+    if testing:
+        config = loadConfig()
+        config['DATABASE_NAME'] = "testCalendar.db"
+        with open(configPath, 'w') as f:
+            json.dump(config, f, indent=4)
+    else:
+        config = loadConfig()
+        config['DATABASE_NAME'] = "calendar.db"
+        with open(configPath, 'w') as f:
+            json.dump(config, f, indent=4)

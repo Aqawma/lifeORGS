@@ -1,12 +1,12 @@
 from utils.dbUtils import ConnectDB
-from utils.jsonUtils import setTestMode
+from utils.dbUtils import setMode
 from utils.timeUtils import toUnixTime, toSeconds
 
 
-class makeTestDB:
+class TestDBUtils:
     @staticmethod
     def makeTestDB():
-        setTestMode(True)
+        setMode(True)
         connector = ConnectDB()
 
         connector.cursor.execute("DROP TABLE IF EXISTS events")

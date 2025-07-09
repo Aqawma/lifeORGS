@@ -51,17 +51,3 @@ def loadConfig():
         config = json.load(f)
 
     return config
-
-def setTestMode(testing: bool):
-    configPath = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'config.json')
-
-    if testing:
-        config = loadConfig()
-        config['DATABASE_NAME'] = "testCalendar.db"
-        with open(configPath, 'w') as f:
-            json.dump(config, f, indent=4)
-    else:
-        config = loadConfig()
-        config['DATABASE_NAME'] = "calendar.db"
-        with open(configPath, 'w') as f:
-            json.dump(config, f, indent=4)
