@@ -26,7 +26,7 @@ Configuration Requirements:
 
 from fastapi import FastAPI, Request
 from fastapi.responses import PlainTextResponse
-from messaging.sendMessage import messageUser
+from calendarORGS.messaging.sendMessage import messageUser
 from parsing.tokenFactory import TokenFactory
 from parsing.tokenize import CommandTokenizer
 from utils.dbUtils import ConnectDB
