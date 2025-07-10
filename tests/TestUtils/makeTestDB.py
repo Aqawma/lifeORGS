@@ -1,6 +1,6 @@
 from utils.dbUtils import ConnectDB
 from utils.dbUtils import setMode
-from utils.timeUtils import toUnixTime, toSeconds
+from utils.timeUtils import toSeconds, TimeUtility
 
 
 class TestDBUtils:
@@ -43,28 +43,28 @@ class TestDBUtils:
         connector.cursor.execute(f"INSERT INTO events VALUES "
                                  f"('Doctor Appointment', "
                                  f"'Annual check-up', "
-                                 f"{toUnixTime('10/07/2025 10:00')}, "
-                                 f"{toUnixTime('10/07/2025 11:00')}, "
+                                 f"{TimeUtility('10/07/2025 10:00').convertToUTC()}, "
+                                 f"{TimeUtility('10/07/2025 11:00').convertToUTC()}, "
                                  f"0, 0)")
         connector.cursor.execute(f"INSERT INTO tasks VALUES "
                                  f"('Write Essay', "
                                  f"{toSeconds('03:00')}, "
                                  f"4, "
                                  f"0, "
-                                 f"{toUnixTime('10/07/2025 10:00')}, "
+                                 f"{TimeUtility('10/07/2025 10:00').convertToUTC()}, "
                                  f"0)")
         connector.cursor.execute(f"INSERT INTO tasks VALUES "
                                  f"('Send Email', "
                                  f"{toSeconds('00:30')}, "
                                  f"3, "
                                  f"1, "
-                                 f"{toUnixTime('10/07/2025 16:00')}, "
+                                 f"{TimeUtility('10/07/2025 16:00').convertToUTC()}, "
                                  f"0)")
         connector.cursor.execute(f"INSERT INTO events VALUES "
                                  f"('Send Email', "
                                  f"'Fake description not representative of actual code', "
-                                 f"{toUnixTime('08/07/2025 09:05')}, "
-                                 f"{toUnixTime('08/07/2025 09:35')}, "
+                                 f"{TimeUtility('08/07/2025 09:05').convertToUTC()}, "
+                                 f"{TimeUtility('08/07/2025 09:35').convertToUTC()}, "
                                  f"1, 0)")
         connector.conn.commit()
         connector.conn.close()
