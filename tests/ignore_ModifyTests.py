@@ -2,7 +2,7 @@ import unittest
 
 from parsing.tokenize import Tokens
 from scheduling.eventModifiers.tokenModify import TokenModify
-from tests.makeTestDB.makeTestDB import TestDBUtils
+from tests.TestUtils.makeTestDB import TestDBUtils
 from utils.dbUtils import ConnectDB
 from utils.dbUtils import setMode
 from utils.timeUtils import toUnixTime
