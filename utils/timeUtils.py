@@ -87,7 +87,6 @@ class TimeUtility:
             unixTimeUTC=self.unixTimeUTC,
         )
 
-
 def toSeconds(time):
     """
     Converts a time string in HH:MM or HH:MM:SS format to total seconds.
@@ -109,7 +108,6 @@ def toSeconds(time):
     if len(time) == 3:
         combinedTime += int(time[2])
     return combinedTime
-
 
 def timeOut(timeString):
     """
@@ -143,7 +141,6 @@ def timeOut(timeString):
         #TODO Make this logic better
         raise Exception("Invalid time format")
 
-
 def toShortHumanTime(unixTime):
     """
     Converts a Unix timestamp to a human-readable date string.
@@ -163,7 +160,6 @@ def toShortHumanTime(unixTime):
 
     return realTime
 
-
 def toHumanHour(unixTime):
     """
     Converts a Unix timestamp to a human-readable time string.
@@ -182,7 +178,6 @@ def toHumanHour(unixTime):
     realTime = datetime.fromtimestamp(unixTime).strftime('%I:%M %p')
 
     return realTime
-
 
 def deltaToStartOfWeek(currentTime):
     """

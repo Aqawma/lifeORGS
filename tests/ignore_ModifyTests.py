@@ -1,11 +1,8 @@
 import unittest
 
-from parsing.tokenize import Tokens
-from scheduling.eventModifiers.tokenModify import TokenModify
 from tests.TestUtils.makeTestDB import TestDBUtils
 from userInteraction.parsing.tokenize import Tokens
 from calendarORGS.scheduling.eventModifiers.tokenModify import TokenModify
-from tests.makeTestDB.makeTestDB import makeTestDB
 from utils.dbUtils import ConnectDB
 from utils.dbUtils import setMode
 from utils.timeUtils import TimeUtility
