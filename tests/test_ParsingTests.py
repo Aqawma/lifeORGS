@@ -48,7 +48,7 @@ class ParsingTests(unittest.TestCase):
         tokenizer = CommandTokenizer(self.modEventStr)
         self.assertEqual(tokenizer.location,"EVENT")
         self.assertEqual(tokenizer.verb,"MODIFY")
-        self.assertEqual(tokenizer.tokenObject.modVerb,"STARTTIME")
+        self.assertEqual(tokenizer.tokenObject.modVerb,"unixtimeStart")
         self.assertEqual(tokenizer.tokenObject.modContext, 1703534400.0)
 
     def test_commandTokenizerTaskAdd(self):
@@ -80,7 +80,7 @@ class ParsingTests(unittest.TestCase):
         tokenizer = CommandTokenizer(self.modTaskStr)
         self.assertEqual(tokenizer.location,"TASK")
         self.assertEqual(tokenizer.verb,"MODIFY")
-        self.assertEqual(tokenizer.tokenObject.modVerb,"TIME")
+        self.assertEqual(tokenizer.tokenObject.modVerb,"unixtime")
         self.assertEqual(tokenizer.tokenObject.modContext, 10800.0)
 
     def test_commandTokenizerBlockAdd(self):
