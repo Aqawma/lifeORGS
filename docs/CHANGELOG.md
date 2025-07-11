@@ -4,7 +4,37 @@ All notable changes to the lifeORGS project are documented in this file.
 
 ## [Current Version] - 2025
 
-### Added - Latest Updates (January 2025)
+### Added - Latest Updates (July 2025)
+
+#### Recent Documentation Enhancements (July 2025)
+- **Comprehensive Time Utilities Documentation**
+  - Added complete module docstring for utils/timeUtils.py with overview and dependencies
+  - Documented TimeData dataclass with detailed attribute descriptions and examples
+  - Enhanced TokenizeToDatetime class with method documentation and usage examples
+  - Comprehensive TimeUtility class documentation including all methods and error handling
+  - Added inline comments throughout time conversion and formatting functions
+
+- **Secrets Management Documentation**
+  - Complete documentation for secrets/initSecrets.py module
+  - Detailed SecretCreator class documentation with usage examples
+  - Enhanced createSecrets() method with step-by-step process documentation
+  - Improved loadSecrets() method with comprehensive error handling documentation
+  - Added security-conscious main execution block with token masking
+
+- **Test Infrastructure Documentation**
+  - Comprehensive documentation for tests/TestUtils/makeTestDB.py
+  - Detailed TestDBUtils class with complete method documentation
+  - Enhanced makeTestDB() method with step-by-step database setup documentation
+  - Added inline comments explaining sample data structure and relationships
+  - Documented test database schema and sample data purposes
+
+- **Test Suite Documentation**
+  - Complete module documentation for tests/eventModifierTests/test_ParsingTests.py
+  - Detailed ParsingTests class with comprehensive test coverage documentation
+  - Enhanced individual test methods with expected behavior documentation
+  - Added inline comments explaining test fixtures and validation logic
+  - Documented test categories and coverage areas
+
 - **Enhanced Documentation for Messaging Module**
   - Added comprehensive module docstrings for WhatsApp messaging functionality
   - Documented sendMessage.py with detailed function descriptions and examples
@@ -16,6 +46,12 @@ All notable changes to the lifeORGS project are documented in this file.
   - Enhanced jsonUtils.py with comprehensive function documentation
   - Added error handling documentation and usage examples
   - Included path resolution explanations and configuration requirements
+
+- **Documentation Consistency Improvements**
+  - Updated docs/README.md project structure to match current codebase
+  - Fixed command inconsistencies (changed DELETE to REMOVE commands)
+  - Synchronized command examples across all documentation files
+  - Ensured consistent terminology and structure across all markdown files
 
 - **Code Documentation Standards**
   - Implemented consistent docstring format across all modules
@@ -66,7 +102,6 @@ All notable changes to the lifeORGS project are documented in this file.
     - Format Unix timestamps to human-readable formats
     - Calculate time deltas for scheduling
   - **dbUtils.py**: Database path management for portability
-  - **regex.py**: Smart string splitting for command parsing
 
 ### Enhanced
 - **Code Documentation**
