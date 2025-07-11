@@ -35,7 +35,7 @@ env.bak/
 venv.bak/
 
 # Database files
-*.db
+databases/calendar.db
 *.sqlite
 *.sqlite3
 
@@ -47,5 +47,7 @@ venv.bak/
 .Trashes
 ehthumbs.db
 Thumbs.db
-calendarORGS/messaging/templates/config.json
-config.json
+messaging/templates/config.json
+
+# Secrets
+secrets/secrets.json

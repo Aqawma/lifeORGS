@@ -29,8 +29,8 @@ The application uses a command-based interface with the following format:
 # Add an event
 EVENT ADD "Meeting Name" 25/12/2023 14:30 25/12/2023 15:30 "Description"
 
-# Delete an event
-EVENT DELETE "Meeting Name"
+# Remove an event
+EVENT REMOVE "Meeting Name"
 
 # Modify event description
 EVENT MODIFY "Meeting Name" DISC "New description"
@@ -50,8 +50,8 @@ EVENT MODIFY "Meeting Name" STARTEND 25/12/2023 15:00 25/12/2023 16:30
 # Add a task (name, duration, due_date, due_time, urgency_level)
 TASK ADD "Complete Report" 02:30 25/12/2023 23:59 5
 
-# Delete a task
-TASK DELETE "Complete Report"
+# Remove a task
+TASK REMOVE "Complete Report"
 
 # Modify task due date
 TASK MODIFY "Complete Report" DUEDATE 26/12/2023 23:59
@@ -99,23 +99,41 @@ BLOCK ADD Tuesday 10:00 16:00
 
 ```
 lifeORGS/
-├── main.py                 # Main application entry point
-├── calendar.db            # SQLite database
+├── main.py                              # Main application entry point
+├── calendar.db                         # SQLite database file
+├── config.json                         # Configuration file for API tokens and settings
 ├── parsing/
-│   └── commandParse.py    # Command parsing and routing
+│   ├── tokenize.py                     # Command tokenization and parsing logic
+│   └── tokenFactory.py                 # Command routing and execution factory
 ├── scheduling/
-│   ├── calEvent.py        # Event and task management
-│   └── calFuncs.py        # Calendar viewing and scheduling
+│   ├── calendarViews/
+│   │   └── calendarView.py             # Calendar display and formatting functions
+│   ├── eventModifiers/
+│   │   ├── tokenAdd.py                 # Add operations for events, tasks, and blocks
+│   │   ├── tokenModify.py              # Modify operations for events and tasks
+│   │   └── tokenRemove.py              # Remove operations for events, tasks, and blocks
+│   └── eventScheduler.py               # Task scheduling and event retrieval
+├── messaging/
+│   ├── sendMessage.py                  # WhatsApp message sending functionality
+│   └── recieveMessage.py               # WhatsApp webhook receiver
 ├── utils/
-│   ├── timeUtils.py       # Time conversion utilities
-│   ├── dbUtils.py         # Database utilities
-│   └── regex.py           # String parsing utilities
+│   ├── timeUtils.py                    # Time conversion utilities
+│   ├── dbUtils.py                      # Database connection and path utilities
+│   └── jsonUtils.py                    # JSON configuration utilities
+├── secrets/
+│   ├── initSecrets.py                  # Secrets file creation and management
+│   └── secrets.json                    # API tokens and configuration secrets
 ├── tests/
-│   └── calendarbackup.db  # Test database backup
+│   ├── TestUtils/
+│   │   └── makeTestDB.py               # Test database creation utilities
+│   └── eventModifierTests/
+│       └── test_ParsingTests.py        # Command parsing unit tests
+├── requirements.txt                    # Python package dependencies
 └── docs/
-    ├── README.md          # User guide and quick start
-    ├── DOCUMENTATION.md   # Technical documentation
-    └── CHANGELOG.md       # Project change history
+    ├── README.md                       # User guide and quick start
+    ├── DOCUMENTATION.md                # Technical documentation
+    ├── API.md                          # API reference documentation
+    └── CHANGELOG.md                    # Project change history
 ```
 
 ## Documentation
