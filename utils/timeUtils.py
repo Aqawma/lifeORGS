@@ -45,34 +45,34 @@ class TimeData:
     way to represent time data throughout the application.
 
     Attributes:
-        monthNum (str): Month number (01-12) with zero padding
+        monthNum (int): Month number (01-12) with zero padding
         monthName (str): Full month name (e.g., "January", "February")
         dayOfWeek (str): Full day name (e.g., "Monday", "Tuesday")
-        day (str): Day of month (01-31) with zero padding
-        hour (str): Hour (00-23) with zero padding
-        minute (str): Minute (00-59) with zero padding
-        second (str): Second (00-59) with zero padding
-        dayNumInWeek (str): Day number in week (1-7) with zero padding
-        year (str): Four-digit year
+        day (int): Day of month (01-31) with zero padding
+        hour (int): Hour (00-23) with zero padding
+        minute (int): Minute (00-59) with zero padding
+        second (int): Second (00-59) with zero padding
+        dayNumInWeek (int): Day number in week (1-7) with zero padding
+        year (int): Four-digit year
         unixTimeUTC (float): Unix timestamp in UTC
         timeZone (str): User's timezone from configuration
 
     Example:
-        >>> time_data = TimeData(
-        ...     monthNum="12", monthName="December", dayOfWeek="Monday",
-        ...     day="25", hour="14", minute="30", second="00",
-        ...     dayNumInWeek="01", year="2023", unixTimeUTC=1703530800.0
-        ... )
+        # >>> time_data = TimeData(
+        # ...     monthNum=12, monthName="December", dayOfWeek="Monday",
+        # ...     day=25, hour=14, minute=30, second=00,
+        # ...     dayNumInWeek=1, year=2023, unixTimeUTC=1703530800.0
+        # ... )
     """
-    monthNum: str
+    monthNum: int
     monthName: str
     dayOfWeek: str
-    day: str
-    hour: str
-    minute: str
-    second: str
-    dayNumInWeek: str
-    year: str
+    day: int
+    hour: int
+    minute: int
+    second: int
+    dayNumInWeek: int
+    year: int
 
     unixTimeUTC: float
     timeZone: str = loadConfig()['USER_TIMEZONE']
@@ -89,8 +89,8 @@ class TokenizeToDatetime:
         datetimeObj (datetime): Python datetime object created from the parsed time string
 
     Example:
-        >>> tokenizer = TokenizeToDatetime("25/12/2023 14:30")
-        >>> print(tokenizer.datetimeObj)
+        # >>> tokenizer = TokenizeToDatetime("25/12/2023 14:30")
+        # >>> print(tokenizer.datetimeObj)
         datetime.datetime(2023, 12, 25, 14, 30)
     """
 
@@ -109,8 +109,8 @@ class TokenizeToDatetime:
             dict: Dictionary with 'date' and 'time' keys containing lists
                   of string components
 
-        Example:
-            >>> TokenizeToDatetime._splitTime("25/12/2023 14:30")
+        # Example:
+        #     >>> TokenizeToDatetime._splitTime("25/12/2023 14:30")
             {'date': ['25', '12', '2023'], 'time': ['14', '30']}
         """
         # Split the string into date and time parts
@@ -164,13 +164,13 @@ class TimeUtility:
         timeZone (str): User's timezone from configuration
 
     Example:
-        >>> # Convert time string to Unix timestamp
-        >>> utility = TimeUtility(intoUnix="25/12/2023 14:30")
-        >>> unix_time = utility.convertToUTC()
-
-        >>> # Generate structured time data from Unix timestamp
-        >>> utility = TimeUtility(unixTimeUTC=1703530800.0)
-        >>> time_data = utility.generateTimeDataObj()
+        # >>> # Convert time string to Unix timestamp
+        # >>> utility = TimeUtility(intoUnix="25/12/2023 14:30")
+        # >>> unix_time = utility.convertToUTC()
+        #
+        # >>> # Generate structured time data from Unix timestamp
+        # >>> utility = TimeUtility(unixTimeUTC=1703530800.0)
+        # >>> time_data = utility.generateTimeDataObj()
     """
 
     def __init__(self, intoUnix: str = None, unixTimeUTC: float = None):
@@ -196,7 +196,9 @@ class TimeUtility:
         self.unixTimeUTC: Optional[float] = unixTimeUTC
 
         # Load user's timezone from configuration
-        self.timeZone: str = loadConfig()['USER_TIMEZONE']
+        self.timeZone: ZoneInfo = ZoneInfo(loadConfig()['USER_TIMEZONE'])
+
+        self.datetimeObj = None
 
     def updateCurrentTime(self) -> float:
         """
@@ -224,12 +226,13 @@ class TimeUtility:
             AttributeError: If intoUnix is None (no datetime object to convert)
 
         Example:
-            >>> utility = TimeUtility(intoUnix="25/12/2023 14:30")
-            >>> unix_time = utility.convertToUTC()
-            >>> print(unix_time)  # Unix timestamp for the specified time
+            # >>> utility = TimeUtility(intoUnix="25/12/2023 14:30")
+            # >>> unix_time = utility.convertToUTC()
+            # >>> print(unix_time)  # Unix timestamp for the specified time
         """
         # Convert datetime to UTC timestamp and store it
-        self.unixTimeUTC = self.intoUnix.replace(tzinfo=timezone.utc).timestamp()
+
+        self.unixTimeUTC = self.intoUnix.replace(tzinfo=self.timeZone).astimezone(timezone.utc).timestamp()
         return self.unixTimeUTC
 
     def generateTimeDataObj(self) -> TimeData:
@@ -246,9 +249,9 @@ class TimeUtility:
             Exception: If no Unix timestamp is provided (unixTimeUTC is None)
 
         Example:
-            >>> utility = TimeUtility(unixTimeUTC=1703530800.0)
-            >>> time_data = utility.generateTimeDataObj()
-            >>> print(f"{time_data.dayOfWeek}, {time_data.monthName} {time_data.day}")
+            # >>> utility = TimeUtility(unixTimeUTC=1703530800.0)
+            # >>> time_data = utility.generateTimeDataObj()
+            # >>> print(f"{time_data.dayOfWeek}, {time_data.monthName} {time_data.day}")
             "Monday, December 25"
         """
         if self.unixTimeUTC is None:
@@ -270,18 +273,203 @@ class TimeUtility:
         userDateTime = utcDateTime.astimezone(ZoneInfo(userTimeZone))
 
         # Create and return structured TimeData object
-        return TimeData(
-            monthNum=str(userDateTime.month).zfill(2),           # Zero-padded month number
+        self.datetimeObj = TimeData(
+            monthNum=int(userDateTime.month),           # Zero-padded month number
             monthName=monthNames[userDateTime.month - 1],        # Full month name
             dayOfWeek=dayOfWeekNames[userDateTime.weekday()],    # Full day name
-            day=str(userDateTime.day).zfill(2),                 # Zero-padded day
-            hour=str(userDateTime.hour).zfill(2),               # Zero-padded hour (24h)
-            minute=str(userDateTime.minute).zfill(2),           # Zero-padded minute
-            second=str(userDateTime.second).zfill(2),           # Zero-padded second
-            dayNumInWeek=str(userDateTime.isoweekday()).zfill(2), # ISO weekday (1=Monday)
-            year=str(userDateTime.year),                        # Four-digit year
+            day=int(userDateTime.day),                 # Zero-padded day
+            hour=int(userDateTime.hour),               # Zero-padded hour (24h)
+            minute=int(userDateTime.minute),           # Zero-padded minute
+            second=int(userDateTime.second),           # Zero-padded second
+            dayNumInWeek=int(userDateTime.isoweekday()),  # ISO weekday (1=Monday)
+            year=int(userDateTime.year),                        # Four-digit year
             unixTimeUTC=self.unixTimeUTC,                       # Original Unix timestamp
         )
+        return self.datetimeObj
+
+class TimeStarts:
+    """
+    Utility class for generating time period boundaries and day collections.
+
+    This class provides convenient methods for calculating time boundaries for
+    common periods like today, this week, this month, and generating collections
+    of all days in the current month. It's designed to support calendar and
+    scheduling operations that need standardized time ranges.
+
+    Attributes:
+        currentTime (float): Current Unix timestamp in user's timezone
+        today (dict): Dictionary with 'start' and 'end' Unix timestamps for today
+        thisWeek (dict): Dictionary with 'start' and 'end' Unix timestamps for this week
+        thisMonth (dict): Dictionary with 'start' and 'end' Unix timestamps for this month
+        daysOfMonth (tuple): Tuple of dictionaries, each containing 'start' and 'end'
+                            timestamps for each day in the current month
+
+    Example:
+        # >>> time_starts = TimeStarts()
+        # >>> time_starts.setToday()
+        # >>> print(time_starts.today)
+        {'start': 1703462400.0, 'end': 1703548740.0}
+    """
+
+    def __init__(self):
+        """
+        Initialize TimeStarts with current time in user's timezone.
+
+        Sets up the current time and initializes empty containers for
+        time period boundaries that will be populated by the setter methods.
+        """
+        # Get current time in user's configured timezone
+        self.currentTime = datetime.now(ZoneInfo(loadConfig()['USER_TIMEZONE'])).timestamp()
+
+        # Initialize empty time period containers
+        self.today: dict = {}
+        self.thisWeek: dict = {}
+        self.thisMonth: dict = {}
+        self.daysOfMonth: tuple = ()
+
+    def setToday(self):
+        """
+        Sets the time boundaries for the current day (00:00 to 23:59).
+
+        Calculates the start (00:00:00) and end (23:59:00) timestamps for
+        the current day and stores them in the today attribute.
+
+        Updates:
+            self.today: Dictionary with 'start' and 'end' Unix timestamps
+        """
+        # Generate time data object from current time
+        timeUtil = TimeUtility(unixTimeUTC=self.currentTime)
+        timeUtil.generateTimeDataObj()
+        dateTimeObj = timeUtil.datetimeObj
+
+        # Calculate start of day (00:00:00)
+        startUnix = TimeUtility(f"{dateTimeObj.day}/{dateTimeObj.monthNum}/{dateTimeObj.year} 00:00").convertToUTC()
+
+        # Calculate end of day (23:59:00)
+        endUnix = TimeUtility(f"{dateTimeObj.day}/{dateTimeObj.monthNum}/{dateTimeObj.year} 23:59").convertToUTC()
+
+        # Store the day boundaries
+        self.today = {"start": startUnix, "end": endUnix}
+
+    def setThisWeek(self):
+        """
+        Sets the time boundaries for the current week (Monday 00:00 to Sunday 23:59).
+
+        Calculates the start of the week (Monday 00:00:00) and end of the week
+        (Sunday 23:59:00) based on the current date and stores them in the
+        thisWeek attribute.
+
+        Updates:
+            self.thisWeek: Dictionary with 'start' and 'end' Unix timestamps
+
+        Note:
+            Week starts on Monday (ISO 8601 standard)
+        """
+        # Generate time data object from current time
+        timeUtil = TimeUtility(unixTimeUTC=self.currentTime)
+        timeUtil.generateTimeDataObj()
+        dateTimeObj = timeUtil.datetimeObj
+
+        # Calculate start of week by going back to Monday
+        dateTimeObj.day -= dateTimeObj.dayNumInWeek  # Go back to Monday
+        startUnix = TimeUtility(f"{dateTimeObj.day}/{dateTimeObj.monthNum}/{dateTimeObj.year} 00:00").convertToUTC()
+
+        # Calculate end of week by going forward to Sunday
+        dateTimeObj.day += 6  # Move to Sunday (6 days after Monday)
+        endUnix = TimeUtility(f"{dateTimeObj.day}/{dateTimeObj.monthNum}/{dateTimeObj.year} 23:59").convertToUTC()
+
+        # Store the week boundaries
+        self.thisWeek = {"start": startUnix, "end": endUnix}
+
+    def setThisMonth(self):
+        """
+        Sets the time boundaries for the current month (1st 00:00 to last day 23:59).
+
+        Calculates the start of the month (1st day 00:00:00) and end of the month
+        (last day 23:59:00) and stores them in the thisMonth attribute.
+
+        Updates:
+            self.thisMonth: Dictionary with 'start' and 'end' Unix timestamps
+
+        Note:
+            Handles month transitions and year boundaries correctly
+        """
+        # Generate time data object from current time
+        timeUtil = TimeUtility(unixTimeUTC=self.currentTime)
+        timeUtil.generateTimeDataObj()
+        dateTimeObj = timeUtil.datetimeObj
+
+        # Set to first day of current month
+        dateTimeObj.day = 1
+        startUnix = TimeUtility(f"{dateTimeObj.day}/{dateTimeObj.monthNum}/{dateTimeObj.year} 00:00").convertToUTC()
+
+        # Calculate next month, handling year transition
+        nextMonth = dateTimeObj.monthNum + 1
+        if nextMonth > 12:
+            nextMonth = 1  # January of next year
+
+        # Get the last second of current month by going to start of next month and subtracting 60 seconds
+        tempEndString = (TimeUtility(f"{dateTimeObj.day}/{nextMonth}/{dateTimeObj.year} 00:00")
+                         .convertToUTC() - 60)
+
+        # Convert back to get the actual last day of current month
+        tempEndObj = TimeUtility(unixTimeUTC=tempEndString)
+        tempEndObj.generateTimeDataObj()
+        endObj = tempEndObj.datetimeObj
+
+        # Set end time to 23:59 of the last day of current month
+        endUnix = TimeUtility(f"{endObj.day}/{endObj.monthNum}/{endObj.year} 23:59").convertToUTC()
+
+        # Store the month boundaries
+        self.thisMonth = {"start": startUnix, "end": endUnix}
+
+    def generateAllDays(self):
+        """
+        Generates a collection of all days in the current month with their time boundaries.
+
+        Creates a tuple containing dictionaries for each day of the current month,
+        where each dictionary has 'start' (00:00:00) and 'end' (23:59:00) timestamps
+        for that specific day.
+
+        Updates:
+            self.daysOfMonth: Tuple of dictionaries, each containing day boundaries
+
+        Example:
+            # >>> time_starts = TimeStarts()
+            # >>> time_starts.generateAllDays()
+            # >>> print(len(time_starts.daysOfMonth))  # Number of days in current month
+            31
+        """
+        # Generate time data object from current time
+        timeUtil = TimeUtility(unixTimeUTC=self.currentTime)
+        timeUtil.generateTimeDataObj()
+        dateTimeObj = timeUtil.datetimeObj
+
+        # Store current month number for loop termination
+        currentMonth = dateTimeObj.monthNum
+
+        # Start from first day of current month at 00:00
+        dayStartUnix = TimeUtility(f"1/{dateTimeObj.monthNum}/{dateTimeObj.year} 00:00").convertToUTC()
+        dayEndUnix = dayStartUnix + 86340  # 86340 = 23:59:00 in seconds (24*3600 - 60)
+        daysList = []
+
+        # Iterate through all days of the current month
+        while True:
+            # Check if the current day is still in the current month
+            currentDayObj = TimeUtility(unixTimeUTC=dayStartUnix).generateTimeDataObj()
+            if currentDayObj.monthNum != currentMonth:
+                break  # We've moved to the next month, stop
+
+            # Add the current day's boundaries to the list
+            daysList.append({"start": dayStartUnix, "end": dayEndUnix})
+
+            # Move to the next day (add 24 hours = 86400 seconds)
+            dayStartUnix += 86400
+            dayEndUnix += 86400
+
+        # Convert to tuple for immutability and store
+        daysList = tuple(daysList)
+        self.daysOfMonth = daysList
 
 def toSeconds(time):
     """
@@ -299,10 +487,16 @@ def toSeconds(time):
         # >>> toSeconds("14:30:15")
         # Returns 52,215 (14 hours, 30 minutes, and 15 seconds)
     """
+    # Split time string by colon separator
     time = time.split(':')
+
+    # Calculate total seconds: hours * 3600 + minutes * 60
     combinedTime = int(time[0]) * 3600 + int(time[1]) * 60
+
+    # Add seconds if provided (HH:MM:SS format)
     if len(time) == 3:
         combinedTime += int(time[2])
+
     return combinedTime
 
 def timeOut(timeString):
@@ -327,14 +521,17 @@ def timeOut(timeString):
     Note:
         Future enhancement planned to support more time formats.
     """
+    # Split the time string by space to separate number and unit
     time = timeString.split(" ")
 
+    # Check if the unit is days ("D")
     if time[1] == "D":
+        # Convert days to seconds (1 day = 86400 seconds)
         timeString = int(time[0]) * 86400
         return timeString
 
     else:
-        #TODO Make this logic better
+        # TODO: Make this logic better - add support for hours, minutes, weeks, etc.
         raise Exception("Invalid time format")
 
 def toShortHumanTime(unixTime):
@@ -352,6 +549,7 @@ def toShortHumanTime(unixTime):
         # >>> toShortHumanTime(1640430600)
         # Returns "Saturday, December 25" (for December 25, 2021)
     """
+    # Convert Unix timestamp to datetime and format as "Weekday, Month Day"
     realTime = datetime.fromtimestamp(unixTime).strftime('%A, %B %d')
 
     return realTime
@@ -371,6 +569,7 @@ def toHumanHour(unixTime):
         # >>> toHumanHour(1640430600)
         # Returns "10:30 AM" (assuming this timestamp corresponds to 10:30 AM)
     """
+    # Convert Unix timestamp to datetime and format as 12-hour time with AM/PM
     realTime = datetime.fromtimestamp(unixTime).strftime('%I:%M %p')
 
     return realTime
@@ -398,8 +597,29 @@ def deltaToStartOfWeek(currentTime):
         - The calculation includes weekday, hour, minute, and second components
         - Result is in seconds and can be used for scheduling calculations
     """
-    weekStart = (datetime.fromtimestamp(currentTime).weekday() * 86400
-                 + datetime.fromtimestamp(currentTime).hour * 3600
-                 + datetime.fromtimestamp(currentTime).minute * 60
-                 + datetime.fromtimestamp(currentTime).second)
-    return weekStart  # Seconds since start of week (Monday)
+    # Calculate seconds elapsed since Monday 00:00:00 of current week
+    # weekday() returns 0=Monday, 1=Tuesday, etc.
+    weekStart = (datetime.fromtimestamp(currentTime).weekday() * 86400  # Days * seconds per day
+                 + datetime.fromtimestamp(currentTime).hour * 3600      # Hours * seconds per hour
+                 + datetime.fromtimestamp(currentTime).minute * 60      # Minutes * seconds per minute
+                 + datetime.fromtimestamp(currentTime).second)          # Seconds
+
+    return weekStart  # Total seconds since start of week (Monday 00:00:00)
+
+
+# Module-level initialization for global time utilities
+# This creates a global TimeStarts instance that can be imported and used
+# throughout the application for common time period calculations
+
+# Create a global TimeStarts instance
+Times = TimeStarts()
+
+# Initialize all time period boundaries
+Times.setToday()        # Set today's start and end timestamps
+Times.setThisWeek()     # Set this week's start and end timestamps  
+Times.setThisMonth()    # Set this month's start and end timestamps
+Times.generateAllDays() # Generate all days in current month with boundaries
+
+# Debug output - can be removed in production
+print(Times.daysOfMonth)        # Print all days in current month
+print(len(Times.daysOfMonth))   # Print number of days in current month
