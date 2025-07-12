@@ -9,7 +9,7 @@ The module works with the event scheduler to retrieve event data and formats it
 for console output or other display purposes.
 """
 
-from scheduling.eventScheduler import Scheduler
+from calendarORGS.scheduling.eventScheduler import Scheduler
 from utils.timeUtils import toShortHumanTime, toHumanHour
 
 
