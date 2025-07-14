@@ -34,7 +34,6 @@ from zoneinfo import ZoneInfo
 
 from utils.jsonUtils import loadConfig
 
-
 @dataclass
 class TimeData:
     """
@@ -76,6 +75,13 @@ class TimeData:
 
     unixTimeUTC: float
     timeZone: str = loadConfig()['USER_TIMEZONE']
+
+@dataclass
+class UnixTimePeriods:
+    minute: int = 60
+    hour: int = 60 * minute
+    day: int = 24 * hour
+    week: int = 7 * day
 
 class TokenizeToDatetime:
     """
@@ -319,13 +325,27 @@ class TimeStarts:
         time period boundaries that will be populated by the setter methods.
         """
         # Get current time in user's configured timezone
-        self.currentTime = datetime.now(ZoneInfo(loadConfig()['USER_TIMEZONE'])).timestamp()
+        self.currentTime = TimeUtility().currentTime
 
         # Initialize empty time period containers
         self.today: dict = {}
         self.thisWeek: dict = {}
+        self.floatingWeek: dict = {}
+        self.daysOfFloatingWeek: tuple = ()
+        self.daysOfThisWeek: tuple = ()
         self.thisMonth: dict = {}
         self.daysOfMonth: tuple = ()
+
+        self.dayPointerWeek = TimeUtility(unixTimeUTC=self.currentTime).generateTimeDataObj().dayNumInWeek - 1
+        self.dayPointerMonth = TimeUtility(unixTimeUTC=self.currentTime).generateTimeDataObj().day - 1
+
+        self.setToday()
+        self.setThisWeek()
+        self.setDaysOfThisWeek()
+        self.setFloatingWeek()
+        self.setDaysOfFloatingWeek()
+        self.setThisMonth()
+        self.setDaysOfMonth()
 
     def setToday(self):
         """
@@ -350,6 +370,7 @@ class TimeStarts:
 
         # Store the day boundaries
         self.today = {"start": startUnix, "end": endUnix}
+        return self.today
 
     def setThisWeek(self):
         """
@@ -380,6 +401,35 @@ class TimeStarts:
 
         # Store the week boundaries
         self.thisWeek = {"start": startUnix, "end": endUnix}
+        return self.thisWeek
+
+    def setDaysOfThisWeek(self):
+        daysOfMonth = self.setDaysOfMonth()
+        weekStart = self.dayPointerMonth - self.dayPointerWeek
+
+        daysOfThisWeek = []
+        for n in range(len(daysOfMonth)):
+            if (n+1 > weekStart) and (n+1 < weekStart + 7):
+                daysOfThisWeek.append(daysOfMonth[n])
+
+        self.daysOfThisWeek = tuple(daysOfThisWeek)
+        return self.daysOfThisWeek
+
+    def setFloatingWeek(self):
+        daysOfFloatingWeek = self.setDaysOfFloatingWeek()
+        self.floatingWeek = {"start": daysOfFloatingWeek[0]["start"], "end": daysOfFloatingWeek[-1]["end"]}
+
+    def setDaysOfFloatingWeek(self):
+        daysOfMonth = self.setDaysOfMonth()
+        today = self.setToday()
+        floatingWeek = []
+
+        for day in daysOfMonth:
+            if (day["end"] >= today["end"]) and (day["end"] < today["end"] + UnixTimePeriods.week):
+                floatingWeek.append(day)
+
+        self.daysOfFloatingWeek = tuple(floatingWeek)
+        return self.daysOfFloatingWeek
 
     def setThisMonth(self):
         """
@@ -422,8 +472,9 @@ class TimeStarts:
 
         # Store the month boundaries
         self.thisMonth = {"start": startUnix, "end": endUnix}
+        return self.thisMonth
 
-    def generateAllDays(self):
+    def setDaysOfMonth(self):
         """
         Generates a collection of all days in the current month with their time boundaries.
 
@@ -470,6 +521,7 @@ class TimeStarts:
         # Convert to tuple for immutability and store
         daysList = tuple(daysList)
         self.daysOfMonth = daysList
+        return self.daysOfMonth
 
 def toSeconds(time):
     """
@@ -605,21 +657,3 @@ def deltaToStartOfWeek(currentTime):
                  + datetime.fromtimestamp(currentTime).second)          # Seconds
 
     return weekStart  # Total seconds since start of week (Monday 00:00:00)
-
-
-# Module-level initialization for global time utilities
-# This creates a global TimeStarts instance that can be imported and used
-# throughout the application for common time period calculations
-
-# Create a global TimeStarts instance
-Times = TimeStarts()
-
-# Initialize all time period boundaries
-Times.setToday()        # Set today's start and end timestamps
-Times.setThisWeek()     # Set this week's start and end timestamps  
-Times.setThisMonth()    # Set this month's start and end timestamps
-Times.generateAllDays() # Generate all days in current month with boundaries
-
-# Debug output - can be removed in production
-print(Times.daysOfMonth)        # Print all days in current month
-print(len(Times.daysOfMonth))   # Print number of days in current month
