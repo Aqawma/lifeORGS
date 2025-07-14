@@ -81,7 +81,6 @@ class ParsingTests(unittest.TestCase):
         self.viewCalendarStr = 'CALENDAR VIEW'
         self.scheduleCalendarStr = 'CALENDAR SCHEDULE'
 
-
     def test_commandTokenizerEventAdd(self):
         print(f"For {self.addEventStr}\nExpected: "
               f"location:EVENT "
