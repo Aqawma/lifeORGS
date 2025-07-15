@@ -317,7 +317,7 @@ class TimeStarts:
         {'start': 1703462400.0, 'end': 1703548740.0}
     """
 
-    def __init__(self):
+    def __init__(self, generationTime=None):
         """
         Initialize TimeStarts with current time in user's timezone.
 
@@ -325,7 +325,7 @@ class TimeStarts:
         time period boundaries that will be populated by the setter methods.
         """
         # Get current time in user's configured timezone
-        self.currentTime = TimeUtility().currentTime
+        self.currentTime: float = TimeUtility().currentTime if generationTime is None else generationTime
 
         # Initialize empty time period containers
         self.today: dict = {}
@@ -392,43 +392,71 @@ class TimeStarts:
         dateTimeObj = timeUtil.datetimeObj
 
         # Calculate start of week by going back to Monday
-        dateTimeObj.day -= dateTimeObj.dayNumInWeek  # Go back to Monday
-        startUnix = TimeUtility(f"{dateTimeObj.day}/{dateTimeObj.monthNum}/{dateTimeObj.year} 00:00").convertToUTC()
+        weekStartDay = dateTimeObj.unixTimeUTC - (UnixTimePeriods.day * (dateTimeObj.dayNumInWeek - 1))
+        weekEndDay = weekStartDay + (UnixTimePeriods.day * 6)
 
-        # Calculate end of week by going forward to Sunday
-        dateTimeObj.day += 6  # Move to Sunday (6 days after Monday)
-        endUnix = TimeUtility(f"{dateTimeObj.day}/{dateTimeObj.monthNum}/{dateTimeObj.year} 23:59").convertToUTC()
+        weekStartObj = TimeUtility(unixTimeUTC=weekStartDay)
+        weekStartObj.generateTimeDataObj()
+        weekStartUnix = TimeUtility(intoUnix=f"{weekStartObj.datetimeObj.day}/"
+                                             f"{weekStartObj.datetimeObj.monthNum}/"
+                                             f"{weekStartObj.datetimeObj.year} 00:00").convertToUTC()
+        weekEndObj = TimeUtility(unixTimeUTC=weekEndDay)
+        weekEndObj.generateTimeDataObj()
+        weekEndUnix = TimeUtility(intoUnix=f"{weekEndObj.datetimeObj.day}/"
+                                           f"{weekEndObj.datetimeObj.monthNum}/"
+                                           f"{weekEndObj.datetimeObj.year} 23:59").convertToUTC()
 
         # Store the week boundaries
-        self.thisWeek = {"start": startUnix, "end": endUnix}
+        self.thisWeek = {"start": weekStartUnix, "end": weekEndUnix}
         return self.thisWeek
 
     def setDaysOfThisWeek(self):
-        daysOfMonth = self.setDaysOfMonth()
-        weekStart = self.dayPointerMonth - self.dayPointerWeek
+        self.setThisWeek()
 
-        daysOfThisWeek = []
-        for n in range(len(daysOfMonth)):
-            if (n+1 > weekStart) and (n+1 < weekStart + 7):
-                daysOfThisWeek.append(daysOfMonth[n])
+        counter = 0
+        startEndList = []
+        breaker = True
+        while breaker:
 
-        self.daysOfThisWeek = tuple(daysOfThisWeek)
+            startEndDict = {"start": (self.thisWeek["start"] + (UnixTimePeriods.day * counter)),
+                            "end": (self.thisWeek["start"] +
+                                    (UnixTimePeriods.day * (counter + 1)) - UnixTimePeriods.minute)}
+
+            if startEndDict["end"] > self.thisWeek["end"]:
+                breaker = False
+            else:
+                startEndList.append(startEndDict)
+                counter += 1
+
+        self.daysOfThisWeek = tuple(startEndList)
         return self.daysOfThisWeek
 
     def setFloatingWeek(self):
-        daysOfFloatingWeek = self.setDaysOfFloatingWeek()
-        self.floatingWeek = {"start": daysOfFloatingWeek[0]["start"], "end": daysOfFloatingWeek[-1]["end"]}
+        self.setToday()
+
+        floatingStart = self.today["start"]
+        floatingEnd = self.today["end"] + UnixTimePeriods.day * 6
+
+        self.floatingWeek = {"start": floatingStart, "end": floatingEnd}
+        return self.floatingWeek
 
     def setDaysOfFloatingWeek(self):
-        daysOfMonth = self.setDaysOfMonth()
-        today = self.setToday()
-        floatingWeek = []
+        self.setFloatingWeek()
 
-        for day in daysOfMonth:
-            if (day["end"] >= today["end"]) and (day["end"] < today["end"] + UnixTimePeriods.week):
-                floatingWeek.append(day)
+        counter = 0
+        startEndList = []
+        breaker = True
+        while breaker:
+            startEndDict = {"start": (self.floatingWeek["start"] + (UnixTimePeriods.day * counter)),
+                            "end": (self.floatingWeek["start"] +
+                                    (UnixTimePeriods.day * (counter + 1)) - UnixTimePeriods.minute)}
+            if startEndDict["end"] > self.floatingWeek["end"]:
+                breaker = False
+            else:
+                startEndList.append(startEndDict)
+                counter += 1
 
-        self.daysOfFloatingWeek = tuple(floatingWeek)
+        self.daysOfFloatingWeek = tuple(startEndList)
         return self.daysOfFloatingWeek
 
     def setThisMonth(self):
@@ -522,6 +550,52 @@ class TimeStarts:
         daysList = tuple(daysList)
         self.daysOfMonth = daysList
         return self.daysOfMonth
+
+    def _daysBuffer(self):
+        originalCurrentTime = self.currentTime
+        
+        currentBufferObj = TimeUtility(unixTimeUTC=self.currentTime)
+        currentBufferObj.generateTimeDataObj()
+
+        currentMonth = currentBufferObj.datetimeObj.monthNum
+        currentYear = currentBufferObj.datetimeObj.year
+        bufferDay = 15
+
+        if currentMonth == 12:
+            upperMonth = 1
+            lowerMonth = 11
+            upperYear = currentBufferObj.datetimeObj.year + 1
+            lowerYear = currentBufferObj.datetimeObj.year
+
+        elif currentMonth == 1:
+            upperMonth = 2
+            lowerMonth = 12
+            upperYear = currentBufferObj.datetimeObj.year
+            lowerYear = currentBufferObj.datetimeObj.year - 1
+
+        else:
+            upperMonth = currentMonth + 1
+            lowerMonth = currentMonth - 1
+            upperYear = currentYear
+            lowerYear = currentYear
+
+        upperBufferTime = TimeUtility(intoUnix=f"{bufferDay}/{upperMonth}/{upperYear} 00:00").convertToUTC()
+        currentBufferTime = TimeUtility(intoUnix=f"{bufferDay}/{currentMonth}/{currentYear} 00:00").convertToUTC()
+        lowerBufferTime = TimeUtility(intoUnix=f"{bufferDay}/{lowerMonth}/{lowerYear} 00:00").convertToUTC()
+
+        self.currentTime = upperBufferTime
+        upperBuffer = self.setDaysOfMonth()
+        self.currentTime = currentBufferTime
+        currentBuffer = self.setDaysOfMonth()
+        self.currentTime = lowerBufferTime
+        lowerBuffer = self.setDaysOfMonth()
+        
+        # Restore the original currentTime (your generationTime)
+        self.currentTime = originalCurrentTime
+
+        self.daysBuffer = tuple(lowerBuffer + currentBuffer + upperBuffer)
+        bufferLens = {"lower": len(lowerBuffer)-1, "current": len(currentBuffer)-1, "upper": len(upperBuffer)-1}
+        return self.daysBuffer, bufferLens
 
 def toSeconds(time):
     """
