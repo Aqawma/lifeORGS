@@ -5,7 +5,7 @@ from userInteraction.parsing.tokenize import Tokens
 from calendarORGS.scheduling.eventModifiers.tokenModify import TokenModify
 from utils.dbUtils import ConnectDB
 from utils.dbUtils import setMode
-from utils.timeUtils import TimeUtility
+from utils.timeUtilitities.timeUtil import TimeUtility
 
 class ModifyTests(unittest.TestCase):
 

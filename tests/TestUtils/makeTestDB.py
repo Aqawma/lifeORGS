@@ -25,7 +25,7 @@ Usage:
 
 from utils.dbUtils import ConnectDB
 from utils.dbUtils import setMode
-from utils.timeUtils import toSeconds, TimeUtility
+from utils.timeUtilitities.timeUtil import toSeconds, TimeUtility
 
 
 class TestDBUtils:
