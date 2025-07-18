@@ -270,123 +270,20 @@ class TimeStarts:
         return self.thisMonth
 
     def setDaysOfMonth(self):
-        """
-        Generates a collection of all days in the current month with their time boundaries.
+        self.setThisMonth()
 
-        Creates a tuple containing dictionaries for each day of the current month,
-        where each dictionary has 'start' (00:00:00) and 'end' (23:59:00) timestamps
-        for that specific day.
+        counter = 0
+        startEndList = []
+        breaker = True
+        while breaker:
+            startEndDict = {"start": (self.thisMonth["start"] + (UnixTimePeriods.day * counter)),
+                            "end": (self.thisMonth["start"] +
+                                    (UnixTimePeriods.day * (counter + 1)) - UnixTimePeriods.minute)}
+            if startEndDict["end"] > self.thisMonth["end"]:
+                breaker = False
+            else:
+                startEndList.append(startEndDict)
+                counter += 1
 
-        Updates:
-            self.daysOfMonth: Tuple of dictionaries, each containing day boundaries
-
-        Example:
-            # >>> time_starts = TimeStarts()
-            # >>> time_starts.generateAllDays()
-            # >>> print(len(time_starts.daysOfMonth))  # Number of days in current month
-            31
-        """
-        # Generate time data object from current time
-        timeUtil = TimeUtility(unixTimeUTC=self.currentTime)
-        timeUtil.generateTimeDataObj()
-        dateTimeObj = timeUtil.datetimeObj
-
-        # Store current month number for loop termination
-        currentMonth = dateTimeObj.monthNum
-
-        # Start from first day of current month at 00:00
-        dayStartUnix = TimeUtility(f"1/{dateTimeObj.monthNum}/{dateTimeObj.year} 00:00").convertToUTC()
-        dayEndUnix = dayStartUnix + 86340  # 86340 = 23:59:00 in seconds (24*3600 - 60)
-        daysList = []
-
-        # Iterate through all days of the current month
-        while True:
-            # Check if the current day is still in the current month
-            currentDayObj = TimeUtility(unixTimeUTC=dayStartUnix).generateTimeDataObj()
-            if currentDayObj.monthNum != currentMonth:
-                break  # We've moved to the next month, stop
-
-            # Add the current day's boundaries to the list
-            daysList.append({"start": dayStartUnix, "end": dayEndUnix})
-
-            # Move to the next day (add 24 hours = 86400 seconds)
-            dayStartUnix += 86400
-            dayEndUnix += 86400
-
-        # Convert to tuple for immutability and store
-        daysList = tuple(daysList)
-        self.daysOfMonth = daysList
+        self.daysOfMonth = tuple(startEndList)
         return self.daysOfMonth
-
-    def _daysBuffer(self):
-        """
-        Creates a comprehensive buffer of days spanning three months.
-
-        This private method generates a continuous collection of days that includes
-        the previous month, current month, and next month. This buffer is useful
-        for calendar views that need to display days beyond the current month
-        boundaries, such as showing trailing/leading days in calendar grids.
-
-        The method temporarily modifies the currentTime to generate day collections
-        for each month, then restores the original time to maintain state consistency.
-
-        Updates:
-            self.daysBuffer: Tuple containing all days from three consecutive months
-
-        Returns:
-            tuple: A tuple containing:
-                - daysBuffer (tuple): Combined days from all three months
-                - bufferLens (dict): Dictionary with lengths of each month's buffer
-                    - 'lower': Number of days in previous month (minus 1)
-                    - 'current': Number of days in current month (minus 1)
-                    - 'upper': Number of days in next month (minus 1)
-
-        Note:
-            This is a private method (indicated by underscore prefix) intended
-            for internal use by other TimeStarts methods. It handles year
-            transitions correctly (December to January).
-        """
-        originalCurrentTime = self.currentTime
-
-        currentBufferObj = TimeUtility(unixTimeUTC=self.currentTime)
-        currentBufferObj.generateTimeDataObj()
-
-        currentMonth = currentBufferObj.datetimeObj.monthNum
-        currentYear = currentBufferObj.datetimeObj.year
-        bufferDay = 15
-
-        if currentMonth == 12:
-            upperMonth = 1
-            lowerMonth = 11
-            upperYear = currentBufferObj.datetimeObj.year + 1
-            lowerYear = currentBufferObj.datetimeObj.year
-
-        elif currentMonth == 1:
-            upperMonth = 2
-            lowerMonth = 12
-            upperYear = currentBufferObj.datetimeObj.year
-            lowerYear = currentBufferObj.datetimeObj.year - 1
-
-        else:
-            upperMonth = currentMonth + 1
-            lowerMonth = currentMonth - 1
-            upperYear = currentYear
-            lowerYear = currentYear
-
-        upperBufferTime = TimeUtility(intoUnix=f"{bufferDay}/{upperMonth}/{upperYear} 00:00").convertToUTC()
-        currentBufferTime = TimeUtility(intoUnix=f"{bufferDay}/{currentMonth}/{currentYear} 00:00").convertToUTC()
-        lowerBufferTime = TimeUtility(intoUnix=f"{bufferDay}/{lowerMonth}/{lowerYear} 00:00").convertToUTC()
-
-        self.currentTime = upperBufferTime
-        upperBuffer = self.setDaysOfMonth()
-        self.currentTime = currentBufferTime
-        currentBuffer = self.setDaysOfMonth()
-        self.currentTime = lowerBufferTime
-        lowerBuffer = self.setDaysOfMonth()
-
-        # Restore the original currentTime (your generationTime)
-        self.currentTime = originalCurrentTime
-
-        self.daysBuffer = tuple(lowerBuffer + currentBuffer + upperBuffer)
-        bufferLens = {"lower": len(lowerBuffer)-1, "current": len(currentBuffer)-1, "upper": len(upperBuffer)-1}
-        return self.daysBuffer, bufferLens
