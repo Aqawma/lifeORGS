@@ -15,7 +15,7 @@ and command validation for events, tasks, and time blocks.
 
 import re
 
-from utils.timeUtils import TimeUtility, toSeconds
+from utils.timeUtilitities.timeUtil import TimeUtility, toSeconds
 from dataclasses import dataclass
 from typing import Optional, Union
 
