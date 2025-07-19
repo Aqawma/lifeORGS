@@ -5,7 +5,6 @@ from datetime import datetime
 from utils.timeUtilitities.startAndEndBlocks import TimeStarts
 from utils.timeUtilitities.timeUtil import TimeUtility, TimeData, UnixTimePeriods, TokenizeToDatetime
 
-
 class tokenizeToDatetimeTests(unittest.TestCase):
     def test_tokenizeToDatetime(self):
         tokenizedDatetime = TokenizeToDatetime("09/07/2025 14:00")

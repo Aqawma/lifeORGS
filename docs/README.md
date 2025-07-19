@@ -94,6 +94,9 @@ BLOCK ADD Tuesday 10:00 16:00
 - **Time Block Management**: Define available time periods for task scheduling
 - **Smart Command Parsing**: Handles quoted strings and case-insensitive commands
 - **SQLite Database**: Persistent storage with automatic backup
+- **HTML Calendar Generation**: Generate web-based calendar views using Jinja2 templates
+- **Modular Time Utilities**: Comprehensive time handling with separate utility modules
+- **Web Calendar Display**: Browser-viewable calendar with responsive HTML templates
 
 ## Project Structure
 
@@ -102,32 +105,49 @@ lifeORGS/
 ├── main.py                              # Main application entry point
 ├── calendar.db                         # SQLite database file
 ├── config.json                         # Configuration file for API tokens and settings
-├── parsing/
-│   ├── tokenize.py                     # Command tokenization and parsing logic
-│   └── tokenFactory.py                 # Command routing and execution factory
-├── scheduling/
+├── calendarORGS/
 │   ├── calendarViews/
-│   │   └── calendarView.py             # Calendar display and formatting functions
-│   ├── eventModifiers/
-│   │   ├── tokenAdd.py                 # Add operations for events, tasks, and blocks
-│   │   ├── tokenModify.py              # Modify operations for events and tasks
-│   │   └── tokenRemove.py              # Remove operations for events, tasks, and blocks
-│   └── eventScheduler.py               # Task scheduling and event retrieval
-├── messaging/
-│   ├── sendMessage.py                  # WhatsApp message sending functionality
-│   └── recieveMessage.py               # WhatsApp webhook receiver
+│   │   ├── calendarView.py             # Calendar display and formatting functions
+│   │   ├── calendarCreator/
+│   │   │   └── generateCalendar.py     # HTML calendar generation using Jinja2
+│   │   ├── calendarTemplates/
+│   │   │   └── weekCalendar.html       # HTML template for week calendar view
+│   │   └── calendarSite/
+│   │       └── index.html              # Generated HTML calendar output
+│   └── scheduling/
+│       ├── eventModifiers/
+│       │   ├── tokenAdd.py             # Add operations for events, tasks, and blocks
+│       │   ├── tokenModify.py          # Modify operations for events and tasks
+│       │   └── tokenRemove.py          # Remove operations for events, tasks, and blocks
+│       └── eventScheduler.py           # Task scheduling and event retrieval
+├── userInteraction/
+│   ├── messaging/
+│   │   ├── sendMessage.py              # WhatsApp message sending functionality
+│   │   └── recieveMessage.py           # WhatsApp webhook receiver
+│   └── parsing/
+│       ├── tokenize.py                 # Command tokenization and parsing logic
+│       └── tokenFactory.py            # Command routing and execution factory
 ├── utils/
-│   ├── timeUtils.py                    # Time conversion utilities
+│   ├── timeUtilitities/
+│   │   ├── timeUtil.py                 # Core time conversion and utility functions
+│   │   ├── timeDataClasses.py          # Time data structures (TimeData, UnixTimePeriods)
+│   │   └── startAndEndBlocks.py        # Time period calculation classes (TimeStarts)
 │   ├── dbUtils.py                      # Database connection and path utilities
-│   └── jsonUtils.py                    # JSON configuration utilities
+│   ├── jsonUtils.py                    # JSON configuration utilities
+│   └── projRoot.py                     # Project root path utilities
 ├── secrets/
 │   ├── initSecrets.py                  # Secrets file creation and management
 │   └── secrets.json                    # API tokens and configuration secrets
 ├── tests/
 │   ├── TestUtils/
 │   │   └── makeTestDB.py               # Test database creation utilities
-│   └── eventModifierTests/
-│       └── test_ParsingTests.py        # Command parsing unit tests
+│   ├── calViewTests/
+│   │   └── test_eventSortingTests.py   # Calendar view and event sorting tests
+│   ├── eventModifierTests/
+│   │   └── test_ParsingTests.py        # Command parsing unit tests
+│   └── utilTests/
+│       ├── test_timeTests.py           # Time utility function tests
+│       └── TimeStartsTuples.json       # Test data for time period calculations
 ├── requirements.txt                    # Python package dependencies
 └── docs/
     ├── README.md                       # User guide and quick start

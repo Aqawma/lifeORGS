@@ -1,3 +1,36 @@
+"""
+Time Period Boundary Calculation Module
+
+This module provides utilities for calculating time period boundaries and generating
+collections of time periods for calendar and scheduling operations. It handles
+complex time calculations including week boundaries, month boundaries, and
+floating time periods.
+
+The module is designed to support calendar applications that need standardized
+time ranges for displaying events, scheduling tasks, and organizing time-based data.
+
+Dependencies:
+- utils.timeUtilitities.timeUtil: Core time utility functions and classes
+- utils.timeUtilitities.timeDataClasses: Time data structures and constants
+
+Classes:
+- TimeStarts: Main class for calculating time period boundaries and day collections
+
+Key Features:
+- Automatic calculation of day, week, and month boundaries
+- Support for both fixed weeks (Monday-Sunday) and floating weeks (starting from any day)
+- Month-aware calculations handling different month lengths (28, 29, 30, 31 days)
+- Timezone-aware calculations using user configuration
+- Comprehensive day collections for calendar display
+
+Example:
+    >>> time_starts = TimeStarts()
+    >>> print(time_starts.today)
+    {'start': 1703462400.0, 'end': 1703548740.0}
+    >>> print(len(time_starts.daysOfMonth))
+    31  # Number of days in current month
+"""
+
 from utils.timeUtilitities.timeUtil import TimeUtility
 from utils.timeUtilitities.timeDataClasses import UnixTimePeriods
 
