@@ -36,7 +36,7 @@ class EventSorter:
         self.pastEvents: tuple = ()
         self.assembleEventLists()
 
-        self.todayEvents: tuple = ()
+        self.todayEvents: dict = {}
         self.thisWeekEvents: tuple = ()
         self.floatingWeekEvents: tuple = ()
         self.thisMonthEvents: tuple = ()
@@ -86,13 +86,6 @@ class EventSorter:
             weekEvents.append(tuple(thatDayEvents))
         return tuple(weekEvents)
 
-    def noEventsToday(self):
-        counter = 0
-        for item in self.allEvents:
-            if item.start > self.timeStarts.today["start"] and item.end < self.timeStarts.today["end"]:
-                counter += 1
-        return counter
-
     def assembleEventLists(self):
         connector = ConnectDB()
         connector.cursor.execute("SELECT event, description, unixtimeStart, unixtimeEnd FROM events")
@@ -116,25 +109,12 @@ class EventSorter:
         return self.allEvents, self.futureEvents, self.pastEvents
 
     def assembleTodayEvents(self):
-        for idx, item in enumerate(self.allEvents):
-            if item.start > self.timeStarts.today["start"] and item.end < self.timeStarts.today["end"]:
-                
-                if len(self.todayEvents) == 0:
-                    eventDict = {"eventData": item,
-                                 "toPreviousEvent": item.startFromDay,
-                                 "toNextEvent": self.allEvents[idx+1].start - item.end}
-                    
-                elif len(self.todayEvents) == self.noEventsToday():
-                    eventDict = {"eventData": item,
-                                 "toPreviousEvent": item.start - self.allEvents[idx-1].end,
-                                 "toNextEvent": item.endFromDay}
-                    
-                else:
-                    eventDict = {"eventData": item,
-                                 "toPreviousEvent": item.start - self.todayEvents[idx-1]["eventData"].end,
-                                 "toNextEvent": item.endFromDay - self.todayEvents[idx+1]["eventData"].end}
-                    
-                self.todayEvents += (eventDict,)
+        dayStart = self.timeStarts.today["start"]
+        dayEnd = self.timeStarts.today["end"]
+
+        self.todayEvents = self._assembleEvents(dayStart, dayEnd, (self.timeStarts.today,))[0]
+        return self.todayEvents
+
 
     def assembleThisWeekEvents(self):
         weekStart = self.timeStarts.thisWeek["start"]
@@ -225,3 +205,4 @@ class CalendarView:
                 output.append(f"{item[0]} from {toHumanHour(item[2])} to {toHumanHour(item[3])}")
 
         return output
+

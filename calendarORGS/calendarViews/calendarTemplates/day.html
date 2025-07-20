@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Calendar Grid</title>
+  <style>
+      .box {
+          width: 80vw;
+          background-color: azure;
+          border-radius: 10px;
+          border: 1px solid black;
+      }
+      {% for idx in range(todayEvents|length) %}
+          .box:nth-child({{ (idx * 2) + 1 }}) {
+              background-color: transparent;
+              margin: 0;
+              padding: 0;
+              border: none;
+              height: {{ (todayEvents[idx]["toPreviousEvent"]/86400) * 100 }}vh;
+          }
+          .box:nth-child({{ (idx * 2) + 2 }}) {
+              height: {{ todayEvents[idx]["eventData"].percentOfDay }}vh;
+          }
+      {% endfor %}
+  </style>
+</head>
+<body>
+    {% for event in todayEvents %}
+        <div class="box"></div>
+        <div class="box">{{ event["eventData"].iD }}</div>
+    {% endfor %}
+</body>
+</html>
