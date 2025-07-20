@@ -15,7 +15,7 @@ and command validation for events, tasks, and time blocks.
 
 import re
 
-from utils.timeUtilitities.timeUtil import TimeUtility, toSeconds
+from utils.timeUtilitities.timeUtil import TimeConverter, toSeconds
 from dataclasses import dataclass
 from typing import Optional, Union
 
@@ -208,15 +208,15 @@ class CommandTokenizer:
         if self.verb == "ADD":
             if tokenObj.location == "EVENT":
                 tokenObj.iD = self.context[0]
-                tokenObj.startTime = TimeUtility(f"{self.context[1]} {self.context[2]}").convertToUTC()
-                tokenObj.endTime = TimeUtility(f"{self.context[3]} {self.context[4]}").convertToUTC()
+                tokenObj.startTime = TimeConverter(f"{self.context[1]} {self.context[2]}").convertToUTC()
+                tokenObj.endTime = TimeConverter(f"{self.context[3]} {self.context[4]}").convertToUTC()
                 tokenObj.description = self.context[5]
                 return tokenObj
 
             elif tokenObj.location == "TASK":
                 tokenObj.iD = self.context[0]
                 tokenObj.taskTime = toSeconds(self.context[1])
-                tokenObj.dueDate = TimeUtility(f"{self.context[2]} {self.context[3]}").convertToUTC()
+                tokenObj.dueDate = TimeConverter(f"{self.context[2]} {self.context[3]}").convertToUTC()
                 tokenObj.urgency = int(self.context[4])
                 return tokenObj
 
@@ -257,12 +257,12 @@ class CommandTokenizer:
 
                 elif tokenObj.modVerb == "STARTTIME":
                     tokenObj.modVerb = "unixtimeStart"
-                    tokenObj.modContext = TimeUtility(f"{self.context[2]} {self.context[3]}").convertToUTC()
+                    tokenObj.modContext = TimeConverter(f"{self.context[2]} {self.context[3]}").convertToUTC()
                     return tokenObj
 
                 elif tokenObj.modVerb == "ENDTIME":
                     tokenObj.modVerb = "unixtimeEnd"
-                    tokenObj.modContext = TimeUtility(f"{self.context[2]} {self.context[3]}").convertToUTC()
+                    tokenObj.modContext = TimeConverter(f"{self.context[2]} {self.context[3]}").convertToUTC()
                     return tokenObj
                 else:
                     raise Exception("Invalid command. Do it right.")
@@ -270,7 +270,7 @@ class CommandTokenizer:
             elif tokenObj.location == "TASK":
                 if tokenObj.modVerb == "DUEDATE":
                     tokenObj.modVerb = "dueDate"
-                    tokenObj.modContext = TimeUtility(f"{self.context[2]} {self.context[3]}").convertToUTC()
+                    tokenObj.modContext = TimeConverter(f"{self.context[2]} {self.context[3]}").convertToUTC()
                     return tokenObj
 
                 elif tokenObj.modVerb == "TIME":

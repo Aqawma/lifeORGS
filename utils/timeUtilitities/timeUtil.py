@@ -32,7 +32,7 @@ from typing import Optional
 from zoneinfo import ZoneInfo
 
 from utils.jsonUtils import loadConfig
-from utils.timeUtilitities.timeDataClasses import TimeData, UnixTimePeriods
+from utils.timeUtilitities.timeDataClasses import TimeData
 
 class TokenizeToDatetime:
     """
@@ -106,7 +106,7 @@ class TokenizeToDatetime:
                                     int(self.timeDict['time'][0]),  # hour
                                     int(self.timeDict['time'][1]))  # minute
 
-class TimeUtility:
+class TimeConverter:
     """
     Main utility class for time operations and conversions.
 

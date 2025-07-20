@@ -3,7 +3,7 @@ import unittest
 from datetime import datetime
 
 from utils.timeUtilitities.startAndEndBlocks import TimeStarts
-from utils.timeUtilitities.timeUtil import TimeUtility, TimeData, UnixTimePeriods, TokenizeToDatetime
+from utils.timeUtilitities.timeUtil import TimeConverter, TimeData, UnixTimePeriods, TokenizeToDatetime
 
 class tokenizeToDatetimeTests(unittest.TestCase):
     def test_tokenizeToDatetime(self):
@@ -17,14 +17,14 @@ class TimeUtilityTests(unittest.TestCase):
 
     def test_updateCurrentTime(self):
         print("For updateCurrentTime: Expected: oldTime != currentTime")
-        timeUtility = TimeUtility()
+        timeUtility = TimeConverter()
         oldTime = timeUtility.currentTime
         timeUtility.updateCurrentTime()
         self.assertNotEqual(oldTime, timeUtility.currentTime)
 
     def test_convertToUTC(self):
         print("For convertToUTC: Input: 09/07/2025 14:00 [EST-DST] Expected: 1703530800.0")
-        timeUtility = TimeUtility(intoUnix="09/07/2025 14:00")
+        timeUtility = TimeConverter(intoUnix="09/07/2025 14:00")
         self.assertEqual(timeUtility.convertToUTC(), 1752084000.0)
 
     def test_generateTimeDataObj(self):
@@ -49,7 +49,7 @@ class TimeUtilityTests(unittest.TestCase):
                                dayNumInWeek=3,
                                year=2025,
                                unixTimeUTC=1752084000.0)
-        timeUtility = TimeUtility(unixTimeUTC=1752084000.0)
+        timeUtility = TimeConverter(unixTimeUTC=1752084000.0)
         timeUtility.generateTimeDataObj()
         self.assertEqual(timeUtility.datetimeObj, timeDataObj)
 

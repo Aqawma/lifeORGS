@@ -31,7 +31,7 @@ Example:
     31  # Number of days in current month
 """
 
-from utils.timeUtilitities.timeUtil import TimeUtility
+from utils.timeUtilitities.timeUtil import TimeConverter
 from utils.timeUtilitities.timeDataClasses import UnixTimePeriods
 
 class TimeStarts:
@@ -66,7 +66,7 @@ class TimeStarts:
         time period boundaries that will be populated by the setter methods.
         """
         # Get current time in user's configured timezone
-        self.currentTime: float = TimeUtility().currentTime if generationTime is None else generationTime
+        self.currentTime: float = TimeConverter().currentTime if generationTime is None else generationTime
 
         # Initialize empty time period containers
         self.today: dict = {}
@@ -77,8 +77,8 @@ class TimeStarts:
         self.thisMonth: dict = {}
         self.daysOfMonth: tuple = ()
 
-        self.dayPointerWeek = TimeUtility(unixTimeUTC=self.currentTime).generateTimeDataObj().dayNumInWeek - 1
-        self.dayPointerMonth = TimeUtility(unixTimeUTC=self.currentTime).generateTimeDataObj().day - 1
+        self.dayPointerWeek = TimeConverter(unixTimeUTC=self.currentTime).generateTimeDataObj().dayNumInWeek - 1
+        self.dayPointerMonth = TimeConverter(unixTimeUTC=self.currentTime).generateTimeDataObj().day - 1
 
         self.setToday()
         self.setThisWeek()
@@ -99,15 +99,15 @@ class TimeStarts:
             self.today: Dictionary with 'start' and 'end' Unix timestamps
         """
         # Generate time data object from current time
-        timeUtil = TimeUtility(unixTimeUTC=self.currentTime)
+        timeUtil = TimeConverter(unixTimeUTC=self.currentTime)
         timeUtil.generateTimeDataObj()
         dateTimeObj = timeUtil.datetimeObj
 
         # Calculate start of day (00:00:00)
-        startUnix = TimeUtility(f"{dateTimeObj.day}/{dateTimeObj.monthNum}/{dateTimeObj.year} 00:00").convertToUTC()
+        startUnix = TimeConverter(f"{dateTimeObj.day}/{dateTimeObj.monthNum}/{dateTimeObj.year} 00:00").convertToUTC()
 
         # Calculate end of day (23:59:00)
-        endUnix = TimeUtility(f"{dateTimeObj.day}/{dateTimeObj.monthNum}/{dateTimeObj.year} 23:59").convertToUTC()
+        endUnix = TimeConverter(f"{dateTimeObj.day}/{dateTimeObj.monthNum}/{dateTimeObj.year} 23:59").convertToUTC()
 
         # Store the day boundaries
         self.today = {"start": startUnix, "end": endUnix}
@@ -128,7 +128,7 @@ class TimeStarts:
             Week starts on Monday (ISO 8601 standard)
         """
         # Generate time data object from current time
-        timeUtil = TimeUtility(unixTimeUTC=self.currentTime)
+        timeUtil = TimeConverter(unixTimeUTC=self.currentTime)
         timeUtil.generateTimeDataObj()
         dateTimeObj = timeUtil.datetimeObj
 
@@ -136,14 +136,14 @@ class TimeStarts:
         weekStartDay = dateTimeObj.unixTimeUTC - (UnixTimePeriods.day * (dateTimeObj.dayNumInWeek - 1))
         weekEndDay = weekStartDay + (UnixTimePeriods.day * 6)
 
-        weekStartObj = TimeUtility(unixTimeUTC=weekStartDay)
+        weekStartObj = TimeConverter(unixTimeUTC=weekStartDay)
         weekStartObj.generateTimeDataObj()
-        weekStartUnix = TimeUtility(intoUnix=f"{weekStartObj.datetimeObj.day}/"
+        weekStartUnix = TimeConverter(intoUnix=f"{weekStartObj.datetimeObj.day}/"
                                              f"{weekStartObj.datetimeObj.monthNum}/"
                                              f"{weekStartObj.datetimeObj.year} 00:00").convertToUTC()
-        weekEndObj = TimeUtility(unixTimeUTC=weekEndDay)
+        weekEndObj = TimeConverter(unixTimeUTC=weekEndDay)
         weekEndObj.generateTimeDataObj()
-        weekEndUnix = TimeUtility(intoUnix=f"{weekEndObj.datetimeObj.day}/"
+        weekEndUnix = TimeConverter(intoUnix=f"{weekEndObj.datetimeObj.day}/"
                                            f"{weekEndObj.datetimeObj.monthNum}/"
                                            f"{weekEndObj.datetimeObj.year} 23:59").convertToUTC()
 
@@ -273,13 +273,13 @@ class TimeStarts:
             Handles month transitions and year boundaries correctly
         """
         # Generate time data object from current time
-        timeUtil = TimeUtility(unixTimeUTC=self.currentTime)
+        timeUtil = TimeConverter(unixTimeUTC=self.currentTime)
         timeUtil.generateTimeDataObj()
         dateTimeObj = timeUtil.datetimeObj
 
         # Set to first day of current month
         dateTimeObj.day = 1
-        startUnix = TimeUtility(f"{dateTimeObj.day}/{dateTimeObj.monthNum}/{dateTimeObj.year} 00:00").convertToUTC()
+        startUnix = TimeConverter(f"{dateTimeObj.day}/{dateTimeObj.monthNum}/{dateTimeObj.year} 00:00").convertToUTC()
 
         # Calculate next month, handling year transition
         nextMonth = dateTimeObj.monthNum + 1
@@ -287,16 +287,16 @@ class TimeStarts:
             nextMonth = 1  # January of next year
 
         # Get the last second of current month by going to start of next month and subtracting 60 seconds
-        tempEndString = (TimeUtility(f"{dateTimeObj.day}/{nextMonth}/{dateTimeObj.year} 00:00")
+        tempEndString = (TimeConverter(f"{dateTimeObj.day}/{nextMonth}/{dateTimeObj.year} 00:00")
                          .convertToUTC() - 60)
 
         # Convert back to get the actual last day of current month
-        tempEndObj = TimeUtility(unixTimeUTC=tempEndString)
+        tempEndObj = TimeConverter(unixTimeUTC=tempEndString)
         tempEndObj.generateTimeDataObj()
         endObj = tempEndObj.datetimeObj
 
         # Set end time to 23:59 of the last day of current month
-        endUnix = TimeUtility(f"{endObj.day}/{endObj.monthNum}/{endObj.year} 23:59").convertToUTC()
+        endUnix = TimeConverter(f"{endObj.day}/{endObj.monthNum}/{endObj.year} 23:59").convertToUTC()
 
         # Store the month boundaries
         self.thisMonth = {"start": startUnix, "end": endUnix}

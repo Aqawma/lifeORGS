@@ -11,18 +11,19 @@ for console output or other display purposes.
 
 from calendarORGS.scheduling.eventScheduler import Scheduler
 from utils.dbUtils import ConnectDB
-from utils.timeUtils import toShortHumanTime, toHumanHour, TimeUtility, TimeData, TimeStarts
+from utils.timeUtilitities.timeUtil import toShortHumanTime, toHumanHour, TimeConverter, TimeData
+from utils.timeUtilitities.startAndEndBlocks import TimeStarts
 
 class Event:
     def __init__(self, eventTuple: tuple):
         self.iD: str = eventTuple[0]
         self.description: str = eventTuple[1]
         self.start: int = eventTuple[2]
-        self.startParsed: TimeData = TimeUtility(unixTimeUTC=eventTuple[2]).generateTimeDataObj()
+        self.startParsed: TimeData = TimeConverter(unixTimeUTC=eventTuple[2]).generateTimeDataObj()
         self.end: int = eventTuple[3]
-        self.endParsed: TimeData = TimeUtility(unixTimeUTC=eventTuple[3]).generateTimeDataObj()
+        self.endParsed: TimeData = TimeConverter(unixTimeUTC=eventTuple[3]).generateTimeDataObj()
 
-class EventTupleFactory:
+class EventSorter:
     def __init__(self):
         self.timeStarts = TimeStarts()
 
@@ -38,6 +39,7 @@ class EventTupleFactory:
         self.assembleTodayEvents()
         self.assembleThisWeekEvents()
         self.assembleFloatingWeekEvents()
+        self.assembleThisMonthEvents()
 
     def assembleEventLists(self):
         connector = ConnectDB()
@@ -46,7 +48,7 @@ class EventTupleFactory:
 
         self.allEvents = tuple(Event(item) for item in allEvents)
 
-        timeUtil = TimeUtility()
+        timeUtil = TimeConverter()
 
         past = []
         future = []
@@ -67,13 +69,7 @@ class EventTupleFactory:
                 self.todayEvents += (item,)
 
     def assembleThisWeekEvents(self):
-        weekDict = {"monday": (),
-                    "tuesday": (),
-                    "wednesday": (),
-                    "thursday": (),
-                    "friday": (),
-                    "saturday": (),
-                    "sunday": ()}
+        thisWeek: list[list] = [[] for _ in range(7)]
 
         weekStart = self.timeStarts.thisWeek["start"]
         weekEnd = self.timeStarts.thisWeek["end"]
@@ -84,10 +80,10 @@ class EventTupleFactory:
 
             for idx, day in enumerate(self.timeStarts.daysOfThisWeek):
                 if day["start"] < event.start and event.end < day["end"]:
-                    weekDict[self.timeStarts.daysOfThisWeek[idx]["day"]] += (event,)
-                    break
+                    thisWeek[idx].append(event)
+                    break  # stop checking other days once matched
 
-        self.thisWeekEvents = weekDict
+        self.thisWeekEvents = tuple(thisWeek)
         return self.thisWeekEvents
 
     def assembleFloatingWeekEvents(self):
@@ -123,7 +119,7 @@ class EventTupleFactory:
             if not (monthStart < event.start < monthEnd and event.end < monthEnd):
                 continue
 
-            for idx , day in enumerate(self.timeStarts.daysOfMonth):
+            for idx, day in enumerate(self.timeStarts.daysOfMonth):
                 if day["start"] < event.start and event.end < day["end"]:
                     monthEvents[idx].append(event)
                     break
