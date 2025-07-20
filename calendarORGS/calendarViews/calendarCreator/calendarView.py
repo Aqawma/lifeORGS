@@ -11,6 +11,7 @@ for console output or other display purposes.
 
 from calendarORGS.scheduling.eventScheduler import Scheduler
 from utils.dbUtils import ConnectDB
+from utils.timeUtilitities.timeDataClasses import UnixTimePeriods
 from utils.timeUtilitities.timeUtil import toShortHumanTime, toHumanHour, TimeConverter, TimeData
 from utils.timeUtilitities.startAndEndBlocks import TimeStarts
 
@@ -22,6 +23,9 @@ class Event:
         self.startParsed: TimeData = TimeConverter(unixTimeUTC=eventTuple[2]).generateTimeDataObj()
         self.end: int = eventTuple[3]
         self.endParsed: TimeData = TimeConverter(unixTimeUTC=eventTuple[3]).generateTimeDataObj()
+        self.startFromDay: int = self.start - TimeStarts(generationTime=self.start).today["start"]
+        self.endFromDay: int = self.end - TimeStarts(generationTime=self.end).today["start"]
+        self.percentOfDay: float = ((self.endFromDay - self.startFromDay) / UnixTimePeriods.day) * 100
 
 class EventSorter:
     def __init__(self):
@@ -40,6 +44,54 @@ class EventSorter:
         self.assembleThisWeekEvents()
         self.assembleFloatingWeekEvents()
         self.assembleThisMonthEvents()
+
+    def _assembleEvents(self, weekStart: int, weekEnd: int, timeStart: tuple) -> tuple:
+        week: list[list] = [[] for _ in range(len(timeStart))]
+
+        for event in self.allEvents:
+            # removes events not in this week
+            if not (weekStart < event.start < weekEnd and event.end < weekEnd):
+                continue
+
+            for idx, day in enumerate(timeStart):
+                if day["start"] < event.start and event.end < day["end"]:
+                    week[idx].append(event)
+                    break  # stop checking other days once matched
+
+        weekEvents = []
+        for daysEvents in week:
+            thatDayEvents = []
+
+            for idx, event in enumerate(daysEvents):
+                if len(daysEvents) > 1:
+                    if idx == 0:
+                        eventDict = {"eventData": event,
+                                     "toPreviousEvent": event.startFromDay,
+                                     "toNextEvent": daysEvents[idx + 1].start - event.end}
+                    elif idx == len(daysEvents) - 1:
+                        eventDict = {"eventData": event,
+                                     "toPreviousEvent": event.start - daysEvents[idx - 1].end,
+                                     "toNextEvent": event.endFromDay}
+                    else:
+                        eventDict = {"eventData": event,
+                                     "toPreviousEvent": event.start - daysEvents[idx - 1].end,
+                                     "toNextEvent": daysEvents[idx + 1].start - event.end}
+
+                else:
+                    eventDict = {"eventData": event,
+                                 "toPreviousEvent": event.startFromDay,
+                                 "toNextEvent": event.endFromDay}
+
+                thatDayEvents.append(eventDict)
+            weekEvents.append(tuple(thatDayEvents))
+        return tuple(weekEvents)
+
+    def noEventsToday(self):
+        counter = 0
+        for item in self.allEvents:
+            if item.start > self.timeStarts.today["start"] and item.end < self.timeStarts.today["end"]:
+                counter += 1
+        return counter
 
     def assembleEventLists(self):
         connector = ConnectDB()
@@ -64,67 +116,46 @@ class EventSorter:
         return self.allEvents, self.futureEvents, self.pastEvents
 
     def assembleTodayEvents(self):
-        for item in self.allEvents:
+        for idx, item in enumerate(self.allEvents):
             if item.start > self.timeStarts.today["start"] and item.end < self.timeStarts.today["end"]:
-                self.todayEvents += (item,)
+                
+                if len(self.todayEvents) == 0:
+                    eventDict = {"eventData": item,
+                                 "toPreviousEvent": item.startFromDay,
+                                 "toNextEvent": self.allEvents[idx+1].start - item.end}
+                    
+                elif len(self.todayEvents) == self.noEventsToday():
+                    eventDict = {"eventData": item,
+                                 "toPreviousEvent": item.start - self.allEvents[idx-1].end,
+                                 "toNextEvent": item.endFromDay}
+                    
+                else:
+                    eventDict = {"eventData": item,
+                                 "toPreviousEvent": item.start - self.todayEvents[idx-1]["eventData"].end,
+                                 "toNextEvent": item.endFromDay - self.todayEvents[idx+1]["eventData"].end}
+                    
+                self.todayEvents += (eventDict,)
 
     def assembleThisWeekEvents(self):
-        thisWeek: list[list] = [[] for _ in range(7)]
-
         weekStart = self.timeStarts.thisWeek["start"]
         weekEnd = self.timeStarts.thisWeek["end"]
 
-        for event in self.allEvents:
-            if not (weekStart < event.start < weekEnd and event.end < weekEnd):
-                continue
-
-            for idx, day in enumerate(self.timeStarts.daysOfThisWeek):
-                if day["start"] < event.start and event.end < day["end"]:
-                    thisWeek[idx].append(event)
-                    break  # stop checking other days once matched
-
-        self.thisWeekEvents = tuple(thisWeek)
+        self.thisWeekEvents = self._assembleEvents(weekStart, weekEnd, self.timeStarts.daysOfThisWeek)
         return self.thisWeekEvents
 
     def assembleFloatingWeekEvents(self):
-        # Prepare seven bins – one per day – as mutable lists
-        floatingWeek: list[list] = [[] for _ in range(7)]
 
         weekStart = self.timeStarts.floatingWeek["start"]
         weekEnd = self.timeStarts.floatingWeek["end"]
 
-        # Go through every event just once
-        for event in self.allEvents:
-            # Skip anything that doesn’t fall within the floating week at all
-            if not (weekStart < event.start < weekEnd and event.end < weekEnd):
-                continue
-
-            # Find the right day bin and drop it in
-            for idx, day in enumerate(self.timeStarts.daysOfFloatingWeek):
-                if day["start"] < event.start and event.end < day["end"]:
-                    floatingWeek[idx].append(event)
-                    break  # stop checking other days once matched
-
-        # Convert inner lists to tuples before storing/returning
-        self.floatingWeekEvents = tuple(tuple(day) for day in floatingWeek)
+        self.floatingWeekEvents = self._assembleEvents(weekStart, weekEnd, self.timeStarts.daysOfFloatingWeek)
         return self.floatingWeekEvents
 
     def assembleThisMonthEvents(self):
         monthStart = self.timeStarts.thisMonth["start"]
         monthEnd = self.timeStarts.thisMonth["end"]
 
-        monthEvents: list[list] = [[] for _ in range(len(self.timeStarts.daysOfMonth))]
-
-        for event in self.allEvents:
-            if not (monthStart < event.start < monthEnd and event.end < monthEnd):
-                continue
-
-            for idx, day in enumerate(self.timeStarts.daysOfMonth):
-                if day["start"] < event.start and event.end < day["end"]:
-                    monthEvents[idx].append(event)
-                    break
-
-        self.thisMonthEvents = tuple(tuple(day) for day in monthEvents)
+        self.thisMonthEvents = self._assembleEvents(monthStart, monthEnd, self.timeStarts.daysOfMonth)
         return self.thisMonthEvents
 
 class CalendarView:
