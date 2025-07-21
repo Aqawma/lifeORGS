@@ -20,6 +20,5 @@ class ColorGenerator:
                 while tentColor == colorList[i-1]:
                     tentColor = self.generateColor()
             colorList.append(tentColor)
-            print(tentColor)
 
         return tuple(colorList)

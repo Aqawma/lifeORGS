@@ -2,6 +2,8 @@ from jinja2 import Environment, FileSystemLoader
 import os
 
 from calendarORGS.calendarViews.calendarCreator.calendarView import EventSorter
+from utils.colorGenerator import ColorGenerator
+from utils.jsonUtils import Configs
 from utils.projRoot import getProjRoot
 
 
@@ -33,9 +35,10 @@ class CalendarCreator:
             str: Rendered HTML content for the day calendar
         """
         # Render the day template with today's events
-        print(self.sortedEventsToday)
         outputs = self.dayTemplate.render(
-            todayEvents=self.sortedEventsToday
+            todayEvents=self.sortedEventsToday,
+            eventColors=ColorGenerator().generateColorList(len(self.sortedEventsToday)),
+            colorDict=Configs().colorSchemes
         )
         return outputs
 

@@ -78,6 +78,7 @@
 
       }
       .box:nth-child({{ (idx * 2) + 2 }}) {
+        background-color: {{ colorDict[eventColors[idx]] }};
         height: calc({{ todayEvents[idx]["eventData"].percentOfDay }} * var(--dayH) / 100);
       }
     {% endfor %}
