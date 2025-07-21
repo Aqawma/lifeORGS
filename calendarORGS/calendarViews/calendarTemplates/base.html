@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Calendar App{% endblock %}</title>
+    <link rel="stylesheet" href="css/base.css">
+    {% block additional_css %}{% endblock %}
+    <style>
+        {% block styles %}{% endblock %}
+    </style>
+</head>
+<body>
+    <!-- Shared header -->
+    <header class="header">
+        <h1>{% block header_title %}Calendar Dashboard{% endblock %}</h1>
+        <nav>
+            <a href="index.html">Today</a>
+            <a href="thisWeek.html">This Week</a>
+            <a href="floatWeek.html">Floating Week</a>
+            <a href="month.html">This Month</a>
+        </nav>
+    </header>
+
+    <!-- Page-specific content -->
+    <div class="content">
+        {% block content %}{% endblock %}
+    </div>
+</body>
+</html>

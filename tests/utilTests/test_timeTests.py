@@ -3,7 +3,8 @@ import unittest
 from datetime import datetime
 
 from utils.timeUtilitities.startAndEndBlocks import TimeStarts
-from utils.timeUtilitities.timeUtil import TimeConverter, TimeData, UnixTimePeriods, TokenizeToDatetime
+from utils.timeUtilitities.timeDataClasses import UnixTimePeriods
+from utils.timeUtilitities.timeUtil import TimeConverter, TimeData, TokenizeToDatetime
 
 class tokenizeToDatetimeTests(unittest.TestCase):
     def test_tokenizeToDatetime(self):

@@ -1,5 +1,7 @@
 from jinja2 import Environment, FileSystemLoader
+from pathlib import Path
 import os
+import shutil
 
 from calendarORGS.calendarViews.calendarCreator.calendarView import EventSorter
 from utils.colorGenerator import ColorGenerator
@@ -17,19 +19,34 @@ class CalendarCreator:
         from the database.
         """
         # Set up Jinja2 template environment
-        template_path = os.path.join(str(getProjRoot()),
-                                     "calendarORGS",
-                                     "calendarViews",
-                                     "calendarTemplates")
+        self.root = Path(getProjRoot())
+
+        template_path = (self.root
+                         / "calendarORGS" / "calendarViews" / "calendarTemplates")
         self.env = Environment(loader=FileSystemLoader(template_path))
-        self.dayTemplate = self.env.get_template('day.html')
+        self.dayTemplate = self.env.get_template('dayTemplate.html')
+
+        self.cssTemplatePath = (self.root
+                                / "calendarORGS" / "calendarViews" / "calendarTemplates" / "css")
+        self.cssDestPath = (self.root
+                            / "calendarORGS" / "calendarViews" / "calendarSite" / "css")
 
         self.sortedEvents = EventSorter()
         self.sortedEventsToday = self.sortedEvents.todayEvents
 
+    def _copyCSS(self):
+        try:
+            if os.path.exists(self.cssDestPath):
+                shutil.rmtree(self.cssDestPath)
+            shutil.copytree(self.cssTemplatePath, self.cssDestPath)
+        except FileNotFoundError:
+            print("Error: CSS template not found.")
+        except Exception as e:
+            print(f"Error: {e}")
+
     def createDayCalendar(self):
         """
-        Generate HTML content from day.html template with today's events.
+        Generate HTML content from dayTemplate.html template with today's events.
         
         Returns:
             str: Rendered HTML content for the day calendar
@@ -40,6 +57,7 @@ class CalendarCreator:
             eventColors=ColorGenerator().generateColorList(len(self.sortedEventsToday)),
             colorDict=Configs().colorSchemes
         )
+        self._copyCSS()
         return outputs
 
 

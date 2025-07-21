@@ -1,0 +1,35 @@
+body { padding-top:100px;
+        font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", sans-serif;}
+/* Shared header styles */
+.header {
+    background-color: #333;
+    color: white;
+    padding: 15px 20px;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1000;
+    box-sizing: border-box;
+}
+
+.header h1 {
+    margin: 0;
+    font-size: 1.5rem;
+}
+
+.header nav {
+    margin-top: 10px;
+}
+
+.header nav a{
+    color:#fff;
+    text-decoration:none;
+    margin-right:20px;
+}
+.header nav a:hover{
+    text-decoration:underline;
+}
+
+.content{
+    margin-top:0;
+}

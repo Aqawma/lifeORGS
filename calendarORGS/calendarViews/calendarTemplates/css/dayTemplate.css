@@ -1,0 +1,60 @@
+:root { --dayH: 2000px; }
+
+@media (min-width: 600px)  {
+:root { --dayH: 2200px; }
+}
+@media (min-width: 1024px) {
+:root { --dayH: 2400px; }
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    background-color: #f9f9f9;
+    /* Grid background - hourly lines */
+    background-image:
+      linear-gradient(to bottom, rgba(0,0,0,0.15) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(0,0,0,0.05) 1px, transparent 1px);
+    background-size:
+      100% calc(var(--dayH) / 24), /* Major grid lines every hour */
+      100% calc(var(--dayH) / 24); /* Minor grid lines every 30 minutes */
+    background-position: 0 0, 0 calc(var(--dayH) / 48);
+    min-height: var(--dayH);
+    overflow-x: hidden;
+}
+
+.container {
+    display: grid;
+    grid-template-columns: 5vw auto;
+    column-gap: 10px;
+    row-gap: 0;
+    min-width: calc(var(--dayH) / 9);
+    width: 100%;
+}
+
+.time-column {
+    height: calc(var(--dayH) / 24);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: max(2vw, 11px);
+    white-space: nowrap;
+    padding-left: 25px;
+}
+
+.box {
+  width: 90%;
+  background-color: rgba(173, 216, 230, 0.9);
+  border-radius: 10px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  padding: 10px;
+  box-sizing: border-box;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-height: 0;        /* vertical */
+    min-width: 0;
+}
