@@ -1,6 +1,5 @@
 from jinja2 import Environment, FileSystemLoader
 from pathlib import Path
-import os
 import shutil
 
 from calendarORGS.calendarViews.calendarCreator.calendarView import EventSorter
@@ -36,9 +35,16 @@ class CalendarCreator:
 
     def _copyCSS(self):
         try:
-            if os.path.exists(self.cssDestPath):
+            # Ensure parent directory exists
+            self.cssDestPath.parent.mkdir(parents=True, exist_ok=True)
+
+            if self.cssDestPath.exists():
                 shutil.rmtree(self.cssDestPath)
             shutil.copytree(self.cssTemplatePath, self.cssDestPath)
+
+            # Recreate .gitkeep file to preserve directory structure in version control
+            gitkeep_path = self.cssDestPath / ".gitkeep"
+            gitkeep_path.touch()
         except FileNotFoundError:
             print("Error: CSS template not found.")
         except Exception as e:
@@ -47,7 +53,7 @@ class CalendarCreator:
     def createDayCalendar(self):
         """
         Generate HTML content from dayTemplate.html template with today's events.
-        
+
         Returns:
             str: Rendered HTML content for the day calendar
         """
@@ -68,23 +74,23 @@ if __name__ == "__main__":
     output = calendar.createDayCalendar()
 
     # Save generated calendar to index.html
-    calIndex = os.path.join(str(getProjRoot()),
-                            "calendarORGS",
-                            "calendarViews",
-                            "calendarSite",
-                            "index.html")
-    with open(calIndex, "w") as f:
-        f.write(output)
+    cal_index_path = Path(getProjRoot()) / "calendarORGS" / "calendarViews" / "calendarSite" / "index.html"
 
-    print(f"Day calendar generated and saved to: {calIndex}")
+    # Create parent directories if they don't exist
+    cal_index_path.parent.mkdir(parents=True, exist_ok=True)
+
+    # Write the file
+    cal_index_path.write_text(output)
+
+    print(f"Day calendar generated and saved to: {cal_index_path}")
 
 # Also execute when imported (for backward compatibility)
 calendar = CalendarCreator()
 output = calendar.createDayCalendar()
-calIndex = os.path.join(str(getProjRoot()),
-                        "calendarORGS",
-                        "calendarViews",
-                        "calendarSite",
-                        "index.html")
-with open(calIndex, "w") as f:
-    f.write(output)
+cal_index_path = Path(getProjRoot()) / "calendarORGS" / "calendarViews" / "calendarSite" / "index.html"
+
+# Create parent directories if they don't exist
+cal_index_path.parent.mkdir(parents=True, exist_ok=True)
+
+# Write the file
+cal_index_path.write_text(output)
