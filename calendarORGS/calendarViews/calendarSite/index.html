@@ -67,20 +67,85 @@
         min-width: 0;
     }
 
-    {% for idx in range(todayEvents|length) %}
-      .box:nth-child({{ (idx * 2) + 1 }}) {
+    
+      .box:nth-child(1) {
           background-color: transparent;
           margin: 0;
           padding: 0;
           border: none;
           box-shadow: none;
-          height: calc({{ todayEvents[idx]["toPreviousEvent"] }} * var(--dayH) / 86400);
+          height: calc(32400.0 * var(--dayH) / 86400);
 
       }
-      .box:nth-child({{ (idx * 2) + 2 }}) {
-        height: calc({{ todayEvents[idx]["eventData"].percentOfDay }} * var(--dayH) / 100);
+      .box:nth-child(2) {
+        height: calc(4.166666666666666 * var(--dayH) / 100);
       }
-    {% endfor %}
+    
+      .box:nth-child(3) {
+          background-color: transparent;
+          margin: 0;
+          padding: 0;
+          border: none;
+          box-shadow: none;
+          height: calc(7200 * var(--dayH) / 86400);
+
+      }
+      .box:nth-child(4) {
+        height: calc(3.125 * var(--dayH) / 100);
+      }
+    
+      .box:nth-child(5) {
+          background-color: transparent;
+          margin: 0;
+          padding: 0;
+          border: none;
+          box-shadow: none;
+          height: calc(8100 * var(--dayH) / 86400);
+
+      }
+      .box:nth-child(6) {
+        height: calc(2.083333333333333 * var(--dayH) / 100);
+      }
+    
+      .box:nth-child(7) {
+          background-color: transparent;
+          margin: 0;
+          padding: 0;
+          border: none;
+          box-shadow: none;
+          height: calc(10800 * var(--dayH) / 86400);
+
+      }
+      .box:nth-child(8) {
+        height: calc(2.083333333333333 * var(--dayH) / 100);
+      }
+    
+      .box:nth-child(9) {
+          background-color: transparent;
+          margin: 0;
+          padding: 0;
+          border: none;
+          box-shadow: none;
+          height: calc(3600 * var(--dayH) / 86400);
+
+      }
+      .box:nth-child(10) {
+        height: calc(4.166666666666666 * var(--dayH) / 100);
+      }
+    
+      .box:nth-child(11) {
+          background-color: transparent;
+          margin: 0;
+          padding: 0;
+          border: none;
+          box-shadow: none;
+          height: calc(1800 * var(--dayH) / 86400);
+
+      }
+      .box:nth-child(12) {
+        height: calc(2.083333333333333 * var(--dayH) / 100);
+      }
+    
   </style>
 </head>
 <body>
@@ -112,10 +177,25 @@
         <div class="time-column">11:00</div>
     </div>
     <div>
-        {% for event in todayEvents %}
+        
             <div class="box"></div>
-            <div class="box">{{ event["eventData"].iD }}</div>
-        {% endfor %}
+            <div class="box">Team Meeting</div>
+        
+            <div class="box"></div>
+            <div class="box">Lunch Break</div>
+        
+            <div class="box"></div>
+            <div class="box">Afternoon Walk</div>
+        
+            <div class="box"></div>
+            <div class="box">Dinner</div>
+        
+            <div class="box"></div>
+            <div class="box">Read Book</div>
+        
+            <div class="box"></div>
+            <div class="box">Write Journal</div>
+        
     </div>
     </div>
 </body>

@@ -67,4 +67,3 @@ calIndex = os.path.join(str(getProjRoot()),
                         "index.html")
 with open(calIndex, "w") as f:
     f.write(output)
-
