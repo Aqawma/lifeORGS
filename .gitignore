@@ -55,6 +55,7 @@ secrets/secrets.json
 # Generated calendar files (keep directory structure with .gitkeep)
 calendarORGS/calendarViews/calendarSite/*.html
 calendarORGS/calendarViews/calendarSite/css/*.css
+calendarORGS/calendarViews/calendarSite/eventData.json
 
 # But keep the .gitkeep files
 !calendarORGS/calendarViews/calendarSite/.gitkeep
