@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block title %}Today's Calendar{% endblock %}
-{% block additional_css %}<link rel="stylesheet" href="css/dayTemplate.css">{% endblock %}
+{% block additional_css %}<link rel="stylesheet" href="css/day.css">{% endblock %}
 
 {% block styles %}
     {% for idx in range(todayEvents|length) %}
@@ -15,9 +15,16 @@
 
       }
       .box:nth-child({{ (idx * 2) + 2 }}) {
-        background-color: {{ colorDict[eventColors[idx]] }};
+        background-color: {{ colorDict[eventColors[idx]]["light"] }};
         height: calc({{ todayEvents[idx]["eventData"].percentOfDay }} * var(--dayH) / 100);
       }
+        .box:nth-child({{ (idx * 2) + 2 }}):hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            transition: all ease-in-out 0.2 s;
+    background-color: {{ colorDict[eventColors[idx]]["dark"] }};
+      }
+
     {% endfor %}
 {% endblock %}
 
@@ -52,7 +59,7 @@
     <div>
         {% for event in todayEvents %}
             <div class="box"></div>
-            <div class="box">{{ event["eventData"].iD }}</div>
+            <button class="box">{{ event["eventData"].iD }}</button>
         {% endfor %}
     </div>
     </div>

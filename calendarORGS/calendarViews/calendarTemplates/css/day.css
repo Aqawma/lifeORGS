@@ -57,4 +57,15 @@ body {
     white-space: nowrap;
     min-height: 0;        /* vertical */
     min-width: 0;
+  border: none;
+  outline: none;
+  background: none;
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+  text-align: inherit;
+  cursor: default;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
 }
