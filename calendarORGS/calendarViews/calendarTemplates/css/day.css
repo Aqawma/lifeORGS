@@ -26,7 +26,7 @@ body {
 .container {
     display: grid;
     grid-template-columns: 5vw auto;
-    column-gap: 10px;
+    column-gap: 15px;
     row-gap: 0;
     min-width: calc(var(--dayH) / 9);
     width: 100%;
@@ -39,7 +39,7 @@ body {
     justify-content: center;
     font-size: max(2vw, 11px);
     white-space: nowrap;
-    padding-left: 25px;
+    padding-left: 20px;
 }
 
 .box {

@@ -23,6 +23,7 @@ class TimeData:
         year (int): Four-digit year
         unixTimeUTC (float): Unix timestamp in UTC
         timeZone (str): User's timezone from configuration
+        24HrTime (str): Time in 24-hour format (HH:MM)
 
     Example:
         # >>> time_data = TimeData(
@@ -40,6 +41,7 @@ class TimeData:
     second: int
     dayNumInWeek: int
     year: int
+    hrTime: str
 
     unixTimeUTC: float
     timeZone: str = loadConfig()['USER_TIMEZONE']

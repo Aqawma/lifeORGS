@@ -2,7 +2,7 @@ from jinja2 import Environment, FileSystemLoader
 from pathlib import Path
 import shutil
 
-from calendarORGS.calendarViews.calendarCreator.calendarView import EventSorter
+from calendarORGS.calendarViews.calendarCreator.calendarView import EventSorter, CalendarView
 from utils.colorGenerator import ColorGenerator
 from utils.jsonUtils import Configs
 from utils.projRoot import getProjRoot
@@ -30,6 +30,11 @@ class CalendarCreator:
         self.cssDestPath = (self.root
                             / "calendarORGS" / "calendarViews" / "calendarSite" / "css")
 
+        self.JSTemplatePath = (self.root
+                               / "calendarORGS" / "calendarViews" / "calendarTemplates" / "js")
+        self.JSDestPath = (self.root
+                           / "calendarORGS" / "calendarViews" / "calendarSite" / "js")
+
         self.sortedEvents = EventSorter()
         self.sortedEventsToday = self.sortedEvents.todayEvents
 
@@ -43,10 +48,25 @@ class CalendarCreator:
             shutil.copytree(self.cssTemplatePath, self.cssDestPath)
 
             # Recreate .gitkeep file to preserve directory structure in version control
-            gitkeep_path = self.cssDestPath / ".gitkeep"
-            gitkeep_path.touch()
+            gitkeepPath = self.cssDestPath / ".gitkeep"
+            gitkeepPath.touch()
         except FileNotFoundError:
             print("Error: CSS template not found.")
+        except Exception as e:
+            print(f"Error: {e}")
+
+    def _copyJS(self):
+        try:
+            self.JSDestPath.parent.mkdir(parents=True, exist_ok=True)
+
+            if self.JSDestPath.exists():
+                shutil.rmtree(self.JSDestPath)
+            shutil.copytree(self.JSTemplatePath, self.JSDestPath)
+
+            gitkeepPath = self.JSDestPath / ".gitkeep"
+            gitkeepPath.touch()
+        except FileNotFoundError:
+            print("Error: JS template not found.")
         except Exception as e:
             print(f"Error: {e}")
 
@@ -64,6 +84,8 @@ class CalendarCreator:
             colorDict=Configs().colorSchemes
         )
         self._copyCSS()
+        self._copyJS()
+        CalendarView.createEventJson()
         return outputs
 
 

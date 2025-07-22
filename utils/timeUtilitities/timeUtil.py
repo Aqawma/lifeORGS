@@ -240,7 +240,8 @@ class TimeConverter:
             second=int(userDateTime.second),           # Zero-padded second
             dayNumInWeek=int(userDateTime.isoweekday()),  # ISO weekday (1=Monday)
             year=int(userDateTime.year),                        # Four-digit year
-            unixTimeUTC=self.unixTimeUTC,                       # Original Unix timestamp
+            unixTimeUTC=self.unixTimeUTC,
+            hrTime=(userDateTime.strftime('%l:%M %p'))
         )
         return self.datetimeObj
 

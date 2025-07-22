@@ -8,9 +8,12 @@ organizing events by date and time for user-friendly display.
 The module works with the event scheduler to retrieve event data and formats it
 for console output or other display purposes.
 """
+from pathlib import Path
+import json
 
 from calendarORGS.scheduling.eventScheduler import Scheduler
 from utils.dbUtils import ConnectDB
+from utils.projRoot import getProjRoot
 from utils.timeUtilitities.timeDataClasses import UnixTimePeriods
 from utils.timeUtilitities.timeUtil import toShortHumanTime, toHumanHour, TimeConverter, TimeData
 from utils.timeUtilitities.startAndEndBlocks import TimeStarts
@@ -115,7 +118,6 @@ class EventSorter:
         self.todayEvents = self._assembleEvents(dayStart, dayEnd, (self.timeStarts.today,))[0]
         return self.todayEvents
 
-
     def assembleThisWeekEvents(self):
         weekStart = self.timeStarts.thisWeek["start"]
         weekEnd = self.timeStarts.thisWeek["end"]
@@ -205,4 +207,25 @@ class CalendarView:
                 output.append(f"{item[0]} from {toHumanHour(item[2])} to {toHumanHour(item[3])}")
 
         return output
+
+    @staticmethod
+    def createEventJson():
+        allEvents = EventSorter().allEvents
+
+        eventDict = {}
+        for event in allEvents:
+            eventDict.update({event.iD: {
+                "iD": event.iD,
+                "description": event.description,
+                "start": event.start,
+                "startParsed": vars(event.startParsed),
+                "end": event.end,
+                "endParsed": vars(event.endParsed),
+                "startFromDay": event.startFromDay,
+                "endFromDay": event.endFromDay,
+                "percentOfDay": event.percentOfDay
+            }})
+
+        with open(Path(getProjRoot()) / "calendarORGS" / "calendarViews" / "calendarSite" / "eventData.json", "w") as f:
+            json.dump(eventDict, f, indent=4)
 
