@@ -235,7 +235,7 @@ class TimeConverter:
             monthName=monthNames[userDateTime.month - 1],        # Full month name
             dayOfWeek=dayOfWeekNames[userDateTime.weekday()],    # Full day name
             day=int(userDateTime.day),                 # Day of the month as an integer
-            hour=int(userDateTime.hour),               # Zero-padded hour (24h)
+            hour=int(userDateTime.hour),               # Hour in 24-hour format as an integer
             minute=int(userDateTime.minute),           # Zero-padded minute
             second=int(userDateTime.second),           # Zero-padded second
             dayNumInWeek=int(userDateTime.isoweekday()),  # ISO weekday (1=Monday)
