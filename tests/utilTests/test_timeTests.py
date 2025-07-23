@@ -1,4 +1,5 @@
 import json
+import os
 import unittest
 from datetime import datetime
 
@@ -49,6 +50,7 @@ class TimeUtilityTests(unittest.TestCase):
                                second=0,
                                dayNumInWeek=3,
                                year=2025,
+                               hrTime="2:00 PM",
                                unixTimeUTC=1752084000.0)
         timeUtility = TimeConverter(unixTimeUTC=1752084000.0)
         timeUtility.generateTimeDataObj()
@@ -79,7 +81,7 @@ class TimeStartsTests(unittest.TestCase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        with open("TimeStartsTuples.json", "r") as file:
+        with open(os.path.join(os.path.dirname(__file__), "TimeStartsTuples.json"), "r") as file:
             self.timeStartsTuples = json.load(file)
 
     def test_timeStarts31dMiddle(self):
