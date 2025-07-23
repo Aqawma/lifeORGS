@@ -234,7 +234,7 @@ class TimeConverter:
             monthNum=int(userDateTime.month),           # Integer month number (1=January, 12=December)
             monthName=monthNames[userDateTime.month - 1],        # Full month name
             dayOfWeek=dayOfWeekNames[userDateTime.weekday()],    # Full day name
-            day=int(userDateTime.day),                 # Zero-padded day
+            day=int(userDateTime.day),                 # Day of the month as an integer
             hour=int(userDateTime.hour),               # Zero-padded hour (24h)
             minute=int(userDateTime.minute),           # Zero-padded minute
             second=int(userDateTime.second),           # Zero-padded second
