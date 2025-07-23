@@ -23,7 +23,7 @@ class TimeData:
         year (int): Four-digit year
         unixTimeUTC (float): Unix timestamp in UTC
         timeZone (str): User's timezone from configuration
-        24HrTime (str): Time in 24-hour format (HH:MM)
+        hrTime (str): Time in 24-hour format (HH:MM)
 
     Example:
         # >>> time_data = TimeData(
