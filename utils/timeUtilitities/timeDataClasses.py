@@ -12,7 +12,7 @@ class TimeData:
     way to represent time data throughout the application.
 
     Attributes:
-        monthNum (int): Month number (01-12) with zero padding
+        monthNum (int): Month number (1-12)
         monthName (str): Full month name (e.g., "January", "February")
         dayOfWeek (str): Full day name (e.g., "Monday", "Tuesday")
         day (int): Day of month (01-31) with zero padding
