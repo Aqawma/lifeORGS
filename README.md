@@ -73,22 +73,34 @@ lifeORGS/
 ├── main.py                    # Main application entry point
 ├── calendar.db               # SQLite database file
 ├── config.json               # Configuration for API tokens and settings
-├── parsing/
-│   ├── tokenize.py           # Command tokenization and parsing logic
-│   └── tokenFactory.py       # Command routing and execution factory
-├── scheduling/
-│   ├── calendarView.py       # Calendar display and formatting functions
-│   ├── eventScheduler.py     # Task scheduling and event retrieval
-│   ├── tokenAdd.py           # Add operations for events, tasks, and blocks
-│   ├── tokenModify.py        # Modify operations for events and tasks
-│   └── tokenRemove.py        # Remove operations for events, tasks, and blocks
-├── messaging/
-│   ├── sendMessage.py        # WhatsApp message sending functionality
-│   └── recieveMessage.py     # WhatsApp webhook receiver
+├── calendarORGS/
+│   ├── calendarViews/
+│   │   ├── calendarCreator/
+│   │   │   ├── calendarView.py      # Event sorting and calendar data organization
+│   │   │   └── generateCalendar.py  # HTML calendar generation using Jinja2
+│   │   ├── calendarTemplates/       # HTML, CSS, and JavaScript templates
+│   │   └── calendarSite/           # Generated web calendar files
+│   └── scheduling/
+│       ├── eventModifiers/
+│       │   ├── tokenAdd.py         # Add operations for events, tasks, and blocks
+│       │   ├── tokenModify.py      # Modify operations for events and tasks
+│       │   └── tokenRemove.py      # Remove operations for events, tasks, and blocks
+│       └── eventScheduler.py       # Task scheduling and event retrieval
+├── userInteraction/
+│   ├── messaging/
+│   │   ├── sendMessage.py          # WhatsApp message sending functionality
+│   │   └── recieveMessage.py       # WhatsApp webhook receiver
+│   └── parsing/
+│       ├── tokenize.py             # Command tokenization and parsing logic
+│       └── tokenFactory.py        # Command routing and execution factory
 ├── utils/
-│   ├── timeUtils.py          # Time conversion utilities
-│   ├── dbUtils.py            # Database connection and path utilities
-│   └── jsonUtils.py          # JSON configuration utilities
+│   ├── timeUtilitities/
+│   │   ├── timeUtil.py             # Core time conversion and utility functions
+│   │   ├── timeDataClasses.py      # Time data structures and constants
+│   │   └── startAndEndBlocks.py    # Time period calculation classes
+│   ├── dbUtils.py                  # Database connection and path utilities
+│   ├── jsonUtils.py                # JSON configuration utilities
+│   └── projRoot.py                 # Project root path utilities
 ├── requirements.txt          # Python package dependencies
 └── docs/                     # Comprehensive documentation
     ├── README.md             # User guide and quick start

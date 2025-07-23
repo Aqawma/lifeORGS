@@ -39,12 +39,25 @@ class CalendarCreator:
         self.sortedEventsToday = self.sortedEvents.todayEvents
 
     def _copyCSS(self):
+        """
+        Copy CSS template files to the calendar site directory.
+
+        Copies all CSS files from the templates directory to the site directory,
+        replacing any existing files. Creates necessary parent directories and
+        maintains a .gitkeep file for version control.
+
+        Raises:
+            FileNotFoundError: If CSS template directory doesn't exist
+            Exception: For other file system errors during copy operation
+        """
         try:
-            # Ensure parent directory exists
+            # Ensure parent directory exists for destination
             self.cssDestPath.parent.mkdir(parents=True, exist_ok=True)
 
+            # Remove existing CSS directory if it exists to ensure clean copy
             if self.cssDestPath.exists():
                 shutil.rmtree(self.cssDestPath)
+            # Copy entire CSS template directory to destination
             shutil.copytree(self.cssTemplatePath, self.cssDestPath)
 
             # Recreate .gitkeep file to preserve directory structure in version control
@@ -56,13 +69,28 @@ class CalendarCreator:
             print(f"Error: {e}")
 
     def _copyJS(self):
+        """
+        Copy JavaScript template files to the calendar site directory.
+
+        Copies all JavaScript files from the templates directory to the site directory,
+        replacing any existing files. Creates necessary parent directories and
+        maintains a .gitkeep file for version control.
+
+        Raises:
+            FileNotFoundError: If JavaScript template directory doesn't exist
+            Exception: For other file system errors during copy operation
+        """
         try:
+            # Ensure parent directory exists for destination
             self.JSDestPath.parent.mkdir(parents=True, exist_ok=True)
 
+            # Remove existing JS directory if it exists to ensure clean copy
             if self.JSDestPath.exists():
                 shutil.rmtree(self.JSDestPath)
+            # Copy entire JavaScript template directory to destination
             shutil.copytree(self.JSTemplatePath, self.JSDestPath)
 
+            # Recreate .gitkeep file to preserve directory structure in version control
             gitkeepPath = self.JSDestPath / ".gitkeep"
             gitkeepPath.touch()
         except FileNotFoundError:
@@ -74,45 +102,54 @@ class CalendarCreator:
         """
         Generate HTML content from dayTemplate.html template with today's events.
 
+        Creates a complete day calendar by rendering the Jinja2 template with
+        today's events, copying necessary CSS/JS files, and generating JSON data
+        for the web interface.
+
         Returns:
             str: Rendered HTML content for the day calendar
         """
-        # Render the day template with today's events
+        # Render the day template with today's events and styling data
         outputs = self.dayTemplate.render(
-            todayEvents=self.sortedEventsToday,
-            eventColors=ColorGenerator().generateColorList(len(self.sortedEventsToday)),
-            colorDict=Configs().colorSchemes
+            todayEvents=self.sortedEventsToday,  # Events for today with timing metadata
+            eventColors=ColorGenerator().generateColorList(len(self.sortedEventsToday)),  # Color palette for events
+            colorDict=Configs().colorSchemes  # Color scheme configuration
         )
+        # Copy CSS files from templates to site directory
         self._copyCSS()
+        # Copy JavaScript files from templates to site directory
         self._copyJS()
+        # Generate JSON data file for web calendar interface
         CalendarView.createEventJson()
         return outputs
 
 
-# Main execution block - Generate and save calendar HTML
+# Main execution block - Generate and save calendar HTML when run directly
 if __name__ == "__main__":
-    # Create calendar instance and generate HTML
+    # Create calendar instance and generate HTML content
     calendar = CalendarCreator()
     output = calendar.createDayCalendar()
 
-    # Save generated calendar to index.html
+    # Define output path for the generated calendar HTML file
     cal_index_path = Path(getProjRoot()) / "calendarORGS" / "calendarViews" / "calendarSite" / "index.html"
 
-    # Create parent directories if they don't exist
+    # Ensure the destination directory exists
     cal_index_path.parent.mkdir(parents=True, exist_ok=True)
 
-    # Write the file
+    # Write the generated HTML content to the index file
     cal_index_path.write_text(output)
 
     print(f"Day calendar generated and saved to: {cal_index_path}")
 
-# Also execute when imported (for backward compatibility)
+# Auto-execution block - Generate calendar when module is imported
+# This ensures the calendar is always up-to-date when the module is imported
+# by other parts of the application (maintains backward compatibility)
 calendar = CalendarCreator()
 output = calendar.createDayCalendar()
 cal_index_path = Path(getProjRoot()) / "calendarORGS" / "calendarViews" / "calendarSite" / "index.html"
 
-# Create parent directories if they don't exist
+# Ensure the destination directory exists
 cal_index_path.parent.mkdir(parents=True, exist_ok=True)
 
-# Write the file
+# Write the generated HTML content to the index file
 cal_index_path.write_text(output)
