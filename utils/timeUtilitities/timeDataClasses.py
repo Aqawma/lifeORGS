@@ -15,7 +15,7 @@ class TimeData:
         monthNum (int): Month number (1-12)
         monthName (str): Full month name (e.g., "January", "February")
         dayOfWeek (str): Full day name (e.g., "Monday", "Tuesday")
-        day (int): Day of month (01-31) with zero padding
+        day (int): Day of month (1-31)
         hour (int): Hour (00-23) with zero padding
         minute (int): Minute (00-59) with zero padding
         second (int): Second (00-59) with zero padding
