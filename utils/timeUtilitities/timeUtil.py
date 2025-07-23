@@ -231,7 +231,7 @@ class TimeConverter:
 
         # Create and return structured TimeData object
         self.datetimeObj = TimeData(
-            monthNum=int(userDateTime.month),           # Zero-padded month number
+            monthNum=int(userDateTime.month),           # Integer month number (1=January, 12=December)
             monthName=monthNames[userDateTime.month - 1],        # Full month name
             dayOfWeek=dayOfWeekNames[userDateTime.weekday()],    # Full day name
             day=int(userDateTime.day),                 # Zero-padded day
