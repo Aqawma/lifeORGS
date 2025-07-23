@@ -241,7 +241,7 @@ class TimeConverter:
             dayNumInWeek=int(userDateTime.isoweekday()),  # ISO weekday (1=Monday)
             year=int(userDateTime.year),                        # Four-digit year
             unixTimeUTC=self.unixTimeUTC,
-            hrTime=(userDateTime.strftime('%I:%M %p').strip())
+            hrTime=(userDateTime.strftime('%I:%M %p').lstrip("0"))
         )
         return self.datetimeObj
 
