@@ -236,10 +236,10 @@ class TimeConverter:
             dayOfWeek=dayOfWeekNames[userDateTime.weekday()],    # Full day name
             day=int(userDateTime.day),                 # Day of the month as an integer
             hour=int(userDateTime.hour),               # Hour in 24-hour format as an integer
-            minute=int(userDateTime.minute),           # Zero-padded minute
-            second=int(userDateTime.second),           # Zero-padded second
+            minute=int(userDateTime.minute),           # minute
+            second=int(userDateTime.second),           # second
             dayNumInWeek=int(userDateTime.isoweekday()),  # ISO weekday (1=Monday)
-            year=int(userDateTime.year),                        # Four-digit year
+            year=int(userDateTime.year),                        # year
             unixTimeUTC=self.unixTimeUTC,
             hrTime=(userDateTime.strftime('%I:%M %p').lstrip("0"))
         )

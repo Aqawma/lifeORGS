@@ -16,10 +16,10 @@ class TimeData:
         monthName (str): Full month name (e.g., "January", "February")
         dayOfWeek (str): Full day name (e.g., "Monday", "Tuesday")
         day (int): Day of month (1-31)
-        hour (int): Hour (00-23) with zero padding
-        minute (int): Minute (00-59) with zero padding
-        second (int): Second (00-59) with zero padding
-        dayNumInWeek (int): Day number in week (1-7) with zero padding
+        hour (int): Hour (0-23)
+        minute (int): Minute (0-59)
+        second (int): Second (0-59)
+        dayNumInWeek (int): Day number in week (1-7)
         year (int): Four-digit year
         unixTimeUTC (float): Unix timestamp in UTC
         timeZone (str): User's timezone from configuration
