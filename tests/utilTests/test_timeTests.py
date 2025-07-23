@@ -3,6 +3,7 @@ import os
 import unittest
 from datetime import datetime
 
+from utils.jsonUtils import loadConfig
 from utils.timeUtilitities.startAndEndBlocks import TimeStarts
 from utils.timeUtilitities.timeDataClasses import UnixTimePeriods
 from utils.timeUtilitities.timeUtil import TimeConverter, TimeData, TokenizeToDatetime
@@ -51,7 +52,8 @@ class TimeUtilityTests(unittest.TestCase):
                                dayNumInWeek=3,
                                year=2025,
                                hrTime="2:00 PM",
-                               unixTimeUTC=1752084000.0)
+                               unixTimeUTC=1752084000.0,
+                               timeZone=loadConfig()['USER_TIMEZONE'])
         timeUtility = TimeConverter(unixTimeUTC=1752084000.0)
         timeUtility.generateTimeDataObj()
         self.assertEqual(timeUtility.datetimeObj, timeDataObj)
