@@ -415,31 +415,128 @@ Calculates start/end times for various time periods.
 
 ## Calendar Generation Functions
 
-### calendarORGS/calendarViews/calendarCreator/generateCalendar.py
+### calendarORGS/calendarViews/calendarCreator/calendarView.py
 
-#### sortedEventsObj Class
-Dataclass for categorized event lists.
+#### Event Class
+Data container class for individual calendar events.
+
+**Constructor:**
+- `Event(eventTuple)`: Initialize with event data tuple from database
 
 **Attributes:**
-- `today` (list): Events occurring today
-- `thisWeek` (list): Events occurring this week
+- `name` (str): Event name/identifier
+- `description` (str): Event description
+- `startTime` (int): Start time as Unix timestamp
+- `endTime` (int): End time as Unix timestamp
+- `task` (bool): Whether this is a task
+- `completed` (bool): Completion status
+- `startTimeHuman` (str): Human-readable start time
+- `endTimeHuman` (str): Human-readable end time
+- `dayStart` (int): Start of day timestamp for positioning
+- `dayEnd` (int): End of day timestamp for positioning
+- `startPercent` (float): Start position as percentage of day
+- `endPercent` (float): End position as percentage of day
+- `durationPercent` (float): Duration as percentage of day
+
+#### EventSorter Class
+Handles categorization and sorting of events by time periods.
+
+**Constructor:**
+- `EventSorter()`: Initialize with time period calculations and retrieve events
+
+**Methods:**
+- `_assembleEvents(weekStart, weekEnd, timeStart)`: Internal method to filter events by time period
+- `assembleEventLists()`: Populate all event category lists
+- `assembleTodayEvents()`: Filter events for today
+- `assembleThisWeekEvents()`: Filter events for current week
+- `assembleFloatingWeekEvents()`: Filter events for floating week
+- `assembleThisMonthEvents()`: Filter events for current month
+
+**Attributes:**
+- `todayEvents` (list): Events occurring today
+- `thisWeekEvents` (list): Events occurring this week
+- `floatingWeekEvents` (list): Events in floating week period
+- `thisMonthEvents` (list): Events occurring this month
+
+#### CalendarView Class
+Static methods for calendar display and data export.
+
+**Static Methods:**
+
+##### convertListToText(lists)
+Converts event lists to formatted text strings.
+
+**Parameters:**
+- `lists` (list): List of event data
+
+**Returns:** str - Formatted text representation
+
+##### viewEvents(timeForecast)
+Retrieves and formats events for display.
+
+**Parameters:**
+- `timeForecast` (int): Time period in seconds
+
+**Returns:** list - Formatted event data
+
+##### createEventJson()
+Generates JSON data file for web calendar interface.
+
+**Process:**
+1. Retrieves today's events using EventSorter
+2. Converts event data to JSON format
+3. Writes to calendarSite/eventData.json
+4. Handles file creation and error management
+
+### calendarORGS/calendarViews/calendarCreator/generateCalendar.py
 
 #### CalendarCreator Class
 Main calendar generation class for web-based calendar views.
 
 **Constructor:**
-- `CalendarCreator()`: Initialize with templates and event data
+- `CalendarCreator()`: Initialize with Jinja2 templates, paths, and event data
 
 **Methods:**
-- `sortEventsDay()`: Sort events into daily and weekly categories
-- `createCalendar()`: Generate HTML calendar output using templates
+
+##### _copyCSS()
+Copy CSS template files to calendar site directory.
+
+**Features:**
+- Copies all CSS files from templates to site directory
+- Creates necessary parent directories
+- Maintains .gitkeep file for version control
+- Comprehensive error handling for file operations
+
+##### _copyJS()
+Copy JavaScript template files to calendar site directory.
+
+**Features:**
+- Copies all JavaScript files from templates to site directory
+- Creates necessary parent directories
+- Maintains .gitkeep file for version control
+- Comprehensive error handling for file operations
+
+##### createDayCalendar()
+Generate complete HTML calendar for today's events.
+
+**Returns:** str - Rendered HTML content
+
+**Process:**
+1. Renders Jinja2 template with today's events
+2. Generates color palette for event styling
+3. Copies CSS and JavaScript files
+4. Creates JSON data for web interface
+5. Returns complete HTML calendar
 
 **Attributes:**
 - `env` (Environment): Jinja2 template environment
-- `weekTemplate` (Template): Loaded week calendar template
-- `timeStarts` (TimeStarts): Time period calculation object
-- `unsortedEvents` (list): Raw event data from database
-- `sortedEvents` (sortedEventsObj): Categorized event data
+- `dayTemplate` (Template): Loaded day calendar template
+- `cssTemplatePath` (Path): Path to CSS template directory
+- `cssDestPath` (Path): Path to CSS destination directory
+- `JSTemplatePath` (Path): Path to JavaScript template directory
+- `JSDestPath` (Path): Path to JavaScript destination directory
+- `sortedEvents` (EventSorter): Event categorization object
+- `sortedEventsToday` (list): Today's events for rendering
 
 ### utils/dbUtils.py
 
