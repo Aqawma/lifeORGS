@@ -33,7 +33,7 @@ class TokenReturns:
                 blockEndStr = (f"{referencedBlockEnd.dayOfWeek} at "
                                f"{referencedBlockEnd.hour}:{referencedBlockEnd.minute}")
             else:
-                blockStartStr = (f"{referencedBlockStart.day} at "
+                blockStartStr = (f"{referencedBlockStart.dayOfWeek} at "
                                  f"{referencedBlockStart.hour}:{referencedBlockStart.minute}")
                 blockEndStr = f"{referencedBlockEnd.hour}:{referencedBlockEnd.minute}"
 
