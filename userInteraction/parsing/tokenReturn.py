@@ -29,12 +29,12 @@ class TokenReturns:
 
             if referencedBlockStart.dayOfWeek != referencedBlockEnd.dayOfWeek:
                 blockStartStr = (f"{referencedBlockStart.dayOfWeek} at "
-                                 f"{referencedBlockStart.hour}:{referencedBlockStart.minute}")
+                                 f"{referencedBlockStart.hour}:{referencedBlockStart.minute:02d}")
                 blockEndStr = (f"{referencedBlockEnd.dayOfWeek} at "
-                               f"{referencedBlockEnd.hour}:{referencedBlockEnd.minute}")
+                               f"{referencedBlockEnd.hour}:{referencedBlockEnd.minute:02d}")
             else:
                 blockStartStr = (f"{referencedBlockStart.dayOfWeek} at "
-                                 f"{referencedBlockStart.hour}:{referencedBlockStart.minute}")
+                                 f"{referencedBlockStart.hour}:{referencedBlockStart.minute:02d}")
                 blockEndStr = f"{referencedBlockEnd.hour}:{referencedBlockEnd.minute}"
 
             message = f"Block from {blockStartStr} to {blockEndStr} {PastTense.past(self.tokens.verb)} successfully."
