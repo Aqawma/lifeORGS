@@ -128,6 +128,7 @@ async def receive(request: Request):
         tokened = CommandTokenizer(message)
         factory = TokenFactory(tokened.tokenObject)  # Use tokenObject, not tokens
         factory.doToken()  # Call doToken on the instance
+        print("action done")
         returns = TokenReturns.returnConfirm(tokened.tokenObject)
         messageUser(returns)
 
