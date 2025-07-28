@@ -129,7 +129,7 @@ async def receive(request: Request):
         factory = TokenFactory(tokened.tokenObject)  # Use tokenObject, not tokens
         factory.doToken()  # Call doToken on the instance
         print("action done")
-        returns = TokenReturns.returnConfirm(tokened.tokenObject)
+        returns = TokenReturns(tokened.tokenObject).returnMessage
         messageUser(returns)
 
         connector = ConnectDB()
