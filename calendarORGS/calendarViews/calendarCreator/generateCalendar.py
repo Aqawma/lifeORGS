@@ -123,33 +123,14 @@ class CalendarCreator:
         CalendarView.createEventJson()
         return outputs
 
+    @staticmethod
+    def CalendarUpdate():
+        calendar = CalendarCreator()
+        output = calendar.createDayCalendar()
+        cal_index_path = Path(getProjRoot()) / "calendarORGS" / "calendarViews" / "calendarSite" / "index.html"
 
-# Main execution block - Generate and save calendar HTML when run directly
-if __name__ == "__main__":
-    # Create calendar instance and generate HTML content
-    calendar = CalendarCreator()
-    output = calendar.createDayCalendar()
+        # Ensure the destination directory exists
+        cal_index_path.parent.mkdir(parents=True, exist_ok=True)
 
-    # Define output path for the generated calendar HTML file
-    cal_index_path = Path(getProjRoot()) / "calendarORGS" / "calendarViews" / "calendarSite" / "index.html"
-
-    # Ensure the destination directory exists
-    cal_index_path.parent.mkdir(parents=True, exist_ok=True)
-
-    # Write the generated HTML content to the index file
-    cal_index_path.write_text(output)
-
-    print(f"Day calendar generated and saved to: {cal_index_path}")
-
-# Auto-execution block - Generate calendar when module is imported
-# This ensures the calendar is always up-to-date when the module is imported
-# by other parts of the application (maintains backward compatibility)
-calendar = CalendarCreator()
-output = calendar.createDayCalendar()
-cal_index_path = Path(getProjRoot()) / "calendarORGS" / "calendarViews" / "calendarSite" / "index.html"
-
-# Ensure the destination directory exists
-cal_index_path.parent.mkdir(parents=True, exist_ok=True)
-
-# Write the generated HTML content to the index file
-cal_index_path.write_text(output)
+        # Write the generated HTML content to the index file
+        cal_index_path.write_text(output)
