@@ -60,7 +60,7 @@ class SecretCreator:
         self.secretBool = os.path.exists(self.secretPath)
 
         # Create whatsappSecrets file if it doesn't exist
-        self.createSecrets() if not self.secretBool else None
+        # self.createSecrets() if not self.secretBool else None
 
         # Load whatsappSecrets data into memory
         self.loadedSecrets = self.loadSecrets()
