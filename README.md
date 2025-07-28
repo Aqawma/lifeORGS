@@ -11,6 +11,7 @@ A powerful command-line calendar and task management application built in Python
 - **💬 WhatsApp Integration**: Send and receive commands via WhatsApp using Meta Business API
 - **🔍 Smart Command Parsing**: Handles quoted strings, various quote types, and case-insensitive commands
 - **📊 Calendar Views**: Display events and tasks in organized, human-readable formats
+- **🌐 Web Calendar Generation**: Automatically generate browser-viewable HTML calendars with interactive features
 
 ## Quick Start
 
@@ -148,6 +149,7 @@ Comprehensive documentation is available in the `docs/` directory:
 - **Factory Pattern**: Centralized command routing and execution
 - **Database Management**: Automatic table creation and connection management
 - **Time Handling**: Flexible time format support with Unix timestamp conversion
+- **Web Calendar Generation**: Jinja2-based HTML calendar generation with automatic CSS/JS integration
 - **Error Handling**: Comprehensive validation and graceful error management
 - **WhatsApp Integration**: Full Meta Business API integration for remote access
 

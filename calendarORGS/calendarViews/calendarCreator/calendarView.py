@@ -48,10 +48,10 @@ class Event:
         self.description: str = eventTuple[1]
         self.start: int = eventTuple[2]
         # Parse start time into structured TimeData object for easy access to date components
-        self.startParsed: TimeData = TimeConverter(unixTimeUTC=eventTuple[2]).generateTimeDataObj()
+        self.startParsed: TimeData = TimeConverter(unixtime=eventTuple[2]).generateTimeDataObj()
         self.end: int = eventTuple[3]
         # Parse end time into structured TimeData object for easy access to date components
-        self.endParsed: TimeData = TimeConverter(unixTimeUTC=eventTuple[3]).generateTimeDataObj()
+        self.endParsed: TimeData = TimeConverter(unixtime=eventTuple[3]).generateTimeDataObj()
         # Calculate seconds from start of day to event start (for positioning in day view)
         self.startFromDay: int = self.start - TimeStarts(generationTime=self.start).today["start"]
         # Calculate seconds from start of day to event end (for positioning in day view)

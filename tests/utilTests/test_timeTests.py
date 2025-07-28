@@ -54,7 +54,7 @@ class TimeUtilityTests(unittest.TestCase):
                                hrTime="2:00 PM",
                                unixTimeUTC=1752084000.0,
                                timeZone=loadConfig()['USER_TIMEZONE'])
-        timeUtility = TimeConverter(unixTimeUTC=1752084000.0)
+        timeUtility = TimeConverter(unixtime=1752084000.0)
         timeUtility.generateTimeDataObj()
         self.assertEqual(timeUtility.datetimeObj, timeDataObj)
 

@@ -171,16 +171,28 @@ lifeORGS/
 - Month-aware calculations handling different month lengths (28, 29, 30, 31 days)
 - Integration with timezone handling for accurate local time calculations
 
+### calendarORGS/calendarViews/calendarCreator/calendarView.py
+**Purpose**: Event processing and calendar data management
+**Key Classes**:
+- `Event` - Data container for individual calendar events with positioning calculations
+- `EventSorter` - Handles categorization and sorting of events by time periods (today, week, month)
+- `CalendarView` - Static methods for calendar display and JSON data export
+**Features**:
+- Advanced event data processing with time calculations and positioning
+- Sophisticated time-period categorization (today, this week, floating week, month)
+- Automatic event positioning calculations for web display
+- JSON data generation for web calendar interface integration
+
 ### calendarORGS/calendarViews/calendarCreator/generateCalendar.py
 **Purpose**: HTML calendar generation using Jinja2 templates
 **Key Classes**:
 - `CalendarCreator` - Main calendar generation class for web-based calendar views
-- `sortedEventsObj` - Data container for categorized event lists
 **Features**:
-- Jinja2 template-based HTML calendar generation
-- Event data processing and categorization
-- Automatic HTML file generation for web display
-- Integration with time period calculations for proper event sorting
+- Jinja2 template-based HTML calendar generation with day calendar support
+- Automatic CSS and JavaScript file copying with error handling
+- Complete web calendar generation with color palette integration
+- Real-time HTML file generation to calendarSite/index.html
+- Auto-execution on module import for always up-to-date calendars
 
 ### utils/dbUtils.py
 **Purpose**: Database connection and path management

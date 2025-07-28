@@ -26,17 +26,19 @@ Configuration Requirements:
 
 from fastapi import FastAPI, Request
 from fastapi.responses import PlainTextResponse
+
+from whatsappSecrets.initSecrets import SecretCreator
 from userInteraction.messaging.sendMessage import messageUser
-from userInteraction.parsing.tokenFactory import TokenFactory
+from userInteraction.parsing.tokenAction import TokenFactory
+from userInteraction.parsing.tokenReturn import TokenReturns
 from userInteraction.parsing.tokenize import CommandTokenizer
 from utils.dbUtils import ConnectDB
-from utils.jsonUtils import loadConfig
 
 # Initialize FastAPI application
 app = FastAPI()
 
 # Load verification token from configuration
-verifyToken = loadConfig()['VERIFY_TOKEN']
+verifyToken = SecretCreator().loadSecrets()['VERIFY_TOKEN']
 
 @app.get("/webhook")
 def verify(request: Request):
@@ -125,10 +127,14 @@ async def receive(request: Request):
         print("User message:", message)
         tokened = CommandTokenizer(message)
         factory = TokenFactory(tokened.tokenObject)  # Use tokenObject, not tokens
-        toSend = factory.doToken()  # Call doToken on the instance
+        factory.doToken()  # Call doToken on the instance
+        print("action done")
+        returns = TokenReturns(tokened.tokenObject).returnMessage
+        messageUser(returns)
+
         connector = ConnectDB()
         connector.dbCleanup()
-        messageUser(toSend)
+
     except Exception as e:
         # Log extraction errors but continue processing
         print("Could not extract message:", e)

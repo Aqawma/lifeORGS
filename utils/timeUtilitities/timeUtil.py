@@ -32,7 +32,8 @@ from typing import Optional
 from zoneinfo import ZoneInfo
 
 from utils.jsonUtils import loadConfig
-from utils.timeUtilitities.timeDataClasses import TimeData
+from utils.timeUtilitities.timeDataClasses import TimeData, UnixTimePeriods
+
 
 class TokenizeToDatetime:
     """
@@ -130,14 +131,14 @@ class TimeConverter:
         # >>> time_data = utility.generateTimeDataObj()
     """
 
-    def __init__(self, intoUnix: str = None, unixTimeUTC: float = None):
+    def __init__(self, intoUnix: str = None, unixtime: float = None):
         """
         Initialize the TimeUtility with optional time parameters.
 
         Args:
             intoUnix (str, optional): Time string in DD/MM/YYYY HH:MM format
                                      to be converted to Unix timestamp
-            unixTimeUTC (float, optional): Unix timestamp in UTC for processing
+            unixtime (float, optional): Unix timestamp in UTC for processing
 
         Note:
             At least one parameter should be provided for meaningful operations.
@@ -150,7 +151,7 @@ class TimeConverter:
         self.intoUnix: Optional[datetime] = TokenizeToDatetime(intoUnix).datetimeObj if intoUnix else None
 
         # Store Unix timestamp if provided
-        self.unixTimeUTC: Optional[float] = unixTimeUTC
+        self.unixTimeUTC: Optional[float] = unixtime
 
         # Load user's timezone from configuration
         self.timeZone: ZoneInfo = ZoneInfo(loadConfig()['USER_TIMEZONE'])
@@ -188,8 +189,10 @@ class TimeConverter:
             # >>> print(unix_time)  # Unix timestamp for the specified time
         """
         # Convert datetime to UTC timestamp and store it
+        unixtime = self.intoUnix.replace(tzinfo=self.timeZone).astimezone(timezone.utc).timestamp()
 
-        self.unixTimeUTC = self.intoUnix.replace(tzinfo=self.timeZone).astimezone(timezone.utc).timestamp()
+        self.unixTimeUTC = unixtime
+
         return self.unixTimeUTC
 
     def generateTimeDataObj(self) -> TimeData:
@@ -211,8 +214,10 @@ class TimeConverter:
             # >>> print(f"{time_data.dayOfWeek}, {time_data.monthName} {time_data.day}")
             "Monday, December 25"
         """
-        if self.unixTimeUTC is None:
+        if self.unixTimeUTC is None and self.intoUnix is None:
             raise Exception("No Unix timestamp provided")
+        if self.intoUnix and self.unixTimeUTC is None:
+            self.convertToUTC()
 
         # Define month and day names for human-readable formatting
         monthNames = ["January", "February", "March",
