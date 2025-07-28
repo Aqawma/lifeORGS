@@ -25,7 +25,7 @@ Usage:
 
 from utils.dbUtils import ConnectDB
 from utils.dbUtils import setMode
-from utils.timeUtils import toSeconds, TimeUtility
+from utils.timeUtilitities.timeUtil import toSeconds, TimeConverter
 
 
 class TestDBUtils:
@@ -118,16 +118,16 @@ class TestDBUtils:
         connector.cursor.execute(f"INSERT INTO events VALUES "
                                  f"('Doctor Appointment', "
                                  f"'Annual check-up', "
-                                 f"{TimeUtility('10/07/2025 10:00').convertToUTC()}, "
-                                 f"{TimeUtility('10/07/2025 11:00').convertToUTC()}, "
+                                 f"{TimeConverter('10/07/2025 10:00').convertToUTC()}, "
+                                 f"{TimeConverter('10/07/2025 11:00').convertToUTC()}, "
                                  f"0, 0)")  # Not a task, not completed
 
         # Scheduled task event: Email task that has been scheduled
         connector.cursor.execute(f"INSERT INTO events VALUES "
                                  f"('Send Email', "
                                  f"'Fake description not representative of actual code', "
-                                 f"{TimeUtility('08/07/2025 09:05').convertToUTC()}, "
-                                 f"{TimeUtility('08/07/2025 09:35').convertToUTC()}, "
+                                 f"{TimeConverter('08/07/2025 09:05').convertToUTC()}, "
+                                 f"{TimeConverter('08/07/2025 09:35').convertToUTC()}, "
                                  f"1, 0)")  # Is a task, not completed
 
         # Insert sample task data for testing
@@ -139,7 +139,7 @@ class TestDBUtils:
                                  f"{toSeconds('03:00')}, "  # 3 hours estimated time
                                  f"4, "                     # High urgency (4/5)
                                  f"0, "                     # Not scheduled yet
-                                 f"{TimeUtility('10/07/2025 10:00').convertToUTC()}, "  # Due date
+                                 f"{TimeConverter('10/07/2025 10:00').convertToUTC()}, "  # Due date
                                  f"0)")                     # Not completed
 
         # Medium-priority scheduled task: Email sending
@@ -148,7 +148,7 @@ class TestDBUtils:
                                  f"{toSeconds('00:30')}, "  # 30 minutes estimated time
                                  f"3, "                     # Medium urgency (3/5)
                                  f"1, "                     # Already scheduled
-                                 f"{TimeUtility('10/07/2025 16:00').convertToUTC()}, "  # Due date
+                                 f"{TimeConverter('10/07/2025 16:00').convertToUTC()}, "  # Due date
                                  f"0)")                     # Not completed
 
         # Commit all changes and close connection

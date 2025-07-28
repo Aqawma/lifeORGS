@@ -1,0 +1,9 @@
+{
+  "mySalmon":  { "light": "#FF7369", "dark": "#D44C47" },
+  "myPink":    { "light": "#E255A1", "dark": "#C14C8A" },
+  "myPurple":  { "light": "#9A6DD7", "dark": "#9065B0" },
+  "myBlue":    { "light": "#529CCA", "dark": "#337EA9" },
+  "myOrange":  { "light": "#FFA344", "dark": "#D9730D" },
+  "myYellow":  { "light": "#FFDC49", "dark": "#CB912F" },
+  "myGreen":   { "light": "#4DAB9A", "dark": "#448361" }
+}

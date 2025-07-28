@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block title %}Today's Calendar{% endblock %}
+{% block additional_css %}<link rel="stylesheet" href="css/day.css">{% endblock %}
+
+{% block styles %}
+    {% for idx in range(todayEvents|length) %}
+      .box:nth-child({{ (idx * 2) + 1 }}) {
+          background-color: transparent;
+          margin: 0;
+          padding: 0;
+          border: none;
+          box-shadow: none;
+          height: calc({{ todayEvents[idx]["toPreviousEvent"] }} * var(--dayH) / 86400);
+
+      }
+      .box:nth-child({{ (idx * 2) + 2 }}) {
+        background-color: {{ colorDict[eventColors[idx]]["light"] }};
+        height: calc({{ todayEvents[idx]["eventData"].percentOfDay }} * var(--dayH) / 100);
+        transition: all 0.2s ease;
+      }
+        .box:nth-child({{ (idx * 2) + 2 }}):hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    background-color: {{ colorDict[eventColors[idx]]["dark"] }};
+      }
+
+    {% endfor %}
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+    <div>
+        <div class="time-column">12:00</div>
+        <div class="time-column">1:00</div>
+        <div class="time-column">2:00</div>
+        <div class="time-column">3:00</div>
+        <div class="time-column">4:00</div>
+        <div class="time-column">5:00</div>
+        <div class="time-column">6:00</div>
+        <div class="time-column">7:00</div>
+        <div class="time-column">8:00</div>
+        <div class="time-column">9:00</div>
+        <div class="time-column">10:00</div>
+        <div class="time-column">11:00</div>
+        <div class="time-column">12:00</div>
+        <div class="time-column">1:00</div>
+        <div class="time-column">2:00</div>
+        <div class="time-column">3:00</div>
+        <div class="time-column">4:00</div>
+        <div class="time-column">5:00</div>
+        <div class="time-column">6:00</div>
+        <div class="time-column">7:00</div>
+        <div class="time-column">8:00</div>
+        <div class="time-column">9:00</div>
+        <div class="time-column">10:00</div>
+        <div class="time-column">11:00</div>
+    </div>
+    <div>
+        {% for event in todayEvents %}
+            <div class="box"></div>
+            <button class="box" onclick="openSidebar('{{ event["eventData"].iD }}', '{{ colorDict[eventColors[loop.index0]]["dark"] }}')">{{ event["eventData"].iD }}</button>
+        {% endfor %}
+    </div>
+    </div>
+
+    <div id="sidebar" class="sidebar">
+    <div class="sidebar-header">
+        <h2 id="sidebar-title">Event Details</h2>
+        <button class="close-btn" onclick="closeSidebar()">&times;</button>
+    </div>
+    <div class="sidebar-content" id="sidebar-content">
+
+    </div>
+    </div>
+
+    <div id="sidebar-overlay" class="sidebar-overlay" onclick="closeSidebar()"></div>
+
+    <script src="js/sidebar.js"></script>
+{% endblock %}

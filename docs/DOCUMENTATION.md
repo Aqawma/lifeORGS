@@ -10,24 +10,49 @@ lifeORGS/
 ├── main.py                              # Main application entry point
 ├── calendar.db                         # SQLite database file
 ├── config.json                         # Configuration file for API tokens and settings
-├── parsing/
-│   ├── tokenize.py                     # Command tokenization and parsing logic
-│   └── tokenFactory.py                 # Command routing and execution factory
-├── scheduling/
+├── calendarORGS/
 │   ├── calendarViews/
-│   │   └── calendarView.py             # Calendar display and formatting functions
-│   ├── eventModifiers/
-│   │   ├── tokenAdd.py                 # Add operations for events, tasks, and blocks
-│   │   ├── tokenModify.py              # Modify operations for events and tasks
-│   │   └── tokenRemove.py              # Remove operations for events, tasks, and blocks
-│   └── eventScheduler.py               # Task scheduling and event retrieval
-├── messaging/
-│   ├── sendMessage.py                  # WhatsApp message sending functionality
-│   └── recieveMessage.py               # WhatsApp webhook receiver
+│   │   ├── calendarView.py             # Calendar display and formatting functions
+│   │   ├── calendarCreator/
+│   │   │   └── generateCalendar.py     # HTML calendar generation using Jinja2
+│   │   ├── calendarTemplates/
+│   │   │   └── weekCalendar.html       # HTML template for week calendar view
+│   │   └── calendarSite/
+│   │       └── index.html              # Generated HTML calendar output
+│   └── scheduling/
+│       ├── eventModifiers/
+│       │   ├── tokenAdd.py             # Add operations for events, tasks, and blocks
+│       │   ├── tokenModify.py          # Modify operations for events and tasks
+│       │   └── tokenRemove.py          # Remove operations for events, tasks, and blocks
+│       └── eventScheduler.py           # Task scheduling and event retrieval
+├── userInteraction/
+│   ├── messaging/
+│   │   ├── sendMessage.py              # WhatsApp message sending functionality
+│   │   └── recieveMessage.py           # WhatsApp webhook receiver
+│   └── parsing/
+│       ├── tokenize.py                 # Command tokenization and parsing logic
+│       └── tokenFactory.py            # Command routing and execution factory
 ├── utils/
-│   ├── timeUtils.py                    # Time conversion utilities
+│   ├── timeUtilitities/
+│   │   ├── timeUtil.py                 # Core time conversion and utility functions
+│   │   ├── timeDataClasses.py          # Time data structures (TimeData, UnixTimePeriods)
+│   │   └── startAndEndBlocks.py        # Time period calculation classes (TimeStarts)
 │   ├── dbUtils.py                      # Database connection and path utilities
-│   └── jsonUtils.py                    # JSON configuration utilities
+│   ├── jsonUtils.py                    # JSON configuration utilities
+│   └── projRoot.py                     # Project root path utilities
+├── secrets/
+│   ├── initSecrets.py                  # Secrets file creation and management
+│   └── secrets.json                    # API tokens and configuration secrets
+├── tests/
+│   ├── TestUtils/
+│   │   └── makeTestDB.py               # Test database creation utilities
+│   ├── calViewTests/
+│   │   └── test_eventSortingTests.py   # Calendar view and event sorting tests
+│   ├── eventModifierTests/
+│   │   └── test_ParsingTests.py        # Command parsing unit tests
+│   └── utilTests/
+│       ├── test_timeTests.py           # Time utility function tests
+│       └── TimeStartsTuples.json       # Test data for time period calculations
 ├── requirements.txt                    # Python package dependencies
 └── docs/
     ├── README.md                       # User guide and quick start
@@ -114,15 +139,48 @@ lifeORGS/
 - Time block management for scheduling constraints
 - Integration with calendar view for formatted output
 
-### utils/timeUtils.py
-**Purpose**: Time conversion and formatting utilities
+### utils/timeUtilitities/timeUtil.py
+**Purpose**: Core time conversion and utility functions
+**Key Classes**:
+- `TokenizeToDatetime` - Parses date/time strings into datetime objects
+- `TimeUtility` - Main time conversion and manipulation class
 **Functions**:
-- `toUnixTime(eventTime)` - Convert date/time string to Unix timestamp
 - `toSeconds(time)` - Convert HH:MM or HH:MM:SS to total seconds
 - `timeOut(timeString)` - Convert time period string (e.g., "7 D") to seconds
 - `toShortHumanTime(unixTime)` - Convert Unix timestamp to readable date
 - `toHumanHour(unixTime)` - Convert Unix timestamp to readable time
 - `deltaToStartOfWeek(currentTime)` - Calculate seconds since start of week
+
+### utils/timeUtilitities/timeDataClasses.py
+**Purpose**: Time data structures and constants
+**Key Classes**:
+- `TimeData` - Dataclass for structured time information with comprehensive date/time components
+- `UnixTimePeriods` - Constants for common time periods in seconds (minute, hour, day, week)
+**Features**:
+- Standardized time data representation throughout the application
+- Timezone-aware time handling with user configuration integration
+- Convenient time period constants for calculations
+
+### utils/timeUtilitities/startAndEndBlocks.py
+**Purpose**: Time period calculation and boundary management
+**Key Classes**:
+- `TimeStarts` - Calculates start/end times for various time periods (today, this week, this month)
+**Features**:
+- Automatic calculation of day, week, and month boundaries
+- Support for floating weeks (starting from any day)
+- Month-aware calculations handling different month lengths (28, 29, 30, 31 days)
+- Integration with timezone handling for accurate local time calculations
+
+### calendarORGS/calendarViews/calendarCreator/generateCalendar.py
+**Purpose**: HTML calendar generation using Jinja2 templates
+**Key Classes**:
+- `CalendarCreator` - Main calendar generation class for web-based calendar views
+- `sortedEventsObj` - Data container for categorized event lists
+**Features**:
+- Jinja2 template-based HTML calendar generation
+- Event data processing and categorization
+- Automatic HTML file generation for web display
+- Integration with time period calculations for proper event sorting
 
 ### utils/dbUtils.py
 **Purpose**: Database connection and path management

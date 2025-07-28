@@ -10,6 +10,7 @@ This document provides detailed information about all classes, methods, and func
 - [Task Scheduling](#task-scheduling)
 - [Messaging Functions](#messaging-functions)
 - [Utility Functions](#utility-functions)
+- [Calendar Generation Functions](#calendar-generation-functions)
 
 ## Command Processing
 
@@ -288,17 +289,36 @@ Processes incoming WhatsApp messages.
 
 ## Utility Functions
 
-### utils/timeUtils.py
+### utils/timeUtilitities/timeUtil.py
+
+#### TokenizeToDatetime Class
+Parses date/time strings into datetime objects with timezone handling.
+
+**Constructor:**
+- `TokenizeToDatetime(timeString)`: Initializes with date/time string
+
+**Methods:**
+- `_splitTime(timeString)`: Internal method for parsing time components
+
+**Attributes:**
+- `datetimeObj` (datetime): Parsed datetime object with timezone
+
+#### TimeUtility Class
+Main time conversion and manipulation class.
+
+**Constructor:**
+- `TimeUtility(intoUnix=None, unixTimeUTC=None)`: Initialize with time string or Unix timestamp
+
+**Methods:**
+- `updateCurrentTime()`: Updates current time to now
+- `convertToUTC()`: Converts local time to UTC Unix timestamp
+- `generateTimeDataObj()`: Creates TimeData object from current time
+
+**Attributes:**
+- `currentTime` (float): Current Unix timestamp
+- `datetimeObj` (TimeData): Structured time data object
 
 #### Functions
-
-##### toUnixTime(eventTime)
-Converts date/time string to Unix timestamp.
-
-**Parameters:**
-- `eventTime` (str): Date/time in format "DD/MM/YYYY HH:MM"
-
-**Returns:** int - Unix timestamp
 
 ##### toSeconds(time)
 Converts time string to total seconds.
@@ -339,6 +359,87 @@ Calculates seconds since start of week.
 - `currentTime` (int): Current Unix timestamp
 
 **Returns:** int - Seconds since Monday 00:00
+
+### utils/timeUtilitities/timeDataClasses.py
+
+#### TimeData Class
+Dataclass for structured time information.
+
+**Attributes:**
+- `monthNum` (int): Month number (01-12)
+- `monthName` (str): Full month name
+- `dayOfWeek` (str): Full day name
+- `day` (int): Day of month (01-31)
+- `hour` (int): Hour (00-23)
+- `minute` (int): Minute (00-59)
+- `second` (int): Second (00-59)
+- `dayNumInWeek` (int): Day number in week (1-7)
+- `year` (int): Four-digit year
+- `unixTimeUTC` (float): Unix timestamp in UTC
+- `timeZone` (str): User's timezone from configuration
+
+#### UnixTimePeriods Class
+Constants for common time periods in seconds.
+
+**Attributes:**
+- `minute` (int): 60 seconds
+- `hour` (int): 3,600 seconds
+- `day` (int): 86,400 seconds
+- `week` (int): 604,800 seconds
+
+### utils/timeUtilitities/startAndEndBlocks.py
+
+#### TimeStarts Class
+Calculates start/end times for various time periods.
+
+**Constructor:**
+- `TimeStarts(generationTime=None)`: Initialize with specific time or current time
+
+**Methods:**
+- `setToday()`: Calculate today's start/end times
+- `setThisWeek()`: Calculate this week's start/end times
+- `setDaysOfThisWeek()`: Generate tuple of days in current week
+- `setFloatingWeek()`: Calculate floating week from current day
+- `setDaysOfFloatingWeek()`: Generate tuple of days in floating week
+- `setThisMonth()`: Calculate this month's start/end times
+- `setDaysOfMonth()`: Generate tuple of all days in current month
+
+**Attributes:**
+- `today` (dict): Start/end times for today
+- `thisWeek` (dict): Start/end times for this week
+- `daysOfThisWeek` (tuple): Unix timestamps for each day of current week
+- `floatingWeek` (dict): Start/end times for floating week
+- `daysOfFloatingWeek` (tuple): Unix timestamps for each day of floating week
+- `thisMonth` (dict): Start/end times for this month
+- `daysOfMonth` (tuple): Unix timestamps for each day of current month
+
+## Calendar Generation Functions
+
+### calendarORGS/calendarViews/calendarCreator/generateCalendar.py
+
+#### sortedEventsObj Class
+Dataclass for categorized event lists.
+
+**Attributes:**
+- `today` (list): Events occurring today
+- `thisWeek` (list): Events occurring this week
+
+#### CalendarCreator Class
+Main calendar generation class for web-based calendar views.
+
+**Constructor:**
+- `CalendarCreator()`: Initialize with templates and event data
+
+**Methods:**
+- `sortEventsDay()`: Sort events into daily and weekly categories
+- `createCalendar()`: Generate HTML calendar output using templates
+
+**Attributes:**
+- `env` (Environment): Jinja2 template environment
+- `weekTemplate` (Template): Loaded week calendar template
+- `timeStarts` (TimeStarts): Time period calculation object
+- `unsortedEvents` (list): Raw event data from database
+- `sortedEvents` (sortedEventsObj): Categorized event data
 
 ### utils/dbUtils.py
 

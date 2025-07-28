@@ -9,12 +9,12 @@ The TokenFactory implements a factory pattern to create and execute the appropri
 token handler based on the parsed command structure.
 """
 
-from parsing.tokenize import Tokens
-from scheduling.calendarViews.calendarView import CalendarView
-from scheduling.eventScheduler import Scheduler
-from scheduling.eventModifiers.tokenAdd import TokenAdd
-from scheduling.eventModifiers.tokenModify import TokenModify
-from scheduling.eventModifiers.tokenRemove import TokenRemove
+from userInteraction.parsing.tokenize import Tokens
+from calendarORGS.calendarViews.calendarCreator.calendarView import CalendarView
+from calendarORGS.scheduling.eventScheduler import Scheduler
+from calendarORGS.scheduling.eventModifiers.tokenAdd import TokenAdd
+from calendarORGS.scheduling.eventModifiers.tokenModify import TokenModify
+from calendarORGS.scheduling.eventModifiers.tokenRemove import TokenRemove
 
 
 class TokenFactory:

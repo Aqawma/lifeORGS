@@ -28,54 +28,11 @@ Functions:
 
 import time
 from datetime import datetime, timezone
-from dataclasses import dataclass
 from typing import Optional
 from zoneinfo import ZoneInfo
 
 from utils.jsonUtils import loadConfig
-
-
-@dataclass
-class TimeData:
-    """
-    Data container class for structured time information.
-
-    This dataclass holds comprehensive time data including date components,
-    time components, and timezone information. It provides a standardized
-    way to represent time data throughout the application.
-
-    Attributes:
-        monthNum (str): Month number (01-12) with zero padding
-        monthName (str): Full month name (e.g., "January", "February")
-        dayOfWeek (str): Full day name (e.g., "Monday", "Tuesday")
-        day (str): Day of month (01-31) with zero padding
-        hour (str): Hour (00-23) with zero padding
-        minute (str): Minute (00-59) with zero padding
-        second (str): Second (00-59) with zero padding
-        dayNumInWeek (str): Day number in week (1-7) with zero padding
-        year (str): Four-digit year
-        unixTimeUTC (float): Unix timestamp in UTC
-        timeZone (str): User's timezone from configuration
-
-    Example:
-        >>> time_data = TimeData(
-        ...     monthNum="12", monthName="December", dayOfWeek="Monday",
-        ...     day="25", hour="14", minute="30", second="00",
-        ...     dayNumInWeek="01", year="2023", unixTimeUTC=1703530800.0
-        ... )
-    """
-    monthNum: str
-    monthName: str
-    dayOfWeek: str
-    day: str
-    hour: str
-    minute: str
-    second: str
-    dayNumInWeek: str
-    year: str
-
-    unixTimeUTC: float
-    timeZone: str = loadConfig()['USER_TIMEZONE']
+from utils.timeUtilitities.timeDataClasses import TimeData
 
 class TokenizeToDatetime:
     """
@@ -89,8 +46,8 @@ class TokenizeToDatetime:
         datetimeObj (datetime): Python datetime object created from the parsed time string
 
     Example:
-        >>> tokenizer = TokenizeToDatetime("25/12/2023 14:30")
-        >>> print(tokenizer.datetimeObj)
+        # >>> tokenizer = TokenizeToDatetime("25/12/2023 14:30")
+        # >>> print(tokenizer.datetimeObj)
         datetime.datetime(2023, 12, 25, 14, 30)
     """
 
@@ -109,8 +66,8 @@ class TokenizeToDatetime:
             dict: Dictionary with 'date' and 'time' keys containing lists
                   of string components
 
-        Example:
-            >>> TokenizeToDatetime._splitTime("25/12/2023 14:30")
+        # Example:
+        #     >>> TokenizeToDatetime._splitTime("25/12/2023 14:30")
             {'date': ['25', '12', '2023'], 'time': ['14', '30']}
         """
         # Split the string into date and time parts
@@ -149,7 +106,7 @@ class TokenizeToDatetime:
                                     int(self.timeDict['time'][0]),  # hour
                                     int(self.timeDict['time'][1]))  # minute
 
-class TimeUtility:
+class TimeConverter:
     """
     Main utility class for time operations and conversions.
 
@@ -164,13 +121,13 @@ class TimeUtility:
         timeZone (str): User's timezone from configuration
 
     Example:
-        >>> # Convert time string to Unix timestamp
-        >>> utility = TimeUtility(intoUnix="25/12/2023 14:30")
-        >>> unix_time = utility.convertToUTC()
-
-        >>> # Generate structured time data from Unix timestamp
-        >>> utility = TimeUtility(unixTimeUTC=1703530800.0)
-        >>> time_data = utility.generateTimeDataObj()
+        # >>> # Convert time string to Unix timestamp
+        # >>> utility = TimeUtility(intoUnix="25/12/2023 14:30")
+        # >>> unix_time = utility.convertToUTC()
+        #
+        # >>> # Generate structured time data from Unix timestamp
+        # >>> utility = TimeUtility(unixTimeUTC=1703530800.0)
+        # >>> time_data = utility.generateTimeDataObj()
     """
 
     def __init__(self, intoUnix: str = None, unixTimeUTC: float = None):
@@ -196,7 +153,9 @@ class TimeUtility:
         self.unixTimeUTC: Optional[float] = unixTimeUTC
 
         # Load user's timezone from configuration
-        self.timeZone: str = loadConfig()['USER_TIMEZONE']
+        self.timeZone: ZoneInfo = ZoneInfo(loadConfig()['USER_TIMEZONE'])
+
+        self.datetimeObj = None
 
     def updateCurrentTime(self) -> float:
         """
@@ -224,12 +183,13 @@ class TimeUtility:
             AttributeError: If intoUnix is None (no datetime object to convert)
 
         Example:
-            >>> utility = TimeUtility(intoUnix="25/12/2023 14:30")
-            >>> unix_time = utility.convertToUTC()
-            >>> print(unix_time)  # Unix timestamp for the specified time
+            # >>> utility = TimeUtility(intoUnix="25/12/2023 14:30")
+            # >>> unix_time = utility.convertToUTC()
+            # >>> print(unix_time)  # Unix timestamp for the specified time
         """
         # Convert datetime to UTC timestamp and store it
-        self.unixTimeUTC = self.intoUnix.replace(tzinfo=timezone.utc).timestamp()
+
+        self.unixTimeUTC = self.intoUnix.replace(tzinfo=self.timeZone).astimezone(timezone.utc).timestamp()
         return self.unixTimeUTC
 
     def generateTimeDataObj(self) -> TimeData:
@@ -246,9 +206,9 @@ class TimeUtility:
             Exception: If no Unix timestamp is provided (unixTimeUTC is None)
 
         Example:
-            >>> utility = TimeUtility(unixTimeUTC=1703530800.0)
-            >>> time_data = utility.generateTimeDataObj()
-            >>> print(f"{time_data.dayOfWeek}, {time_data.monthName} {time_data.day}")
+            # >>> utility = TimeUtility(unixTimeUTC=1703530800.0)
+            # >>> time_data = utility.generateTimeDataObj()
+            # >>> print(f"{time_data.dayOfWeek}, {time_data.monthName} {time_data.day}")
             "Monday, December 25"
         """
         if self.unixTimeUTC is None:
@@ -270,19 +230,20 @@ class TimeUtility:
         userDateTime = utcDateTime.astimezone(ZoneInfo(userTimeZone))
 
         # Create and return structured TimeData object
-        return TimeData(
-            monthNum=str(userDateTime.month).zfill(2),           # Zero-padded month number
+        self.datetimeObj = TimeData(
+            monthNum=int(userDateTime.month),           # Integer month number (1=January, 12=December)
             monthName=monthNames[userDateTime.month - 1],        # Full month name
             dayOfWeek=dayOfWeekNames[userDateTime.weekday()],    # Full day name
-            day=str(userDateTime.day).zfill(2),                 # Zero-padded day
-            hour=str(userDateTime.hour).zfill(2),               # Zero-padded hour (24h)
-            minute=str(userDateTime.minute).zfill(2),           # Zero-padded minute
-            second=str(userDateTime.second).zfill(2),           # Zero-padded second
-            dayNumInWeek=str(userDateTime.isoweekday()).zfill(2), # ISO weekday (1=Monday)
-            year=str(userDateTime.year),                        # Four-digit year
-            unixTimeUTC=self.unixTimeUTC,                       # Original Unix timestamp
+            day=int(userDateTime.day),                 # Day of the month as an integer
+            hour=int(userDateTime.hour),               # Hour in 24-hour format as an integer
+            minute=int(userDateTime.minute),           # minute
+            second=int(userDateTime.second),           # second
+            dayNumInWeek=int(userDateTime.isoweekday()),  # ISO weekday (1=Monday)
+            year=int(userDateTime.year),                        # year
+            unixTimeUTC=self.unixTimeUTC,
+            hrTime=(userDateTime.strftime('%I:%M %p').lstrip("0"))
         )
-
+        return self.datetimeObj
 
 def toSeconds(time):
     """
@@ -300,12 +261,17 @@ def toSeconds(time):
         # >>> toSeconds("14:30:15")
         # Returns 52,215 (14 hours, 30 minutes, and 15 seconds)
     """
+    # Split time string by colon separator
     time = time.split(':')
+
+    # Calculate total seconds: hours * 3600 + minutes * 60
     combinedTime = int(time[0]) * 3600 + int(time[1]) * 60
+
+    # Add seconds if provided (HH:MM:SS format)
     if len(time) == 3:
         combinedTime += int(time[2])
-    return combinedTime
 
+    return combinedTime
 
 def timeOut(timeString):
     """
@@ -329,16 +295,18 @@ def timeOut(timeString):
     Note:
         Future enhancement planned to support more time formats.
     """
+    # Split the time string by space to separate number and unit
     time = timeString.split(" ")
 
+    # Check if the unit is days ("D")
     if time[1] == "D":
+        # Convert days to seconds (1 day = 86400 seconds)
         timeString = int(time[0]) * 86400
         return timeString
 
     else:
-        #TODO Make this logic better
+        # TODO: Make this logic better - add support for hours, minutes, weeks, etc.
         raise Exception("Invalid time format")
-
 
 def toShortHumanTime(unixTime):
     """
@@ -355,10 +323,10 @@ def toShortHumanTime(unixTime):
         # >>> toShortHumanTime(1640430600)
         # Returns "Saturday, December 25" (for December 25, 2021)
     """
+    # Convert Unix timestamp to datetime and format as "Weekday, Month Day"
     realTime = datetime.fromtimestamp(unixTime).strftime('%A, %B %d')
 
     return realTime
-
 
 def toHumanHour(unixTime):
     """
@@ -375,10 +343,10 @@ def toHumanHour(unixTime):
         # >>> toHumanHour(1640430600)
         # Returns "10:30 AM" (assuming this timestamp corresponds to 10:30 AM)
     """
+    # Convert Unix timestamp to datetime and format as 12-hour time with AM/PM
     realTime = datetime.fromtimestamp(unixTime).strftime('%I:%M %p')
 
     return realTime
-
 
 def deltaToStartOfWeek(currentTime):
     """
@@ -403,8 +371,11 @@ def deltaToStartOfWeek(currentTime):
         - The calculation includes weekday, hour, minute, and second components
         - Result is in seconds and can be used for scheduling calculations
     """
-    weekStart = (datetime.fromtimestamp(currentTime).weekday() * 86400
-                 + datetime.fromtimestamp(currentTime).hour * 3600
-                 + datetime.fromtimestamp(currentTime).minute * 60
-                 + datetime.fromtimestamp(currentTime).second)
-    return weekStart  # Seconds since start of week (Monday)
+    # Calculate seconds elapsed since Monday 00:00:00 of current week
+    # weekday() returns 0=Monday, 1=Tuesday, etc.
+    weekStart = (datetime.fromtimestamp(currentTime).weekday() * 86400  # Days * seconds per day
+                 + datetime.fromtimestamp(currentTime).hour * 3600      # Hours * seconds per hour
+                 + datetime.fromtimestamp(currentTime).minute * 60      # Minutes * seconds per minute
+                 + datetime.fromtimestamp(currentTime).second)          # Seconds
+
+    return weekStart  # Total seconds since start of week (Monday 00:00:00)

@@ -1,4 +1,4 @@
-from parsing.tokenize import Tokens
+from userInteraction.parsing.tokenize import Tokens
 from utils.dbUtils import ConnectDB
 
 class TokenRemove:

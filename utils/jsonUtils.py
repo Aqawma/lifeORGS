@@ -18,7 +18,7 @@ parameters.
 import json
 import os
 
-def loadConfig():
+def loadConfig() -> dict:
     """
     Loads the application configuration from config.json file.
 
@@ -44,10 +44,21 @@ def loadConfig():
         - Configuration keys are case-sensitive
     """
     # Navigate from utils/ directory up to project root where config.json is located
-    configPath = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'config.json')
+    configPath = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'configurations', 'config.json')
 
     # Load and parse the JSON configuration file
     with open(configPath) as f:
         config = json.load(f)
 
     return config
+
+class Configs:
+    def __init__(self):
+        self.configDirPath = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'configurations')
+        self.mainConfig: dict = loadConfig()
+        self.colorSchemes: dict = self._colorScheme()
+
+    def _colorScheme(self) -> dict:
+        with open(os.path.join(self.configDirPath, 'colorSchemes.json')) as f:
+            colorSchemes = json.load(f)
+        return colorSchemes

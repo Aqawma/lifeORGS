@@ -9,7 +9,7 @@ The module interacts with the SQLite database to create the necessary tables
 and insert new records based on the tokenized command information.
 """
 
-from parsing.tokenize import Tokens
+from userInteraction.parsing.tokenize import Tokens
 from utils.dbUtils import ConnectDB
 import datetime
 

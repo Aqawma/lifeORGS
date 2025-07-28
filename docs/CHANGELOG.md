@@ -4,7 +4,80 @@ All notable changes to the lifeORGS project are documented in this file.
 
 ## [Current Version] - 2025
 
-### Added - Latest Updates (July 2025)
+### Added - Latest Updates (December 2025)
+
+#### Documentation Enhancements (December 2025)
+- **Comprehensive Inline Documentation**
+  - Added detailed docstrings to Event class in calendarView.py with attribute descriptions and usage examples
+  - Enhanced EventSorter class with comprehensive documentation covering all time-period categorization methods
+  - Improved CalendarView class methods with detailed parameter descriptions and return value documentation
+  - Added inline comments throughout calendarView.py explaining complex logic and calculations
+  - Fixed redundant code line in viewEvents method and added explanatory comments
+
+- **Calendar Generation Documentation**
+  - Enhanced CalendarCreator class documentation in generateCalendar.py
+  - Added comprehensive docstrings to _copyCSS and _copyJS methods with error handling documentation
+  - Improved createDayCalendar method with detailed process flow documentation
+  - Added explanatory comments to execution blocks explaining auto-generation behavior
+  - Enhanced inline comments throughout template rendering and file copying processes
+
+- **JavaScript Interface Documentation**
+  - Added comprehensive JSDoc-style documentation to sidebar.js module
+  - Documented loadEventData function with async/await pattern explanation
+  - Enhanced openSidebar function with parameter descriptions and DOM manipulation details
+  - Added closeSidebar function documentation with UI state management explanation
+  - Documented keyboard event listener for accessibility features
+  - Added module-level documentation explaining sidebar functionality and integration
+
+- **Code Quality Improvements**
+  - Removed redundant code line in viewEvents method (toHumanHour call without assignment)
+  - Enhanced error handling documentation in CSS/JS copying methods
+  - Improved inline comments explaining complex time calculations and event positioning
+  - Added detailed explanations for day-relative timing calculations and percentage computations
+
+### Added - Latest Updates (December 2025)
+
+#### Time Utilities Refactoring (December 2025)
+- **Modular Time Utilities Architecture**
+  - Refactored single `utils/timeUtils.py` into modular `utils/timeUtilitities/` package
+  - Split functionality into three specialized modules:
+    - `timeUtil.py` - Core time conversion and utility functions
+    - `timeDataClasses.py` - Time data structures and constants
+    - `startAndEndBlocks.py` - Time period calculation classes
+  - Enhanced maintainability and code organization
+  - Improved separation of concerns for time-related functionality
+
+- **Enhanced Time Data Structures**
+  - Added comprehensive `TimeData` dataclass with timezone support
+  - Implemented `UnixTimePeriods` constants for common time calculations
+  - Created `TimeStarts` class for advanced time period boundary calculations
+  - Support for floating weeks, month-aware calculations, and timezone handling
+
+- **Calendar Generation System**
+  - New HTML calendar generation using Jinja2 templates
+  - Added `CalendarCreator` class for web-based calendar views
+  - Implemented responsive HTML templates for calendar display
+  - Automatic HTML file generation for browser viewing
+  - Event categorization and sorting for improved display
+
+- **Web Calendar Features**
+  - Browser-viewable calendar with grid layout
+  - Template-based calendar rendering system
+  - Automatic calendar file generation to `calendarSite/index.html`
+  - Integration with existing event data and time calculations
+
+- **Enhanced Test Infrastructure**
+  - Comprehensive test suite for time utilities with `test_timeTests.py`
+  - Test data files for time period calculations (`TimeStartsTuples.json`)
+  - Calendar view testing framework with `test_eventSortingTests.py`
+  - Extensive test coverage for edge cases (leap years, month boundaries)
+
+- **Import Path Updates**
+  - Updated all import statements to use new modular time utilities structure
+  - Maintained backward compatibility where possible
+  - Fixed import references in `calendarView.py` and other dependent modules
+
+### Added - Previous Updates (July 2025)
 
 #### Recent Documentation Enhancements (July 2025)
 - **Comprehensive Time Utilities Documentation**

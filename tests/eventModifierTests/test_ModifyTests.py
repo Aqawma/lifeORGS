@@ -1,11 +1,11 @@
 import unittest
 
-from parsing.tokenize import Tokens
-from scheduling.eventModifiers.tokenModify import TokenModify
 from tests.TestUtils.makeTestDB import TestDBUtils
+from userInteraction.parsing.tokenize import Tokens
+from calendarORGS.scheduling.eventModifiers.tokenModify import TokenModify
 from utils.dbUtils import ConnectDB
 from utils.dbUtils import setMode
-from utils.timeUtils import TimeUtility
+from utils.timeUtilitities.timeUtil import TimeConverter
 
 class ModifyTests(unittest.TestCase):
 
@@ -23,13 +23,13 @@ class ModifyTests(unittest.TestCase):
                                           iD='Doctor Appointment',
                                           modVerb='unixtimeStart',
                                           modContext=
-                                          TimeUtility("09/07/2025 14:00").convertToUTC())
+                                          TimeConverter("09/07/2025 14:00").convertToUTC())
         self.tokenEventEndTime = Tokens('EVENT',
                                         'MODIFY',
                                         iD='Doctor Appointment',
                                         modVerb='unixtimeEnd',
                                         modContext=
-                                        TimeUtility("09/07/2025 15:00").convertToUTC())
+                                        TimeConverter("09/07/2025 15:00").convertToUTC())
         self.tokenTaskTaskTime = Tokens('TASK',
                                         'MODIFY',
                                         iD='Write Essay',
@@ -45,7 +45,7 @@ class ModifyTests(unittest.TestCase):
                                        iD='Write Essay',
                                        modVerb='dueDate',
                                        modContext=
-                                       TimeUtility("09/07/2025 15:00").convertToUTC())
+                                       TimeConverter("09/07/2025 15:00").convertToUTC())
         self.tokenTaskScheduled = Tokens('TASK',
                                          'MODIFY',
                                          iD='Send Email',

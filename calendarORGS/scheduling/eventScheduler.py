@@ -26,7 +26,7 @@ Dependencies:
 import time
 
 from utils.dbUtils import ConnectDB
-from utils.timeUtils import timeOut, toShortHumanTime, toHumanHour, deltaToStartOfWeek
+from utils.timeUtilitities.timeUtil import timeOut, toShortHumanTime, toHumanHour, deltaToStartOfWeek
 
 
 class Scheduler:
