@@ -191,11 +191,7 @@ class TimeConverter:
         # Convert datetime to UTC timestamp and store it
         unixtime = self.intoUnix.replace(tzinfo=self.timeZone).astimezone(timezone.utc).timestamp()
 
-        if unixtime > UnixTimePeriods.week:
-            self.unixTimeUTC = unixtime
-        else:
-            converter = TimeConverter(unixtime=self.currentTime)
-            converter.generateTimeDataObj()
+        self.unixTimeUTC = unixtime
 
         return self.unixTimeUTC
 
