@@ -66,46 +66,33 @@ class TokenFactory:
                 match self.tokens.location:
                     case "EVENT":
                         TokenAdd.addEvent(TokenAdd(self.tokens))
-                        return f"{self.tokens.iD} added successfully."
                     case "TASK":
                         TokenAdd.addTask(TokenAdd(self.tokens))
-                        return f"{self.tokens.iD} added successfully."
                     case "BLOCK":
                         TokenAdd.addBlock(TokenAdd(self.tokens))
-                        return "Time block added."
-                return "Action could not be completed please check your input."
 
             case "REMOVE":
                 match self.tokens.location:
                     case "EVENT":
                         TokenRemove.removeEvent(TokenRemove(self.tokens))
-                        return f"{self.tokens.iD} removed successfully."
                     case "TASK":
                         TokenRemove.removeTask(TokenRemove(self.tokens))
-                        return f"{self.tokens.iD} removed successfully."
                     case "BLOCK":
                         TokenRemove.removeBlock(TokenRemove(self.tokens))
-                        return "Time block removed successfully."
-                return "Action could not be completed please check your input."
 
             case "MODIFY":
                 match self.tokens.location:
                     case "EVENT":
                         TokenModify.modifyEvent(TokenModify(self.tokens))
-                        return f"{self.tokens.iD} modified successfully."
                     case "TASK":
                         TokenModify.modifyTask(TokenModify(self.tokens))
-                        return f"{self.tokens.iD} modified successfully."
-                return "Action could not be completed please check your input."
 
+            # TODO Removed returns but currently not working until calendarView is fully implemented
             case "VIEW":
                 eventList = CalendarView.viewEvents(self.tokens.viewTime)
                 formattedEventStr = CalendarView.convertListToText(eventList)
-                return formattedEventStr
 
             case "SCHEDULE":
                 Scheduler.scheduleTasks(self.tokens.viewTime)
                 eventList = CalendarView.viewEvents(self.tokens.viewTime)
                 formattedEventStr = CalendarView.convertListToText(eventList)
-                return formattedEventStr
-        return "Action could not be completed please check your input."

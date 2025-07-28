@@ -19,7 +19,7 @@ following the format: <COMMAND_TYPE> <ACTION> [parameters...]
 
 For detailed command reference, see docs/README.md or docs/API.md
 """
-from userInteraction.parsing.tokenFactory import TokenFactory
+from userInteraction.parsing.tokenAction import TokenFactory
 from userInteraction.parsing.tokenize import CommandTokenizer
 from utils.dbUtils import ConnectDB
 

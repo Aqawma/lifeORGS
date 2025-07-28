@@ -15,6 +15,7 @@ and command validation for events, tasks, and time blocks.
 
 import re
 
+from utils.timeUtilitities.timeDataClasses import UnixTimePeriods
 from utils.timeUtilitities.timeUtil import TimeConverter, toSeconds
 from dataclasses import dataclass
 from typing import Optional, Union
@@ -37,7 +38,6 @@ class Tokens:
     blockStart: Optional[float] = None
     blockEnd: Optional[float] = None
     viewTime: Optional[str] = None
-
 
 class CommandTokenizer:
     """
@@ -221,8 +221,8 @@ class CommandTokenizer:
                 return tokenObj
 
             elif tokenObj.location == "BLOCK":
-                tokenObj.blockStart = (86400 * (int(self.context[0]) - 1)) + toSeconds(self.context[1])
-                tokenObj.blockEnd = (86400 * (int(self.context[0]) - 1)) + toSeconds(self.context[2])
+                tokenObj.blockStart = (UnixTimePeriods.day * (int(self.context[0]) - 1)) + toSeconds(self.context[1])
+                tokenObj.blockEnd = (UnixTimePeriods.day * (int(self.context[0]) - 1)) + toSeconds(self.context[2])
                 return tokenObj
 
             else:
@@ -238,8 +238,8 @@ class CommandTokenizer:
                 return tokenObj
 
             elif tokenObj.location == "BLOCK":
-                tokenObj.blockStart = (86400 * (int(self.context[0]) - 1)) + toSeconds(self.context[1])
-                tokenObj.blockEnd = (86400 * (int(self.context[0]) - 1)) + toSeconds(self.context[2])
+                tokenObj.blockStart = (UnixTimePeriods.day * (int(self.context[0]) - 1)) + toSeconds(self.context[1])
+                tokenObj.blockEnd = (UnixTimePeriods.day * (int(self.context[0]) - 1)) + toSeconds(self.context[2])
                 return tokenObj
 
             else:

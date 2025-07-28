@@ -77,8 +77,8 @@ class TimeStarts:
         self.thisMonth: dict = {}
         self.daysOfMonth: tuple = ()
 
-        self.dayPointerWeek = TimeConverter(unixTimeUTC=self.currentTime).generateTimeDataObj().dayNumInWeek - 1
-        self.dayPointerMonth = TimeConverter(unixTimeUTC=self.currentTime).generateTimeDataObj().day - 1
+        self.dayPointerWeek = TimeConverter(unixtime=self.currentTime).generateTimeDataObj().dayNumInWeek - 1
+        self.dayPointerMonth = TimeConverter(unixtime=self.currentTime).generateTimeDataObj().day - 1
 
         self.setToday()
         self.setThisWeek()
@@ -99,7 +99,7 @@ class TimeStarts:
             self.today: Dictionary with 'start' and 'end' Unix timestamps
         """
         # Generate time data object from current time
-        timeUtil = TimeConverter(unixTimeUTC=self.currentTime)
+        timeUtil = TimeConverter(unixtime=self.currentTime)
         timeUtil.generateTimeDataObj()
         dateTimeObj = timeUtil.datetimeObj
 
@@ -128,7 +128,7 @@ class TimeStarts:
             Week starts on Monday (ISO 8601 standard)
         """
         # Generate time data object from current time
-        timeUtil = TimeConverter(unixTimeUTC=self.currentTime)
+        timeUtil = TimeConverter(unixtime=self.currentTime)
         timeUtil.generateTimeDataObj()
         dateTimeObj = timeUtil.datetimeObj
 
@@ -136,12 +136,12 @@ class TimeStarts:
         weekStartDay = dateTimeObj.unixTimeUTC - (UnixTimePeriods.day * (dateTimeObj.dayNumInWeek - 1))
         weekEndDay = weekStartDay + (UnixTimePeriods.day * 6)
 
-        weekStartObj = TimeConverter(unixTimeUTC=weekStartDay)
+        weekStartObj = TimeConverter(unixtime=weekStartDay)
         weekStartObj.generateTimeDataObj()
         weekStartUnix = TimeConverter(intoUnix=f"{weekStartObj.datetimeObj.day}/"
                                              f"{weekStartObj.datetimeObj.monthNum}/"
                                              f"{weekStartObj.datetimeObj.year} 00:00").convertToUTC()
-        weekEndObj = TimeConverter(unixTimeUTC=weekEndDay)
+        weekEndObj = TimeConverter(unixtime=weekEndDay)
         weekEndObj.generateTimeDataObj()
         weekEndUnix = TimeConverter(intoUnix=f"{weekEndObj.datetimeObj.day}/"
                                            f"{weekEndObj.datetimeObj.monthNum}/"
@@ -273,7 +273,7 @@ class TimeStarts:
             Handles month transitions and year boundaries correctly
         """
         # Generate time data object from current time
-        timeUtil = TimeConverter(unixTimeUTC=self.currentTime)
+        timeUtil = TimeConverter(unixtime=self.currentTime)
         timeUtil.generateTimeDataObj()
         dateTimeObj = timeUtil.datetimeObj
 
@@ -291,7 +291,7 @@ class TimeStarts:
                          .convertToUTC() - 60)
 
         # Convert back to get the actual last day of current month
-        tempEndObj = TimeConverter(unixTimeUTC=tempEndString)
+        tempEndObj = TimeConverter(unixtime=tempEndString)
         tempEndObj.generateTimeDataObj()
         endObj = tempEndObj.datetimeObj
 
