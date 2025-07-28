@@ -1,6 +1,7 @@
 from userInteraction.parsing.tokenize import Tokens
 from utils.timeUtilitities.startAndEndBlocks import TimeStarts
 from utils.timeUtilitities.timeUtil import TimeConverter
+from whatsappSecrets.initSecrets import SecretCreator
 
 
 class PastTense:
@@ -22,6 +23,8 @@ class TokenReturns:
         self.returnMessage = self.returnConfirm()
 
     def returnConfirm(self):
+        siteLink = SecretCreator().loadSecrets()["SITE_LINK"]
+
         if self.tokens.location == "BLOCK":
             referenceTime = TimeStarts(generationTime=TimeConverter().currentTime).thisWeek["start"]
             referencedBlockStart = TimeConverter(unixtime=referenceTime + self.tokens.blockStart).generateTimeDataObj()
@@ -40,16 +43,15 @@ class TokenReturns:
             message = f"Block from {blockStartStr} to {blockEndStr} {PastTense.past(self.tokens.verb)} successfully."
 
         elif self.tokens.verb == "VIEW":
-            message = "Please view your calendar using the link below:"
-            # TODO calendar link will go here!!
+            message = f"Please view your calendar using the link below: \n{siteLink}"
 
         elif self.tokens.verb == "SCHEDULE":
             conflicts = 0  # TODO add a way to check for conflicts
             message = (f"Your tasks have been scheduled successfully and {conflicts} conflicts were found. "
-                       f"Please view your calendar using the link below:")
-            # TODO calendar link will go here!!
+                       f"Please view your calendar using the link below: \n{siteLink}")
 
         else:
-            message = f"{self.tokens.location.capitalize()}: {self.tokens.iD} {PastTense.past(self.tokens.verb)} successfully."
+            message = (f"{self.tokens.location.capitalize()}: "
+                       f"{self.tokens.iD} {PastTense.past(self.tokens.verb)} successfully.")
 
         return message

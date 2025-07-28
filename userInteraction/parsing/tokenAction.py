@@ -8,7 +8,7 @@ to appropriate handler classes based on the command verb and location.
 The TokenFactory implements a factory pattern to create and execute the appropriate
 token handler based on the parsed command structure.
 """
-
+from calendarORGS.calendarViews.calendarCreator.generateCalendar import CalendarCreator
 from userInteraction.parsing.tokenize import Tokens
 from calendarORGS.calendarViews.calendarCreator.calendarView import CalendarView
 from calendarORGS.scheduling.eventScheduler import Scheduler
@@ -87,12 +87,10 @@ class TokenFactory:
                     case "TASK":
                         TokenModify.modifyTask(TokenModify(self.tokens))
 
-            # TODO Removed returns but currently not working until calendarView is fully implemented
             case "VIEW":
-                eventList = CalendarView.viewEvents(self.tokens.viewTime)
-                formattedEventStr = CalendarView.convertListToText(eventList)
+                pass
 
             case "SCHEDULE":
                 Scheduler.scheduleTasks(self.tokens.viewTime)
-                eventList = CalendarView.viewEvents(self.tokens.viewTime)
-                formattedEventStr = CalendarView.convertListToText(eventList)
+
+        CalendarCreator.CalendarUpdate()
