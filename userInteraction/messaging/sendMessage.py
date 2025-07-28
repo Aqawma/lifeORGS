@@ -16,7 +16,7 @@ The module requires a config.json file with the following keys:
 - PHONE_NUMBER_ID: WhatsApp Business phone number ID
 - RECIPIENT_WAID: Default recipient WhatsApp ID
 """
-from secrets.initSecrets import SecretCreator
+from whatsappSecrets.initSecrets import SecretCreator
 from utils.jsonUtils import loadConfig
 import requests
 import json

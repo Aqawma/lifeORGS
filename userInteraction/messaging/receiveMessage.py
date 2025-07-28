@@ -27,7 +27,7 @@ Configuration Requirements:
 from fastapi import FastAPI, Request
 from fastapi.responses import PlainTextResponse
 
-from secrets.initSecrets import SecretCreator
+from whatsappSecrets.initSecrets import SecretCreator
 from userInteraction.messaging.sendMessage import messageUser
 from userInteraction.parsing.tokenAction import TokenFactory
 from userInteraction.parsing.tokenReturn import TokenReturns
