@@ -19,6 +19,7 @@ class PastTense:
 class TokenReturns:
     def __init__(self, tokenObject: Tokens):
         self.tokens = tokenObject
+        print(vars(self.tokens))
 
     def returnConfirm(self):
         if self.tokens.location == "BLOCK":
