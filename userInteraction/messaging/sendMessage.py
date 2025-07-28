@@ -16,7 +16,7 @@ The module requires a config.json file with the following keys:
 - PHONE_NUMBER_ID: WhatsApp Business phone number ID
 - RECIPIENT_WAID: Default recipient WhatsApp ID
 """
-
+from secrets.initSecrets import SecretCreator
 from utils.jsonUtils import loadConfig
 import requests
 import json
@@ -115,7 +115,7 @@ def messageUser(message):
         - Ideal for automated notifications and system messages
     """
     # Load configuration to get default recipient
-    config = loadConfig()
+    config = SecretCreator().loadSecrets()
 
     # Format the message for WhatsApp API
     data = getTextMessageInput(config['RECIPIENT_WAID'], message)

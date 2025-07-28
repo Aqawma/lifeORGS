@@ -18,9 +18,9 @@ Usage:
     $ python secrets/initSecrets.py
 
     Or imported and used programmatically:
-    >>> from secrets.initSecrets import SecretCreator
-    >>> creator = SecretCreator()
-    >>> secrets = creator.loadedSecrets
+    # >>> from secrets.initSecrets import SecretCreator
+    # >>> creator = SecretCreator()
+    # >>> secrets = creator.loadedSecrets
 """
 
 import os
@@ -143,9 +143,9 @@ class SecretCreator:
             appropriate error messages printed to console.
 
         Example:
-            >>> creator = SecretCreator()
-            >>> secrets = creator.loadSecrets()
-            >>> access_token = secrets.get('ACCESS_TOKEN', 'default_token')
+            # >>> creator = SecretCreator()
+            # >>> secrets = creator.loadSecrets()
+            # >>> access_token = secrets.get('ACCESS_TOKEN', 'default_token')
         """
         try:
             # Attempt to read and parse the secrets file
