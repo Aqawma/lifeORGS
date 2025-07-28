@@ -71,7 +71,7 @@ def sendToUser(data):
         - HTTP 200 status indicates successful message delivery
     """
     # Load configuration settings from config.json
-    config = loadConfig()
+    config = SecretCreator().loadSecrets()
 
     # Set up authentication headers for WhatsApp API
     headers = {
