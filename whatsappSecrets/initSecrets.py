@@ -54,7 +54,7 @@ class SecretCreator:
         and loads the whatsappSecrets data into memory.
         """
         # Construct path to whatsappSecrets.json in the same directory as this script
-        self.secretPath = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'secrets.json')
+        self.secretPath = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'whatsappSecrets.json')
 
         # Check if whatsappSecrets file already exists
         self.secretBool = os.path.exists(self.secretPath)
