@@ -1,7 +1,7 @@
-:root { --dayH: 2000px; }
+:root { --dayH: 2016px; }
 
 @media (min-width: 600px)  {
-:root { --dayH: 2200px; }
+:root { --dayH: 2208px; }
 }
 @media (min-width: 1024px) {
 :root { --dayH: 2400px; }
