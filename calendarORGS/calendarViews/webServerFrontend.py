@@ -26,7 +26,7 @@ async def loginPage():
     """
 
 @app.post("/", response_class=HTMLResponse)
-async def login(key: str = Form(...)):
+async def login(tfaKey: str = Form(...)):
     if TwoFAKey().check2faKey(key):
         response = RedirectResponse(url="/calendar", status_code=302)
         response.set_cookie("auth", "ok")  # Basic session, or set in real session store
