@@ -8,9 +8,9 @@ to appropriate handler classes based on the command verb and location.
 The TokenFactory implements a factory pattern to create and execute the appropriate
 token handler based on the parsed command structure.
 """
+from appSecrets.TwofaKeyGenerator import TwoFAKey
 from calendarORGS.calendarViews.calendarCreator.generateCalendar import CalendarCreator
 from userInteraction.parsing.tokenize import Tokens
-from calendarORGS.calendarViews.calendarCreator.calendarView import CalendarView
 from calendarORGS.scheduling.eventScheduler import Scheduler
 from calendarORGS.scheduling.eventModifiers.tokenAdd import TokenAdd
 from calendarORGS.scheduling.eventModifiers.tokenModify import TokenModify
@@ -88,7 +88,7 @@ class TokenFactory:
                         TokenModify.modifyTask(TokenModify(self.tokens))
 
             case "VIEW":
-                pass
+                TwoFAKey().generate2faKey()
 
             case "SCHEDULE":
                 Scheduler.scheduleTasks(self.tokens.viewTime)

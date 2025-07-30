@@ -50,7 +50,7 @@ Thumbs.db
 messaging/templates/config.json
 
 # Secrets
-whatsappSecrets/secrets.json
+appSecrets/secrets.json
 
 # Generated calendar files (keep directory structure with .gitkeep)
 calendarORGS/calendarViews/calendarSite/*.html

@@ -1,7 +1,8 @@
+from appSecrets.TwofaKeyGenerator import TwoFAKey
 from userInteraction.parsing.tokenize import Tokens
 from utils.timeUtilitities.startAndEndBlocks import TimeStarts
 from utils.timeUtilitities.timeUtil import TimeConverter
-from whatsappSecrets.initSecrets import SecretCreator
+from appSecrets.initSecrets import SecretCreator
 
 
 class PastTense:
@@ -43,12 +44,14 @@ class TokenReturns:
             message = f"Block from {blockStartStr} to {blockEndStr} {PastTense.past(self.tokens.verb)} successfully."
 
         elif self.tokens.verb == "VIEW":
-            message = f"Please view your calendar using the link below: \n{siteLink}"
+            message = (f"Your authentication key is {TwoFAKey().view2faKey()}\n"
+                       f"Please view your calendar using the link below: \n\n{siteLink}")
 
         elif self.tokens.verb == "SCHEDULE":
             conflicts = 0  # TODO add a way to check for conflicts
             message = (f"Your tasks have been scheduled successfully and {conflicts} conflicts were found. "
-                       f"Please view your calendar using the link below: \n{siteLink}")
+                       f"Your authentication key is {TwoFAKey().view2faKey()}\n"
+                       f"Please view your calendar using the link below: \n\n{siteLink}")
 
         else:
             message = (f"{self.tokens.location.capitalize()}: "
