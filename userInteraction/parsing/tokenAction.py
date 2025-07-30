@@ -8,7 +8,7 @@ to appropriate handler classes based on the command verb and location.
 The TokenFactory implements a factory pattern to create and execute the appropriate
 token handler based on the parsed command structure.
 """
-from appSecrets.TwofaKeyGenerator import TwoFAKey
+from whatsappSecrets.TwofaKeyGenerator import TwoFAKey
 from calendarORGS.calendarViews.calendarCreator.generateCalendar import CalendarCreator
 from userInteraction.parsing.tokenize import Tokens
 from calendarORGS.scheduling.eventScheduler import Scheduler

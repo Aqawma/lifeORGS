@@ -4,8 +4,8 @@ from fastapi.staticfiles import StaticFiles
 from starlette.middleware.sessions import SessionMiddleware
 from starlette.responses import HTMLResponse, RedirectResponse, FileResponse
 
-from appSecrets.initSecrets import SecretCreator
-from appSecrets.TwofaKeyGenerator import TwoFAKey
+from whatsappSecrets.initSecrets import SecretCreator
+from whatsappSecrets.TwofaKeyGenerator import TwoFAKey
 from utils.projRoot import getProjRoot
 
 

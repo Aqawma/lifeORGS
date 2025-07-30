@@ -1,8 +1,8 @@
-from appSecrets.TwofaKeyGenerator import TwoFAKey
+from whatsappSecrets.TwofaKeyGenerator import TwoFAKey
 from userInteraction.parsing.tokenize import Tokens
 from utils.timeUtilitities.startAndEndBlocks import TimeStarts
 from utils.timeUtilitities.timeUtil import TimeConverter
-from appSecrets.initSecrets import SecretCreator
+from whatsappSecrets.initSecrets import SecretCreator
 
 
 class PastTense:
