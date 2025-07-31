@@ -31,6 +31,7 @@ async def login(tfaKey: str = Form(...)):
     if TwoFAKey().check2faKey(tfaKey):
         response = RedirectResponse(url="/calendar", status_code=302)
         response.set_cookie("auth", "ok", max_age=UnixTimePeriods.week * 2)
+        print("auth cookie set")
         return response
     return HTMLResponse("Incorrect or Expired Key. Please Request a New Key.")
 
