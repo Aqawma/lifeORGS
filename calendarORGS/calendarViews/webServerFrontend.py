@@ -4,6 +4,7 @@ from fastapi.staticfiles import StaticFiles
 from starlette.middleware.sessions import SessionMiddleware
 from starlette.responses import HTMLResponse, RedirectResponse, FileResponse
 
+from utils.timeUtilitities.timeDataClasses import UnixTimePeriods
 from whatsappSecrets.initSecrets import SecretCreator
 from whatsappSecrets.TwofaKeyGenerator import TwoFAKey
 from utils.projRoot import getProjRoot
@@ -29,7 +30,7 @@ async def loginPage():
 async def login(tfaKey: str = Form(...)):
     if TwoFAKey().check2faKey(tfaKey):
         response = RedirectResponse(url="/calendar", status_code=302)
-        response.set_cookie("auth", "ok")  # Basic session, or set in real session store
+        response.set_cookie("auth", "ok", max_age=UnixTimePeriods.week * 2)
         return response
     return "Incorrect or Expired Key. Please Request a New Key."
 
