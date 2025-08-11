@@ -16,49 +16,31 @@ parameters.
 """
 
 import json
-import os
+from pathlib import Path
 
-def loadConfig() -> dict:
-    """
-    Loads the application configuration from config.json file.
-
-    This function locates and loads the main configuration file from the project
-    root directory. It uses relative path resolution to ensure the config file
-    is found regardless of the current working directory.
-
-    Returns:
-        dict: Dictionary containing all configuration settings from config.json
-
-    Raises:
-        FileNotFoundError: If config.json is not found in the project root
-        json.JSONDecodeError: If config.json contains invalid JSON syntax
-
-    Example:
-        >>> config = loadConfig()
-        >>> access_token = config['ACCESS_TOKEN']
-        >>> db_path = config['DATABASE_PATH']
-
-    Note:
-        - The config.json file should be located in the project root directory
-        - Path resolution works from the utils/ subdirectory up to project root
-        - Configuration keys are case-sensitive
-    """
-    # Navigate from utils/ directory up to project root where config.json is located
-    configPath = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'configurations', 'config.json')
-
-    # Load and parse the JSON configuration file
-    with open(configPath) as f:
-        config = json.load(f)
-
-    return config
+from utils.projRoot import getProjRoot
 
 class Configs:
-    def __init__(self):
-        self.configDirPath = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'configurations')
-        self.mainConfig: dict = loadConfig()
-        self.colorSchemes: dict = self._colorScheme()
+    _instance = None
 
-    def _colorScheme(self) -> dict:
-        with open(os.path.join(self.configDirPath, 'colorSchemes.json')) as f:
-            colorSchemes = json.load(f)
-        return colorSchemes
+    def __new__(cls, *args, **kwargs):
+        if cls._instance is None:
+            cls._instance = super(Configs, cls).__new__(cls)
+        return cls._instance
+
+    def __init__(self):
+        self.configDirPath = Path(getProjRoot()) / "configurations"
+
+        self.mainConfig: dict = {}
+        self.colorSchemes: dict = {}
+
+        self._loadConfig()
+
+    def _loadConfig(self) -> None:
+        if not self.mainConfig or not self.colorSchemes:
+
+            with open(self.configDirPath / "config.json") as f:
+                self.mainConfig = json.load(f)
+
+            with open(self.configDirPath / "colorSchemes.json") as f:
+                self.colorSchemes = json.load(f)

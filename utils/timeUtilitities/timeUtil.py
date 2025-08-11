@@ -31,7 +31,7 @@ from datetime import datetime, timezone
 from typing import Optional
 from zoneinfo import ZoneInfo
 
-from utils.jsonUtils import loadConfig
+from utils.jsonUtils import Configs
 from utils.timeUtilitities.timeDataClasses import TimeData, UnixTimePeriods
 
 
@@ -154,7 +154,7 @@ class TimeConverter:
         self.unixTimeUTC: Optional[float] = unixtime
 
         # Load user's timezone from configuration
-        self.timeZone: ZoneInfo = ZoneInfo(loadConfig()['USER_TIMEZONE'])
+        self.timeZone: ZoneInfo = ZoneInfo(Configs().mainConfig['USER_TIMEZONE'])
 
         self.datetimeObj = None
 
@@ -228,7 +228,7 @@ class TimeConverter:
                           "Thursday", "Friday", "Saturday", "Sunday"]
 
         # Load user's timezone from configuration
-        userTimeZone = loadConfig()['USER_TIMEZONE']
+        userTimeZone = Configs().mainConfig['USER_TIMEZONE']
 
         # Convert UTC timestamp to user's timezone
         utcDateTime = datetime.fromtimestamp(self.unixTimeUTC, tz=timezone.utc)

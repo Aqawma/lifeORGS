@@ -12,7 +12,7 @@ import json
 import os
 import sqlite3
 
-from utils.jsonUtils import loadConfig
+from utils.jsonUtils import Configs
 
 class ConnectDB:
     """
@@ -39,7 +39,7 @@ class ConnectDB:
             str: Absolute path to the calendar.db file
         """
 
-        dbName = loadConfig()['DATABASE_NAME']
+        dbName = Configs().mainConfig['DATABASE_NAME']
 
         # Get the directory of the current file (dbUtils.py)
         currentDir = os.path.dirname(os.path.abspath(__file__))
@@ -105,12 +105,12 @@ def setMode(testing: bool):
     configPath = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'config.json')
 
     if testing:
-        config = loadConfig()
+        config = Configs().mainConfig
         config['DATABASE_NAME'] = "testCalendar.db"
         with open(configPath, 'w') as f:
             json.dump(config, f, indent=4)
     else:
-        config = loadConfig()
+        config = Configs().mainConfig
         config['DATABASE_NAME'] = "calendar.db"
         with open(configPath, 'w') as f:
             json.dump(config, f, indent=4)
