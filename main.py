@@ -6,7 +6,7 @@ This module provides the interactive command-line interface that continuously pr
 users for commands and processes them through the command parser.
 
 The application supports:
-- Event management (add, delete, modify calendar events)
+- EventObj management (add, delete, modify calendar events)
 - Task management (add, delete, modify tasks with scheduling)
 - Calendar operations (view events, schedule tasks automatically)
 - Time block management (define available time periods for scheduling)

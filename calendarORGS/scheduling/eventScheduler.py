@@ -6,7 +6,7 @@ scheduling tasks, and managing time blocks. It serves as the main interface for 
 functionality, coordinating between the database layer and user interface.
 
 Key Features:
-- Event retrieval and formatting for display
+- EventObj retrieval and formatting for display
 - Task scheduling algorithm that finds available time slots
 - Time block management for recurring availability periods
 - Integration between events, tasks, and time blocks

@@ -18,7 +18,7 @@ from utils.timeUtilitities.timeDataClasses import UnixTimePeriods
 from utils.timeUtilitities.timeUtil import toShortHumanTime, toHumanHour, TimeConverter, TimeData
 from utils.timeUtilitities.startAndEndBlocks import TimeStarts
 
-class Event:
+class EventObj:
     """
     Represents a calendar event with time calculations and formatting.
 
@@ -27,11 +27,11 @@ class Event:
     and percentage calculations for visual representation.
 
     Attributes:
-        iD (str): Event identifier/name
-        description (str): Event description text
-        start (int): Event start time as Unix timestamp
+        iD (str): EventObj identifier/name
+        description (str): EventObj description text
+        start (int): EventObj start time as Unix timestamp
         startParsed (TimeData): Parsed start time data object
-        end (int): Event end time as Unix timestamp
+        end (int): EventObj end time as Unix timestamp
         endParsed (TimeData): Parsed end time data object
         startFromDay (int): Seconds from start of day to event start
         endFromDay (int): Seconds from start of day to event end
@@ -39,7 +39,7 @@ class Event:
     """
     def __init__(self, eventTuple: tuple):
         """
-        Initialize Event object from database tuple.
+        Initialize EventObj object from database tuple.
 
         Args:
             eventTuple (tuple): Database row containing (id, description, start_time, end_time)
@@ -69,7 +69,7 @@ class EventSorter:
 
     Attributes:
         timeStarts (TimeStarts): Time period calculation utility
-        allEvents (tuple): All events from database as Event objects
+        allEvents (tuple): All events from database as EventObj objects
         futureEvents (tuple): Events that haven't started yet
         pastEvents (tuple): Events that have already ended
         todayEvents (dict): Events occurring today with timing metadata
@@ -150,7 +150,7 @@ class EventSorter:
         """
         Retrieve all events from database and categorize by time status.
 
-        Fetches all events from the database, converts them to Event objects,
+        Fetches all events from the database, converts them to EventObj objects,
         and separates them into past, future, and all events categories based
         on current time.
 
@@ -162,8 +162,8 @@ class EventSorter:
         connector.cursor.execute("SELECT event, description, unixtimeStart, unixtimeEnd FROM events")
         allEvents = connector.cursor.fetchall()
 
-        # Convert database tuples to Event objects for easier manipulation
-        self.allEvents = tuple(Event(item) for item in allEvents)
+        # Convert database tuples to EventObj objects for easier manipulation
+        self.allEvents = tuple(EventObj(item) for item in allEvents)
 
         # Get current time for comparison
         timeUtil = TimeConverter()
@@ -173,10 +173,10 @@ class EventSorter:
         future = []
         for item in self.allEvents:
             if item.end < timeUtil.currentTime:
-                # Event has already ended
+                # EventObj has already ended
                 past.append(item)
             elif item.start > timeUtil.currentTime:
-                # Event hasn't started yet
+                # EventObj hasn't started yet
                 future.append(item)
             # Note: Events currently in progress are not categorized as past or future
 
@@ -261,8 +261,8 @@ class CalendarView:
             str: Single string with all list items joined by newlines
 
         Example:
-            #>>> convertListToText(["Event 1", "Event 2", "Event 3"])
-            "Event 1\nEvent 2\nEvent 3"
+            #>>> convertListToText(["EventObj 1", "EventObj 2", "EventObj 3"])
+            "EventObj 1\nEventObj 2\nEventObj 3"
         """
         outputString = "\n".join(lists)
         return outputString
@@ -316,7 +316,7 @@ class CalendarView:
         This file is used by the web-based calendar interface for rendering events.
 
         The JSON file is saved to calendarSite/eventData.json and contains:
-        - Event ID and description
+        - EventObj ID and description
         - Raw Unix timestamps and parsed time data
         - Day-relative timing for positioning
         - Percentage of day calculations for visual sizing

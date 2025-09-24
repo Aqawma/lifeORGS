@@ -56,10 +56,10 @@ class TokenAdd:
 
         Database Schema:
             events table contains:
-            - event (text): Event name/identifier
-            - description (text): Event description
-            - unixtimeStart (integer): Event start time as Unix timestamp
-            - unixtimeEnd (integer): Event end time as Unix timestamp
+            - event (text): EventObj name/identifier
+            - description (text): EventObj description
+            - unixtimeStart (integer): EventObj start time as Unix timestamp
+            - unixtimeEnd (integer): EventObj end time as Unix timestamp
             - task (boolean): Whether this is a task (default: False)
             - completed (boolean): Whether the event is completed (default: False)
         """
