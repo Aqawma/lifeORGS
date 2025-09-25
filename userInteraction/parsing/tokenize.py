@@ -15,6 +15,7 @@ and command validation for events, tasks, and time blocks.
 
 import re
 
+from utils.idMaker import generateID
 from utils.timeUtilitities.timeDataClasses import UnixTimePeriods
 from utils.timeUtilitities.timeUtil import TimeConverter, toSeconds
 from dataclasses import dataclass
@@ -26,6 +27,7 @@ class Tokens:
     """A data class that represents parsed command tokens for the lifeORGS application."""
     location: str
     verb: str
+    numID: Optional[int] = None
     iD: Optional[str] = None
     modVerb: Optional[str] = None
     modContext: Optional[Union[str, int, float]] = None
@@ -38,6 +40,7 @@ class Tokens:
     blockStart: Optional[float] = None
     blockEnd: Optional[float] = None
     viewTime: Optional[str] = None
+    location: Optional[str] = None
 
 class CommandTokenizer:
     """
@@ -207,10 +210,15 @@ class CommandTokenizer:
 
         if self.verb == "ADD":
             if tokenObj.location == "EVENT":
+                tokenObj.numID = generateID(self.context[0])
                 tokenObj.iD = self.context[0]
                 tokenObj.startTime = TimeConverter(f"{self.context[1]} {self.context[2]}").convertToUTC()
                 tokenObj.endTime = TimeConverter(f"{self.context[3]} {self.context[4]}").convertToUTC()
                 tokenObj.description = self.context[5]
+                try:
+                    tokenObj.location = self.context[6]
+                except IndexError:
+                    tokenObj.location = 'None'
                 return tokenObj
 
             elif tokenObj.location == "TASK":

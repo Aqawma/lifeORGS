@@ -11,7 +11,6 @@ and insert new records based on the tokenized command information.
 
 from userInteraction.parsing.tokenize import Tokens
 from utils.dbUtils import ConnectDB
-import datetime
 
 
 class TokenAdd:
@@ -71,31 +70,22 @@ class TokenAdd:
                         description   text,
                         unixtimeStart integer,
                         unixtimeEnd   integer,
-                        task          boolean default 0,
-                        completed     boolean default 0
+                        location      text,
+                        summary       text,
+                        status        text default 'CONFIRMED',
+                        class         text default 'PRIVATE'
                     ); """
-
         connector.cursor.execute(table)
 
-        currentUnixTime = datetime.datetime.now().timestamp()
+        connector.cursor.execute("INSERT INTO events VALUES (?,?,?,?,?,?,?)", (self.tokens.numID,
+                                                                               self.tokens.description,
+                                                                               self.tokens.startTime,
+                                                                               self.tokens.endTime,
+                                                                               self.tokens.location,
+                                                                               self.tokens.iD))
+        connector.conn.commit()
 
-        connector.cursor.execute("SELECT event FROM events WHERE event=? AND unixtimeEnd>?", (self.tokens.iD,
-                                                                                              currentUnixTime,))
-        rows = connector.cursor.fetchall()
-
-        if len(rows) != 0:
-            raise Exception(f"{self.tokens.iD} already exists in the database.")
-        else:
-
-            connector.cursor.execute("INSERT INTO events VALUES (?,?,?,?,?,?)", (self.tokens.iD,
-                                                                                 self.tokens.description,
-                                                                                 self.tokens.startTime,
-                                                                                 self.tokens.endTime,
-                                                                                 False,
-                                                                                 False))
-            connector.conn.commit()
-
-            return f"{self.tokens.iD} added successfully."
+        return f"{self.tokens.iD} added successfully."
 
     def addTask(self):
         """
