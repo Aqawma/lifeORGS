@@ -77,12 +77,14 @@ class TokenAdd:
                     ); """
         connector.cursor.execute(table)
 
-        connector.cursor.execute("INSERT INTO events VALUES (?,?,?,?,?,?,?)", (self.tokens.numID,
-                                                                               self.tokens.description,
-                                                                               self.tokens.startTime,
-                                                                               self.tokens.endTime,
-                                                                               self.tokens.location,
-                                                                               self.tokens.iD))
+        connector.cursor.execute("INSERT INTO events VALUES (?,?,?,?,?,?,?,?)", (self.tokens.numID,
+                                                                                 self.tokens.description,
+                                                                                 self.tokens.startTime,
+                                                                                 self.tokens.endTime,
+                                                                                 self.tokens.physicalLocation,
+                                                                                 self.tokens.iD,
+                                                                                 "CONFIRMED",
+                                                                                 "PRIVATE"))
         connector.conn.commit()
 
         return f"{self.tokens.iD} added successfully."

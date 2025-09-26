@@ -13,7 +13,7 @@ class iCalPackager:
 
     def packageEvent(self, eventClass: EventObj):
         event = Event()
-        event.add('name', eventClass.iD)
+        event.add('name', eventClass.summary)
         event.add('description', eventClass.description)
         event.add('dtstart', datetime(eventClass.startParsed.year,
                                       eventClass.startParsed.monthNum,

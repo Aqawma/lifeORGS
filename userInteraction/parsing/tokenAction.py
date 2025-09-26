@@ -92,5 +92,3 @@ class TokenFactory:
 
             case "SCHEDULE":
                 Scheduler.scheduleTasks(self.tokens.viewTime)
-
-        CalendarCreator.CalendarUpdate()

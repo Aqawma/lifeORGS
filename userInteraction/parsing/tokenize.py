@@ -40,7 +40,7 @@ class Tokens:
     blockStart: Optional[float] = None
     blockEnd: Optional[float] = None
     viewTime: Optional[str] = None
-    location: Optional[str] = None
+    physicalLocation: Optional[str] = None
 
 class CommandTokenizer:
     """
@@ -216,9 +216,9 @@ class CommandTokenizer:
                 tokenObj.endTime = TimeConverter(f"{self.context[3]} {self.context[4]}").convertToUTC()
                 tokenObj.description = self.context[5]
                 try:
-                    tokenObj.location = self.context[6]
+                    tokenObj.physicalLocation = self.context[6]
                 except IndexError:
-                    tokenObj.location = 'None'
+                    tokenObj.physicalLocation = 'None'
                 return tokenObj
 
             elif tokenObj.location == "TASK":
@@ -333,11 +333,11 @@ class CommandTokenizer:
             >>> tokenizer.location  # 'EVENT'
             >>> tokenizer.verb      # 'ADD'
         """
-        try:
-            self.tokens = self._parseCommand(command)
-            self.location = self.tokens[0]
-            self.verb = self.tokens[1]
-            self.context = self._getContext(self.tokens)
-            self.tokenObject = self._createTokenObject()
-        except:
-            self.tokenObject = None
+        # try:
+        self.tokens = self._parseCommand(command)
+        self.location = self.tokens[0]
+        self.verb = self.tokens[1]
+        self.context = self._getContext(self.tokens)
+        self.tokenObject = self._createTokenObject()
+        # except:
+        #     self.tokenObject = None

@@ -59,6 +59,9 @@ class EventObj:
         # Calculate what percentage of the day this event occupies (for visual representation)
         self.percentOfDay: float = ((self.endFromDay - self.startFromDay) / UnixTimePeriods.day) * 100
 
+        self.location = eventTuple[4]
+        self.summary = eventTuple[5]
+
 class EventSorter:
     """
     Organizes and categorizes events by different time periods.
