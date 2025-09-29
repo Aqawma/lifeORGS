@@ -10,11 +10,10 @@ token handler based on the parsed command structure.
 """
 from calendarORGS.calendarViews.calendarCreator.generateCalendar import CalendarCreator
 from userInteraction.parsing.tokenize import Tokens
-from calendarORGS.calendarViews.calendarCreator.calendarView import CalendarView
 from calendarORGS.scheduling.eventScheduler import Scheduler
-from calendarORGS.scheduling.eventModifiers.tokenAdd import TokenAdd
-from calendarORGS.scheduling.eventModifiers.tokenModify import TokenModify
-from calendarORGS.scheduling.eventModifiers.tokenRemove import TokenRemove
+from calendarORGS.eventModifiers.tokenAdd import TokenAdd
+from calendarORGS.eventModifiers.tokenModify import TokenModify
+from calendarORGS.eventModifiers.tokenRemove import TokenRemove
 
 
 class TokenFactory:

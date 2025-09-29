@@ -10,6 +10,9 @@ for console output or other display purposes.
 """
 from pathlib import Path
 import json
+from datetime import datetime
+from icalendar import Calendar, Event
+import pytz
 
 from calendarORGS.scheduling.eventScheduler import Scheduler
 from utils.dbUtils import ConnectDB
@@ -44,6 +47,12 @@ class EventObj:
         Args:
             eventTuple (tuple): Database row containing (id, description, start_time, end_time)
         """
+        
+        self.cal = Calendar()
+        self.cal.add('prodid', '-//My calendar product//mxm.dk//')
+        self.cal.add('version', '2.0')
+        self.timezone = pytz.timezone('Asia/Tokyo')
+        
         self.iD: str = eventTuple[0]
         self.description: str = eventTuple[1]
         self.start: int = eventTuple[2]
@@ -61,6 +70,28 @@ class EventObj:
 
         self.location = eventTuple[4]
         self.summary = eventTuple[5]
+
+    def packageEvent(self):
+        event = Event()
+        event.add('name', self.summary)
+        event.add('description', self.description)
+        event.add('dtstart', datetime(self.startParsed.year,
+                                      self.startParsed.monthNum,
+                                      self.startParsed.day,
+                                      self.startParsed.hour,
+                                      self.startParsed.minute,
+                                      0,
+                                      tzinfo=self.timezone))
+        event.add('dtend', datetime(self.endParsed.year,
+                                    self.endParsed.monthNum,
+                                    self.endParsed.day,
+                                    self.endParsed.hour,
+                                    self.endParsed.minute,
+                                    0,
+                                    tzinfo=self.timezone))
+
+        self.cal.add_component(event)
+        return self.cal.to_ical()
 
 class EventSorter:
     """
