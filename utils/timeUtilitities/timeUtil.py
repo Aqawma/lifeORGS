@@ -30,9 +30,10 @@ import time
 from datetime import datetime, timezone
 from typing import Optional
 from zoneinfo import ZoneInfo
+import pytz
 
 from utils.jsonUtils import Configs
-from utils.timeUtilitities.timeDataClasses import TimeData, UnixTimePeriods
+from utils.timeUtilitities.timeDataClasses import TimeData
 
 
 class TokenizeToDatetime:
@@ -249,6 +250,17 @@ class TimeConverter:
             hrTime=(userDateTime.strftime('%I:%M %p').lstrip("0"))
         )
         return self.datetimeObj
+
+    def convertToDateTime(self) -> datetime:
+        if self.datetimeObj is None:
+            raise Exception("No datetime object stored")
+        else:
+            return datetime(self.datetimeObj.year,
+                            self.datetimeObj.month,
+                            self.datetimeObj.day,
+                            self.datetimeObj.hour,
+                            self.datetimeObj.minute,
+                            0, tzinfo=pytz.timezone(Configs().mainConfig['USER_TIMEZONE']))
 
 def toSeconds(time):
     """
