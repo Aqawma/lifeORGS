@@ -253,7 +253,7 @@ class TimeConverter:
 
     def convertToDateTime(self) -> datetime:
         if self.timeDataObj is None:
-            raise Exception("No datetime object stored")
+            raise Exception("No time data object stored")
         else:
 
             self.dateTimeObj = datetime(self.timeDataObj.year,
