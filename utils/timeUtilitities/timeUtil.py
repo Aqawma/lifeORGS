@@ -266,7 +266,7 @@ class TimeConverter:
 
     def convertToISO9601(self) -> str:
         if self.dateTimeObj is None:
-            raise Exception("No datetime object stored")
+            raise Exception("DateTime object must be created before converting to ISO8601 format. Call convertToDateTime() first.")
         else:
             return self.dateTimeObj.isoformat()
 
