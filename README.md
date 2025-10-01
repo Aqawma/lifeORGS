@@ -12,6 +12,7 @@ A powerful command-line calendar and task management application built in Python
 - **🔍 Smart Command Parsing**: Handles quoted strings, various quote types, and case-insensitive commands
 - **📊 Calendar Views**: Display events and tasks in organized, human-readable formats
 - **🌐 Web Calendar Generation**: Automatically generate browser-viewable HTML calendars with interactive features
+- **🔐 Google Calendar Integration**: Sync events with Google Calendar using OAuth2 authentication
 
 ## Quick Start
 
@@ -31,7 +32,8 @@ A powerful command-line calendar and task management application built in Python
    pip install -r requirements.txt
    ```
 
-3. (Optional) Configure WhatsApp integration by editing `config.json`
+3. (Optional) Configure WhatsApp integration by editing `configurations/config.json`
+4. (Optional) Set up Google Calendar integration by placing credentials in `calendarORGS/eventModifiers/credentials.json`
 
 ### Running the Application
 ```bash
@@ -71,29 +73,32 @@ lifeORGS uses a modern token-based architecture with clear separation of concern
 
 ```
 lifeORGS/
-├── main.py                    # Main application entry point
-├── calendar.db               # SQLite database file
-├── config.json               # Configuration for API tokens and settings
+├── main.py                         # Main application entry point
+├── databases/
+│   ├── calendar.db                 # SQLite database file
+│   └── testCalendar.db            # Test database for development
+├── configurations/
+│   ├── config.json                 # Configuration for API tokens and settings
+│   └── colorSchemes.json          # Color schemes for calendar generation
 ├── calendarORGS/
-│   ├── calendarViews/
-│   │   ├── calendarCreator/
-│   │   │   ├── calendarView.py      # Event sorting and calendar data organization
-│   │   │   └── generateCalendar.py  # HTML calendar generation using Jinja2
-│   │   ├── calendarTemplates/       # HTML, CSS, and JavaScript templates
-│   │   └── calendarSite/           # Generated web calendar files
+│   ├── eventModifiers/
+│   │   ├── calendarAccess.py       # Calendar event access and management
+│   │   ├── gCal.py                 # Google Calendar integration
+│   │   ├── tokenAdd.py             # Add operations for events, tasks, and blocks
+│   │   ├── tokenModify.py          # Modify operations for events and tasks
+│   │   ├── tokenRemove.py          # Remove operations for events, tasks, and blocks
+│   │   ├── credentials.json        # Google Calendar API credentials
+│   │   └── token.json              # Google Calendar OAuth tokens
 │   └── scheduling/
-│       ├── eventModifiers/
-│       │   ├── tokenAdd.py         # Add operations for events, tasks, and blocks
-│       │   ├── tokenModify.py      # Modify operations for events and tasks
-│       │   └── tokenRemove.py      # Remove operations for events, tasks, and blocks
 │       └── eventScheduler.py       # Task scheduling and event retrieval
 ├── userInteraction/
 │   ├── messaging/
 │   │   ├── sendMessage.py          # WhatsApp message sending functionality
-│   │   └── recieveMessage.py       # WhatsApp webhook receiver
+│   │   └── receiveMessage.py       # WhatsApp webhook receiver
 │   └── parsing/
 │       ├── tokenize.py             # Command tokenization and parsing logic
-│       └── tokenFactory.py        # Command routing and execution factory
+│       ├── tokenAction.py          # Command routing and execution factory
+│       └── tokenReturn.py          # Token return handling
 ├── utils/
 │   ├── timeUtilitities/
 │   │   ├── timeUtil.py             # Core time conversion and utility functions
@@ -101,13 +106,29 @@ lifeORGS/
 │   │   └── startAndEndBlocks.py    # Time period calculation classes
 │   ├── dbUtils.py                  # Database connection and path utilities
 │   ├── jsonUtils.py                # JSON configuration utilities
-│   └── projRoot.py                 # Project root path utilities
-├── requirements.txt          # Python package dependencies
-└── docs/                     # Comprehensive documentation
-    ├── README.md             # User guide and quick start
-    ├── DOCUMENTATION.md      # Technical documentation
-    ├── API.md                # API reference documentation
-    └── CHANGELOG.md          # Project change history
+│   ├── projRoot.py                 # Project root path utilities
+│   ├── colorGenerator.py           # Color generation utilities
+│   └── idMaker.py                  # ID generation utilities
+├── whatsappSecrets/
+│   ├── initSecrets.py              # WhatsApp secrets management
+│   └── secrets.json                # WhatsApp API tokens and configuration
+├── tests/
+│   ├── TestUtils/
+│   │   └── makeTestDB.py           # Test database creation utilities
+│   ├── calViewTests/
+│   │   └── test_eventSortingTests.py # Calendar view and event sorting tests
+│   ├── eventModifierTests/
+│   │   ├── test_ModifyTests.py     # Event modification tests
+│   │   └── test_ParsingTests.py    # Command parsing unit tests
+│   └── utilTests/
+│       ├── test_timeTests.py       # Time utility function tests
+│       └── TimeStartsTuples.json   # Test data for time period calculations
+├── requirements.txt                # Python package dependencies
+└── docs/                          # Comprehensive documentation
+    ├── README.md                   # User guide and quick start
+    ├── DOCUMENTATION.md            # Technical documentation
+    ├── API.md                      # API reference documentation
+    └── CHANGELOG.md                # Project change history
 ```
 
 ## Documentation

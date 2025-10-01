@@ -102,7 +102,30 @@ class ConnectDB:
         self.conn.close()
 
 def setMode(testing: bool):
-    configPath = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'config.json')
+    """
+    Set the database mode for the application (production or testing).
+
+    This function switches between the main calendar database and the test database
+    by updating the DATABASE_NAME configuration in the config.json file. This allows
+    for safe testing without affecting production data.
+
+    Args:
+        testing (bool): If True, switches to test database (testCalendar.db).
+                       If False, switches to production database (calendar.db).
+
+    Side Effects:
+        - Modifies the config.json file in the configurations directory
+        - Updates the DATABASE_NAME configuration value
+        - Subsequent database connections will use the specified database
+
+    Example:
+        # Switch to test mode for running tests
+        setMode(True)
+
+        # Switch back to production mode
+        setMode(False)
+    """
+    configPath = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'configurations', 'config.json')
 
     if testing:
         config = Configs().mainConfig

@@ -30,9 +30,58 @@ from utils.timeUtilitities.timeUtil import timeOut, toShortHumanTime, toHumanHou
 
 
 class Scheduler:
+    """
+    Task scheduling and calendar management class.
+
+    This class provides static methods for intelligent task scheduling, event retrieval,
+    and calendar operations. It implements a sophisticated priority-based scheduling
+    algorithm that considers task urgency, due dates, and duration to optimize task
+    placement in available time slots.
+
+    The scheduler integrates with the database to:
+    - Retrieve unscheduled tasks and existing events
+    - Calculate priority scores for optimal task ordering
+    - Find available time slots between existing commitments
+    - Automatically create calendar events for scheduled tasks
+
+    All methods are static as the class serves as a utility namespace rather than
+    maintaining instance state.
+    """
 
     @staticmethod
     def _calculatePriorityScore(task):
+        """
+        Calculate a priority score for task scheduling based on urgency, due date, and duration.
+
+        This method implements a sophisticated scoring algorithm that considers multiple factors:
+        1. Time until due date (more urgent as deadline approaches)
+        2. Task urgency level (1-5 scale, user-defined importance)
+        3. Task duration (shorter tasks get slight priority for easier scheduling)
+
+        The algorithm also automatically increases urgency for overdue tasks based on
+        how long they've been overdue.
+
+        Args:
+            task (dict): Task dictionary containing:
+                - 'dueDate' (float): Unix timestamp of task due date
+                - 'urgency' (int): User-defined urgency level (1-5)
+                - 'taskTime' (int): Estimated task duration in seconds
+
+        Returns:
+            float: Calculated priority score (higher scores = higher priority)
+                  Range typically 0-100, with overdue urgent tasks scoring highest
+
+        Priority Score Components:
+            - Due date urgency: 0-35 points (35 for due within 24 hours, decreasing over time)
+            - User urgency level: 0-50 points (10 points per urgency level)
+            - Duration bonus: 0-15 points (shorter tasks get slight preference)
+
+        Overdue Task Handling:
+            - 1 day overdue: +1 urgency level
+            - 2 days overdue: +2 urgency levels
+            - 3 days overdue: +3 urgency levels
+            - 4+ days overdue: maximum urgency (5)
+        """
 
         timeDueDelta = task['dueDate'] - time.time()
         priorityScore = 0.0

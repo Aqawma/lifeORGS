@@ -46,19 +46,22 @@ class TokenFactory:
         This method uses pattern matching to route commands based on the verb and location
         attributes of the tokens object. It supports the following command patterns:
 
-        - ADD: Creates new events, tasks, or time blocks
+        - ADD: Creates new events, tasks, or time blocks (includes Google Calendar sync for events)
         - REMOVE: Deletes existing events, tasks, or time blocks  
         - MODIFY: Updates existing events or tasks
-        - VIEW: Displays calendar events for a specified time period
+        - VIEW: Displays calendar events for a specified time period (currently not implemented)
         - SCHEDULE: Automatically schedules tasks and displays the updated calendar
 
+        Note: Most operations execute their actions but don't return values. The VIEW case
+        is currently not implemented (contains only 'pass').
+
         Returns:
-            str or list: Success message for operations, or formatted event list for VIEW/SCHEDULE
-            None: If the command pattern is not recognized
+            None: For most operations (ADD, REMOVE, MODIFY, VIEW)
+            Result from Scheduler.scheduleTasks(): For SCHEDULE operations
 
         Raises:
             Exception: May raise exceptions from underlying token handler classes
-                      for database errors, invalid parameters, etc.
+                      for database errors, invalid parameters, Google Calendar API errors, etc.
         """
 
         match self.tokens.verb:

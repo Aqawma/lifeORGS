@@ -102,58 +102,62 @@ BLOCK ADD Tuesday 10:00 16:00
 
 ```
 lifeORGS/
-├── main.py                              # Main application entry point
-├── calendar.db                         # SQLite database file
-├── config.json                         # Configuration file for API tokens and settings
+├── main.py                         # Main application entry point
+├── databases/
+│   ├── calendar.db                 # SQLite database file
+│   └── testCalendar.db            # Test database for development
+├── configurations/
+│   ├── config.json                 # Configuration for API tokens and settings
+│   └── colorSchemes.json          # Color schemes for calendar generation
 ├── calendarORGS/
-│   ├── calendarViews/
-│   │   ├── calendarView.py             # Calendar display and formatting functions
-│   │   ├── calendarCreator/
-│   │   │   └── generateCalendar.py     # HTML calendar generation using Jinja2
-│   │   ├── calendarTemplates/
-│   │   │   └── weekCalendar.html       # HTML template for week calendar view
-│   │   └── calendarSite/
-│   │       └── index.html              # Generated HTML calendar output
+│   ├── eventModifiers/
+│   │   ├── calendarAccess.py       # Calendar event access and management
+│   │   ├── gCal.py                 # Google Calendar integration
+│   │   ├── tokenAdd.py             # Add operations for events, tasks, and blocks
+│   │   ├── tokenModify.py          # Modify operations for events and tasks
+│   │   ├── tokenRemove.py          # Remove operations for events, tasks, and blocks
+│   │   ├── credentials.json        # Google Calendar API credentials
+│   │   └── token.json              # Google Calendar OAuth tokens
 │   └── scheduling/
-│       ├── eventModifiers/
-│       │   ├── tokenAdd.py             # Add operations for events, tasks, and blocks
-│       │   ├── tokenModify.py          # Modify operations for events and tasks
-│       │   └── tokenRemove.py          # Remove operations for events, tasks, and blocks
-│       └── eventScheduler.py           # Task scheduling and event retrieval
+│       └── eventScheduler.py       # Task scheduling and event retrieval
 ├── userInteraction/
 │   ├── messaging/
-│   │   ├── sendMessage.py              # WhatsApp message sending functionality
-│   │   └── recieveMessage.py           # WhatsApp webhook receiver
+│   │   ├── sendMessage.py          # WhatsApp message sending functionality
+│   │   └── receiveMessage.py       # WhatsApp webhook receiver
 │   └── parsing/
-│       ├── tokenize.py                 # Command tokenization and parsing logic
-│       └── tokenFactory.py            # Command routing and execution factory
+│       ├── tokenize.py             # Command tokenization and parsing logic
+│       ├── tokenAction.py          # Command routing and execution factory
+│       └── tokenReturn.py          # Token return handling
 ├── utils/
 │   ├── timeUtilitities/
-│   │   ├── timeUtil.py                 # Core time conversion and utility functions
-│   │   ├── timeDataClasses.py          # Time data structures (TimeData, UnixTimePeriods)
-│   │   └── startAndEndBlocks.py        # Time period calculation classes (TimeStarts)
-│   ├── dbUtils.py                      # Database connection and path utilities
-│   ├── jsonUtils.py                    # JSON configuration utilities
-│   └── projRoot.py                     # Project root path utilities
-├── secrets/
-│   ├── initSecrets.py                  # Secrets file creation and management
-│   └── secrets.json                    # API tokens and configuration secrets
+│   │   ├── timeUtil.py             # Core time conversion and utility functions
+│   │   ├── timeDataClasses.py      # Time data structures (TimeData, UnixTimePeriods)
+│   │   └── startAndEndBlocks.py    # Time period calculation classes (TimeStarts)
+│   ├── dbUtils.py                  # Database connection and path utilities
+│   ├── jsonUtils.py                # JSON configuration utilities
+│   ├── projRoot.py                 # Project root path utilities
+│   ├── colorGenerator.py           # Color generation utilities
+│   └── idMaker.py                  # ID generation utilities
+├── whatsappSecrets/
+│   ├── initSecrets.py              # WhatsApp secrets management
+│   └── secrets.json                # WhatsApp API tokens and configuration
 ├── tests/
 │   ├── TestUtils/
-│   │   └── makeTestDB.py               # Test database creation utilities
+│   │   └── makeTestDB.py           # Test database creation utilities
 │   ├── calViewTests/
-│   │   └── test_eventSortingTests.py   # Calendar view and event sorting tests
+│   │   └── test_eventSortingTests.py # Calendar view and event sorting tests
 │   ├── eventModifierTests/
-│   │   └── test_ParsingTests.py        # Command parsing unit tests
+│   │   ├── test_ModifyTests.py     # Event modification tests
+│   │   └── test_ParsingTests.py    # Command parsing unit tests
 │   └── utilTests/
-│       ├── test_timeTests.py           # Time utility function tests
-│       └── TimeStartsTuples.json       # Test data for time period calculations
-├── requirements.txt                    # Python package dependencies
+│       ├── test_timeTests.py       # Time utility function tests
+│       └── TimeStartsTuples.json   # Test data for time period calculations
+├── requirements.txt                # Python package dependencies
 └── docs/
-    ├── README.md                       # User guide and quick start
-    ├── DOCUMENTATION.md                # Technical documentation
-    ├── API.md                          # API reference documentation
-    └── CHANGELOG.md                    # Project change history
+    ├── README.md                   # User guide and quick start
+    ├── DOCUMENTATION.md            # Technical documentation
+    ├── API.md                      # API reference documentation
+    └── CHANGELOG.md                # Project change history
 ```
 
 ## Documentation

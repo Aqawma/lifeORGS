@@ -55,7 +55,7 @@ Handles parsing of user input into structured tokens.
 - `VIEW time_period`
 - `SCHEDULE time_period`
 
-### parsing/tokenFactory.py
+### parsing/tokenAction.py
 
 #### TokenFactory Class
 Factory class for processing tokenized commands and routing them to appropriate handlers.
@@ -267,7 +267,7 @@ Sends message to default recipient.
 **Parameters:**
 - `message` (str): Message text to send
 
-### messaging/recieveMessage.py
+### messaging/receiveMessage.py
 
 #### Functions
 
