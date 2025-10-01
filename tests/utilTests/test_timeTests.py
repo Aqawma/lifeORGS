@@ -57,7 +57,7 @@ class TimeUtilityTests(unittest.TestCase):
                                timeZone=Configs().mainConfig['USER_TIMEZONE'])
         timeUtility = TimeConverter(unixtime=1752084000.0)
         timeUtility.generateTimeDataObj()
-        self.assertEqual(timeUtility.datetimeObj, timeDataObj)
+        self.assertEqual(timeUtility.timeDataObj, timeDataObj)
 
 class UnixTimePeriodsTests(unittest.TestCase):
     def __init__(self, *args, **kwargs):

@@ -1,8 +1,8 @@
 # IDE files
 .idea/
 .vscode/
-whatsappSecrets/credentials.json
-whatsappSecrets/token.json
+calendarORGS/eventModifiers/credentials.json
+calendarORGS/eventModifiers/token.json
 # Python
 __pycache__/
 *.py[cod]

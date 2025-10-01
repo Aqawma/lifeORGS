@@ -16,10 +16,12 @@ import pytz
 
 from calendarORGS.scheduling.eventScheduler import Scheduler
 from utils.dbUtils import ConnectDB
+from utils.jsonUtils import Configs
 from utils.projRoot import getProjRoot
 from utils.timeUtilitities.timeDataClasses import UnixTimePeriods
 from utils.timeUtilitities.timeUtil import toShortHumanTime, toHumanHour, TimeConverter, TimeData
 from utils.timeUtilitities.startAndEndBlocks import TimeStarts
+
 
 class EventObj:
     """
@@ -40,38 +42,40 @@ class EventObj:
         endFromDay (int): Seconds from start of day to event end
         percentOfDay (float): Percentage of day occupied by this event
     """
-    def __init__(self, eventTuple: tuple):
+
+    def __init__(self, eventTuple: tuple = None):
         """
         Initialize EventObj object from database tuple.
 
         Args:
             eventTuple (tuple): Database row containing (id, description, start_time, end_time)
         """
-        
+
         self.cal = Calendar()
         self.cal.add('prodid', '-//My calendar product//mxm.dk//')
         self.cal.add('version', '2.0')
-        self.timezone = pytz.timezone('Asia/Tokyo')
-        
-        self.iD: str = eventTuple[0]
-        self.description: str = eventTuple[1]
-        self.start: int = eventTuple[2]
-        # Parse start time into structured TimeData object for easy access to date components
-        self.startParsed: TimeData = TimeConverter(unixtime=eventTuple[2]).generateTimeDataObj()
-        self.end: int = eventTuple[3]
-        # Parse end time into structured TimeData object for easy access to date components
-        self.endParsed: TimeData = TimeConverter(unixtime=eventTuple[3]).generateTimeDataObj()
-        # Calculate seconds from start of day to event start (for positioning in day view)
-        self.startFromDay: int = self.start - TimeStarts(generationTime=self.start).today["start"]
-        # Calculate seconds from start of day to event end (for positioning in day view)
-        self.endFromDay: int = self.end - TimeStarts(generationTime=self.end).today["start"]
-        # Calculate what percentage of the day this event occupies (for visual representation)
-        self.percentOfDay: float = ((self.endFromDay - self.startFromDay) / UnixTimePeriods.day) * 100
+        self.timezone = pytz.timezone(Configs().mainConfig['USER_TIMEZONE'])
 
-        self.location = eventTuple[4]
-        self.summary = eventTuple[5]
+        if eventTuple:
+            self.iD: str = eventTuple[0]
+            self.description: str = eventTuple[1]
+            self.start: int = eventTuple[2]
+            # Parse start time into structured TimeData object for easy access to date components
+            self.startParsed: TimeData = TimeConverter(unixtime=eventTuple[2]).generateTimeDataObj()
+            self.end: int = eventTuple[3]
+            # Parse end time into structured TimeData object for easy access to date components
+            self.endParsed: TimeData = TimeConverter(unixtime=eventTuple[3]).generateTimeDataObj()
+            # Calculate seconds from start of day to event start (for positioning in day view)
+            self.startFromDay: int = self.start - TimeStarts(generationTime=self.start).today["start"]
+            # Calculate seconds from start of day to event end (for positioning in day view)
+            self.endFromDay: int = self.end - TimeStarts(generationTime=self.end).today["start"]
+            # Calculate what percentage of the day this event occupies (for visual representation)
+            self.percentOfDay: float = ((self.endFromDay - self.startFromDay) / UnixTimePeriods.day) * 100
 
-    def packageEvent(self):
+            self.location = eventTuple[4]
+            self.summary = eventTuple[5]
+
+    def packageEventICal(self):
         event = Event()
         event.add('name', self.summary)
         event.add('description', self.description)
@@ -93,6 +97,24 @@ class EventObj:
         self.cal.add_component(event)
         return self.cal.to_ical()
 
+    def returnEventFromDB(self, iD):
+        connector = ConnectDB()
+        connector.cursor.execute("SELECT event, description, unixtimeStart, unixtimeEnd, location, summary "
+                                 "FROM events WHERE event = ?", (iD,))
+        event = connector.cursor.fetchone()
+        if event:
+            self.iD = event[0]
+            self.description = event[1]
+            self.start = event[2]
+            self.end = event[3]
+            self.startParsed = TimeConverter(unixtime=event[2]).generateTimeDataObj()
+            self.endParsed = TimeConverter(unixtime=event[3]).generateTimeDataObj()
+            self.startFromDay = self.start - TimeStarts(generationTime=self.start).today["start"]
+            self.summary = event[5]
+            self.location = event[4]
+
+        return EventObj(event)
+
 class EventSorter:
     """
     Organizes and categorizes events by different time periods.
@@ -111,6 +133,7 @@ class EventSorter:
         floatingWeekEvents (tuple): Events in a 7-day period from today
         thisMonthEvents (tuple): Events in the current calendar month
     """
+
     def __init__(self):
         """
         Initialize EventSorter and populate all event categories.
@@ -271,6 +294,7 @@ class EventSorter:
         self.thisMonthEvents = self._assembleEvents(monthStart, monthEnd, self.timeStarts.daysOfMonth)
         return self.thisMonthEvents
 
+
 class CalendarView:
     """
     Static utility class for formatting and displaying calendar events.
@@ -367,10 +391,10 @@ class CalendarView:
                 "start": event.start,
                 "startParsed": vars(event.startParsed),  # Convert TimeData object to dict
                 "end": event.end,
-                "endParsed": vars(event.endParsed),      # Convert TimeData object to dict
-                "startFromDay": event.startFromDay,      # Seconds from day start
-                "endFromDay": event.endFromDay,          # Seconds from day start
-                "percentOfDay": event.percentOfDay       # Percentage for visual sizing
+                "endParsed": vars(event.endParsed),  # Convert TimeData object to dict
+                "startFromDay": event.startFromDay,  # Seconds from day start
+                "endFromDay": event.endFromDay,  # Seconds from day start
+                "percentOfDay": event.percentOfDay  # Percentage for visual sizing
             }})
 
         # Write JSON file to calendar site directory for web interface

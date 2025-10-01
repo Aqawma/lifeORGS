@@ -8,7 +8,8 @@ to appropriate handler classes based on the command verb and location.
 The TokenFactory implements a factory pattern to create and execute the appropriate
 token handler based on the parsed command structure.
 """
-from calendarORGS.calendarViews.calendarCreator.generateCalendar import CalendarCreator
+from calendarORGS.eventModifiers.calendarAccess import EventObj
+from calendarORGS.eventModifiers.gCal import gCalInteract
 from userInteraction.parsing.tokenize import Tokens
 from calendarORGS.scheduling.eventScheduler import Scheduler
 from calendarORGS.eventModifiers.tokenAdd import TokenAdd
@@ -65,6 +66,7 @@ class TokenFactory:
                 match self.tokens.location:
                     case "EVENT":
                         TokenAdd.addEvent(TokenAdd(self.tokens))
+                        gCalInteract().insertEvent(eventObject=EventObj().returnEventFromDB(self.tokens.numID))
                     case "TASK":
                         TokenAdd.addTask(TokenAdd(self.tokens))
                     case "BLOCK":

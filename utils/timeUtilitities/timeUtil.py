@@ -49,7 +49,7 @@ class TokenizeToDatetime:
 
     Example:
         # >>> tokenizer = TokenizeToDatetime("25/12/2023 14:30")
-        # >>> print(tokenizer.datetimeObj)
+        # >>> print(tokenizer.timeDataObj)
         datetime.datetime(2023, 12, 25, 14, 30)
     """
 
@@ -108,6 +108,7 @@ class TokenizeToDatetime:
                                     int(self.timeDict['time'][0]),  # hour
                                     int(self.timeDict['time'][1]))  # minute
 
+
 class TimeConverter:
     """
     Main utility class for time operations and conversions.
@@ -132,7 +133,7 @@ class TimeConverter:
         # >>> time_data = utility.generateTimeDataObj()
     """
 
-    def __init__(self, intoUnix: str = None, unixtime: float = None):
+    def __init__(self, intoUnix: str = None, unixtime: float = None, timeDataObj: TimeData = None,):
         """
         Initialize the TimeUtility with optional time parameters.
 
@@ -157,7 +158,8 @@ class TimeConverter:
         # Load user's timezone from configuration
         self.timeZone: ZoneInfo = ZoneInfo(Configs().mainConfig['USER_TIMEZONE'])
 
-        self.datetimeObj = None
+        self.timeDataObj = timeDataObj if timeDataObj else None
+        self.dateTimeObj = None
 
     def updateCurrentTime(self) -> float:
         """
@@ -236,31 +238,39 @@ class TimeConverter:
         userDateTime = utcDateTime.astimezone(ZoneInfo(userTimeZone))
 
         # Create and return structured TimeData object
-        self.datetimeObj = TimeData(
-            monthNum=int(userDateTime.month),           # Integer month number (1=January, 12=December)
-            monthName=monthNames[userDateTime.month - 1],        # Full month name
-            dayOfWeek=dayOfWeekNames[userDateTime.weekday()],    # Full day name
-            day=int(userDateTime.day),                 # Day of the month as an integer
-            hour=int(userDateTime.hour),               # Hour in 24-hour format as an integer
-            minute=int(userDateTime.minute),           # minute
-            second=int(userDateTime.second),           # second
+        self.timeDataObj = TimeData(
+            monthNum=int(userDateTime.month),  # Integer month number (1=January, 12=December)
+            monthName=monthNames[userDateTime.month - 1],  # Full month name
+            dayOfWeek=dayOfWeekNames[userDateTime.weekday()],  # Full day name
+            day=int(userDateTime.day),  # Day of the month as an integer
+            hour=int(userDateTime.hour),  # Hour in 24-hour format as an integer
+            minute=int(userDateTime.minute),  # minute
+            second=int(userDateTime.second),  # second
             dayNumInWeek=int(userDateTime.isoweekday()),  # ISO weekday (1=Monday)
-            year=int(userDateTime.year),                        # year
+            year=int(userDateTime.year),  # year
             unixTimeUTC=self.unixTimeUTC,
             hrTime=(userDateTime.strftime('%I:%M %p').lstrip("0"))
         )
-        return self.datetimeObj
+        return self.timeDataObj
 
     def convertToDateTime(self) -> datetime:
-        if self.datetimeObj is None:
+        if self.timeDataObj is None:
             raise Exception("No datetime object stored")
         else:
-            return datetime(self.datetimeObj.year,
-                            self.datetimeObj.month,
-                            self.datetimeObj.day,
-                            self.datetimeObj.hour,
-                            self.datetimeObj.minute,
-                            0, tzinfo=pytz.timezone(Configs().mainConfig['USER_TIMEZONE']))
+
+            self.dateTimeObj = datetime(self.timeDataObj.year,
+                                        self.timeDataObj.monthNum,
+                                        self.timeDataObj.day,
+                                        self.timeDataObj.hour,
+                                        self.timeDataObj.minute,
+                                        0, tzinfo=ZoneInfo(Configs().mainConfig['USER_TIMEZONE']))
+            return self.dateTimeObj
+
+    def convertToISO9601(self) -> str:
+        if self.dateTimeObj is None:
+            raise Exception("No datetime object stored")
+        else:
+            return self.dateTimeObj.isoformat()
 
 def toSeconds(time):
     """
@@ -289,6 +299,7 @@ def toSeconds(time):
         combinedTime += int(time[2])
 
     return combinedTime
+
 
 def timeOut(timeString):
     """
@@ -325,6 +336,7 @@ def timeOut(timeString):
         # TODO: Make this logic better - add support for hours, minutes, weeks, etc.
         raise Exception("Invalid time format")
 
+
 def toShortHumanTime(unixTime):
     """
     Converts a Unix timestamp to a human-readable date string.
@@ -345,6 +357,7 @@ def toShortHumanTime(unixTime):
 
     return realTime
 
+
 def toHumanHour(unixTime):
     """
     Converts a Unix timestamp to a human-readable time string.
@@ -364,6 +377,7 @@ def toHumanHour(unixTime):
     realTime = datetime.fromtimestamp(unixTime).strftime('%I:%M %p')
 
     return realTime
+
 
 def deltaToStartOfWeek(currentTime):
     """
@@ -391,8 +405,8 @@ def deltaToStartOfWeek(currentTime):
     # Calculate seconds elapsed since Monday 00:00:00 of current week
     # weekday() returns 0=Monday, 1=Tuesday, etc.
     weekStart = (datetime.fromtimestamp(currentTime).weekday() * 86400  # Days * seconds per day
-                 + datetime.fromtimestamp(currentTime).hour * 3600      # Hours * seconds per hour
-                 + datetime.fromtimestamp(currentTime).minute * 60      # Minutes * seconds per minute
-                 + datetime.fromtimestamp(currentTime).second)          # Seconds
+                 + datetime.fromtimestamp(currentTime).hour * 3600  # Hours * seconds per hour
+                 + datetime.fromtimestamp(currentTime).minute * 60  # Minutes * seconds per minute
+                 + datetime.fromtimestamp(currentTime).second)  # Seconds
 
     return weekStart  # Total seconds since start of week (Monday 00:00:00)
