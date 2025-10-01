@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from utils.jsonUtils import loadConfig
+from utils.jsonUtils import Configs
 
 @dataclass
 class TimeData:
@@ -44,7 +44,7 @@ class TimeData:
     hrTime: str
 
     unixTimeUTC: float
-    timeZone: str = loadConfig()['USER_TIMEZONE']
+    timeZone: str = Configs().mainConfig['USER_TIMEZONE']
 
 @dataclass
 class UnixTimePeriods:

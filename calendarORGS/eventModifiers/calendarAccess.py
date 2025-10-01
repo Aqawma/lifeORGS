@@ -10,15 +10,20 @@ for console output or other display purposes.
 """
 from pathlib import Path
 import json
+from datetime import datetime
+from icalendar import Calendar, Event
+import pytz
 
 from calendarORGS.scheduling.eventScheduler import Scheduler
 from utils.dbUtils import ConnectDB
+from utils.jsonUtils import Configs
 from utils.projRoot import getProjRoot
 from utils.timeUtilitities.timeDataClasses import UnixTimePeriods
 from utils.timeUtilitities.timeUtil import toShortHumanTime, toHumanHour, TimeConverter, TimeData
 from utils.timeUtilitities.startAndEndBlocks import TimeStarts
 
-class Event:
+
+class EventObj:
     """
     Represents a calendar event with time calculations and formatting.
 
@@ -27,38 +32,89 @@ class Event:
     and percentage calculations for visual representation.
 
     Attributes:
-        iD (str): Event identifier/name
-        description (str): Event description text
-        start (int): Event start time as Unix timestamp
+        iD (str): EventObj identifier/name
+        description (str): EventObj description text
+        start (int): EventObj start time as Unix timestamp
         startParsed (TimeData): Parsed start time data object
-        end (int): Event end time as Unix timestamp
+        end (int): EventObj end time as Unix timestamp
         endParsed (TimeData): Parsed end time data object
         startFromDay (int): Seconds from start of day to event start
         endFromDay (int): Seconds from start of day to event end
         percentOfDay (float): Percentage of day occupied by this event
     """
-    def __init__(self, eventTuple: tuple):
+
+    def __init__(self, eventTuple: tuple = None):
         """
-        Initialize Event object from database tuple.
+        Initialize EventObj object from database tuple.
 
         Args:
             eventTuple (tuple): Database row containing (id, description, start_time, end_time)
         """
-        self.iD: str = eventTuple[0]
-        self.description: str = eventTuple[1]
-        self.start: int = eventTuple[2]
-        # Parse start time into structured TimeData object for easy access to date components
-        self.startParsed: TimeData = TimeConverter(unixtime=eventTuple[2]).generateTimeDataObj()
-        self.end: int = eventTuple[3]
-        # Parse end time into structured TimeData object for easy access to date components
-        self.endParsed: TimeData = TimeConverter(unixtime=eventTuple[3]).generateTimeDataObj()
-        # Calculate seconds from start of day to event start (for positioning in day view)
-        self.startFromDay: int = self.start - TimeStarts(generationTime=self.start).today["start"]
-        # Calculate seconds from start of day to event end (for positioning in day view)
-        self.endFromDay: int = self.end - TimeStarts(generationTime=self.end).today["start"]
-        # Calculate what percentage of the day this event occupies (for visual representation)
-        self.percentOfDay: float = ((self.endFromDay - self.startFromDay) / UnixTimePeriods.day) * 100
 
+        self.cal = Calendar()
+        self.cal.add('prodid', '-//My calendar product//mxm.dk//')
+        self.cal.add('version', '2.0')
+        self.timezone = pytz.timezone(Configs().mainConfig['USER_TIMEZONE'])
+
+        if eventTuple:
+            self.iD: str = eventTuple[0]
+            self.description: str = eventTuple[1]
+            self.start: int = eventTuple[2]
+            # Parse start time into structured TimeData object for easy access to date components
+            self.startParsed: TimeData = TimeConverter(unixtime=eventTuple[2]).generateTimeDataObj()
+            self.end: int = eventTuple[3]
+            # Parse end time into structured TimeData object for easy access to date components
+            self.endParsed: TimeData = TimeConverter(unixtime=eventTuple[3]).generateTimeDataObj()
+            # Calculate seconds from start of day to event start (for positioning in day view)
+            self.startFromDay: int = self.start - TimeStarts(generationTime=self.start).today["start"]
+            # Calculate seconds from start of day to event end (for positioning in day view)
+            self.endFromDay: int = self.end - TimeStarts(generationTime=self.end).today["start"]
+            # Calculate what percentage of the day this event occupies (for visual representation)
+            self.percentOfDay: float = ((self.endFromDay - self.startFromDay) / UnixTimePeriods.day) * 100
+
+            self.location = eventTuple[4]
+            self.summary = eventTuple[5]
+
+    def packageEventICal(self):
+        event = Event()
+        event.add('name', self.summary)
+        event.add('description', self.description)
+        event.add('dtstart', datetime(self.startParsed.year,
+                                      self.startParsed.monthNum,
+                                      self.startParsed.day,
+                                      self.startParsed.hour,
+                                      self.startParsed.minute,
+                                      0,
+                                      tzinfo=self.timezone))
+        event.add('dtend', datetime(self.endParsed.year,
+                                    self.endParsed.monthNum,
+                                    self.endParsed.day,
+                                    self.endParsed.hour,
+                                    self.endParsed.minute,
+                                    0,
+                                    tzinfo=self.timezone))
+
+        self.cal.add_component(event)
+        return self.cal.to_ical()
+
+    def returnEventFromDB(self, iD):
+        connector = ConnectDB()
+        connector.cursor.execute("SELECT event, description, unixtimeStart, unixtimeEnd, location, summary "
+                                 "FROM events WHERE event = ?", (iD,))
+        event = connector.cursor.fetchone()
+        if event:
+            self.iD = event[0]
+            self.description = event[1]
+            self.start = event[2]
+            self.end = event[3]
+            self.startParsed = TimeConverter(unixtime=event[2]).generateTimeDataObj()
+            self.endParsed = TimeConverter(unixtime=event[3]).generateTimeDataObj()
+            self.startFromDay = self.start - TimeStarts(generationTime=self.start).today["start"]
+            self.summary = event[5]
+            self.location = event[4]
+            return EventObj(event)
+        else:
+            return None
 class EventSorter:
     """
     Organizes and categorizes events by different time periods.
@@ -69,7 +125,7 @@ class EventSorter:
 
     Attributes:
         timeStarts (TimeStarts): Time period calculation utility
-        allEvents (tuple): All events from database as Event objects
+        allEvents (tuple): All events from database as EventObj objects
         futureEvents (tuple): Events that haven't started yet
         pastEvents (tuple): Events that have already ended
         todayEvents (dict): Events occurring today with timing metadata
@@ -77,6 +133,7 @@ class EventSorter:
         floatingWeekEvents (tuple): Events in a 7-day period from today
         thisMonthEvents (tuple): Events in the current calendar month
     """
+
     def __init__(self):
         """
         Initialize EventSorter and populate all event categories.
@@ -150,7 +207,7 @@ class EventSorter:
         """
         Retrieve all events from database and categorize by time status.
 
-        Fetches all events from the database, converts them to Event objects,
+        Fetches all events from the database, converts them to EventObj objects,
         and separates them into past, future, and all events categories based
         on current time.
 
@@ -162,8 +219,8 @@ class EventSorter:
         connector.cursor.execute("SELECT event, description, unixtimeStart, unixtimeEnd FROM events")
         allEvents = connector.cursor.fetchall()
 
-        # Convert database tuples to Event objects for easier manipulation
-        self.allEvents = tuple(Event(item) for item in allEvents)
+        # Convert database tuples to EventObj objects for easier manipulation
+        self.allEvents = tuple(EventObj(item) for item in allEvents)
 
         # Get current time for comparison
         timeUtil = TimeConverter()
@@ -173,10 +230,10 @@ class EventSorter:
         future = []
         for item in self.allEvents:
             if item.end < timeUtil.currentTime:
-                # Event has already ended
+                # EventObj has already ended
                 past.append(item)
             elif item.start > timeUtil.currentTime:
-                # Event hasn't started yet
+                # EventObj hasn't started yet
                 future.append(item)
             # Note: Events currently in progress are not categorized as past or future
 
@@ -237,6 +294,7 @@ class EventSorter:
         self.thisMonthEvents = self._assembleEvents(monthStart, monthEnd, self.timeStarts.daysOfMonth)
         return self.thisMonthEvents
 
+
 class CalendarView:
     """
     Static utility class for formatting and displaying calendar events.
@@ -261,8 +319,8 @@ class CalendarView:
             str: Single string with all list items joined by newlines
 
         Example:
-            #>>> convertListToText(["Event 1", "Event 2", "Event 3"])
-            "Event 1\nEvent 2\nEvent 3"
+            #>>> convertListToText(["EventObj 1", "EventObj 2", "EventObj 3"])
+            "EventObj 1\nEventObj 2\nEventObj 3"
         """
         outputString = "\n".join(lists)
         return outputString
@@ -316,7 +374,7 @@ class CalendarView:
         This file is used by the web-based calendar interface for rendering events.
 
         The JSON file is saved to calendarSite/eventData.json and contains:
-        - Event ID and description
+        - EventObj ID and description
         - Raw Unix timestamps and parsed time data
         - Day-relative timing for positioning
         - Percentage of day calculations for visual sizing
@@ -333,10 +391,10 @@ class CalendarView:
                 "start": event.start,
                 "startParsed": vars(event.startParsed),  # Convert TimeData object to dict
                 "end": event.end,
-                "endParsed": vars(event.endParsed),      # Convert TimeData object to dict
-                "startFromDay": event.startFromDay,      # Seconds from day start
-                "endFromDay": event.endFromDay,          # Seconds from day start
-                "percentOfDay": event.percentOfDay       # Percentage for visual sizing
+                "endParsed": vars(event.endParsed),  # Convert TimeData object to dict
+                "startFromDay": event.startFromDay,  # Seconds from day start
+                "endFromDay": event.endFromDay,  # Seconds from day start
+                "percentOfDay": event.percentOfDay  # Percentage for visual sizing
             }})
 
         # Write JSON file to calendar site directory for web interface

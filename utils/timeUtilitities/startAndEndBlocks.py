@@ -101,7 +101,7 @@ class TimeStarts:
         # Generate time data object from current time
         timeUtil = TimeConverter(unixtime=self.currentTime)
         timeUtil.generateTimeDataObj()
-        dateTimeObj = timeUtil.datetimeObj
+        dateTimeObj = timeUtil.timeDataObj
 
         # Calculate start of day (00:00:00)
         startUnix = TimeConverter(f"{dateTimeObj.day}/{dateTimeObj.monthNum}/{dateTimeObj.year} 00:00").convertToUTC()
@@ -130,7 +130,7 @@ class TimeStarts:
         # Generate time data object from current time
         timeUtil = TimeConverter(unixtime=self.currentTime)
         timeUtil.generateTimeDataObj()
-        dateTimeObj = timeUtil.datetimeObj
+        dateTimeObj = timeUtil.timeDataObj
 
         # Calculate start of week by going back to Monday
         weekStartDay = dateTimeObj.unixTimeUTC - (UnixTimePeriods.day * (dateTimeObj.dayNumInWeek - 1))
@@ -138,14 +138,14 @@ class TimeStarts:
 
         weekStartObj = TimeConverter(unixtime=weekStartDay)
         weekStartObj.generateTimeDataObj()
-        weekStartUnix = TimeConverter(intoUnix=f"{weekStartObj.datetimeObj.day}/"
-                                             f"{weekStartObj.datetimeObj.monthNum}/"
-                                             f"{weekStartObj.datetimeObj.year} 00:00").convertToUTC()
+        weekStartUnix = TimeConverter(intoUnix=f"{weekStartObj.timeDataObj.day}/"
+                                             f"{weekStartObj.timeDataObj.monthNum}/"
+                                             f"{weekStartObj.timeDataObj.year} 00:00").convertToUTC()
         weekEndObj = TimeConverter(unixtime=weekEndDay)
         weekEndObj.generateTimeDataObj()
-        weekEndUnix = TimeConverter(intoUnix=f"{weekEndObj.datetimeObj.day}/"
-                                           f"{weekEndObj.datetimeObj.monthNum}/"
-                                           f"{weekEndObj.datetimeObj.year} 23:59").convertToUTC()
+        weekEndUnix = TimeConverter(intoUnix=f"{weekEndObj.timeDataObj.day}/"
+                                           f"{weekEndObj.timeDataObj.monthNum}/"
+                                           f"{weekEndObj.timeDataObj.year} 23:59").convertToUTC()
 
         # Store the week boundaries
         self.thisWeek = {"start": weekStartUnix, "end": weekEndUnix}
@@ -275,7 +275,7 @@ class TimeStarts:
         # Generate time data object from current time
         timeUtil = TimeConverter(unixtime=self.currentTime)
         timeUtil.generateTimeDataObj()
-        dateTimeObj = timeUtil.datetimeObj
+        dateTimeObj = timeUtil.timeDataObj
 
         # Set to first day of current month
         dateTimeObj.day = 1
@@ -293,7 +293,7 @@ class TimeStarts:
         # Convert back to get the actual last day of current month
         tempEndObj = TimeConverter(unixtime=tempEndString)
         tempEndObj.generateTimeDataObj()
-        endObj = tempEndObj.datetimeObj
+        endObj = tempEndObj.timeDataObj
 
         # Set end time to 23:59 of the last day of current month
         endUnix = TimeConverter(f"{endObj.day}/{endObj.monthNum}/{endObj.year} 23:59").convertToUTC()

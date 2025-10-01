@@ -134,7 +134,7 @@ All notable changes to the lifeORGS project are documented in this file.
 - **Enhanced Documentation for Messaging Module**
   - Added comprehensive module docstrings for WhatsApp messaging functionality
   - Documented sendMessage.py with detailed function descriptions and examples
-  - Documented recieveMessage.py with webhook endpoint specifications
+  - Documented receiveMessage.py with webhook endpoint specifications
   - Added inline comments explaining WhatsApp API integration
   - Included configuration requirements and payload structure documentation
 

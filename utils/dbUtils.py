@@ -12,7 +12,7 @@ import json
 import os
 import sqlite3
 
-from utils.jsonUtils import loadConfig
+from utils.jsonUtils import Configs
 
 class ConnectDB:
     """
@@ -39,7 +39,7 @@ class ConnectDB:
             str: Absolute path to the calendar.db file
         """
 
-        dbName = loadConfig()['DATABASE_NAME']
+        dbName = Configs().mainConfig['DATABASE_NAME']
 
         # Get the directory of the current file (dbUtils.py)
         currentDir = os.path.dirname(os.path.abspath(__file__))
@@ -102,15 +102,38 @@ class ConnectDB:
         self.conn.close()
 
 def setMode(testing: bool):
-    configPath = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'config.json')
+    """
+    Set the database mode for the application (production or testing).
+
+    This function switches between the main calendar database and the test database
+    by updating the DATABASE_NAME configuration in the config.json file. This allows
+    for safe testing without affecting production data.
+
+    Args:
+        testing (bool): If True, switches to test database (testCalendar.db).
+                       If False, switches to production database (calendar.db).
+
+    Side Effects:
+        - Modifies the config.json file in the configurations directory
+        - Updates the DATABASE_NAME configuration value
+        - Subsequent database connections will use the specified database
+
+    Example:
+        # Switch to test mode for running tests
+        setMode(True)
+
+        # Switch back to production mode
+        setMode(False)
+    """
+    configPath = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'configurations', 'config.json')
 
     if testing:
-        config = loadConfig()
+        config = Configs().mainConfig
         config['DATABASE_NAME'] = "testCalendar.db"
         with open(configPath, 'w') as f:
             json.dump(config, f, indent=4)
     else:
-        config = loadConfig()
+        config = Configs().mainConfig
         config['DATABASE_NAME'] = "calendar.db"
         with open(configPath, 'w') as f:
             json.dump(config, f, indent=4)

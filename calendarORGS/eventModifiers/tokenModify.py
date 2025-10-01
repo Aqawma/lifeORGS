@@ -1,6 +1,6 @@
 from userInteraction.parsing.tokenize import Tokens
 from utils.dbUtils import ConnectDB
-from calendarORGS.scheduling.eventModifiers.tokenRemove import TokenRemove
+from calendarORGS.eventModifiers.tokenRemove import TokenRemove
 
 class TokenModify:
     def __init__(self, tokenObject: Tokens):

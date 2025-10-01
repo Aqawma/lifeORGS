@@ -2,7 +2,7 @@ import unittest
 
 from tests.TestUtils.makeTestDB import TestDBUtils
 from userInteraction.parsing.tokenize import Tokens
-from calendarORGS.scheduling.eventModifiers.tokenModify import TokenModify
+from calendarORGS.eventModifiers.tokenModify import TokenModify
 from utils.dbUtils import ConnectDB
 from utils.dbUtils import setMode
 from utils.timeUtilitities.timeUtil import TimeConverter

@@ -1,7 +1,8 @@
 # IDE files
 .idea/
 .vscode/
-
+calendarORGS/eventModifiers/credentials.json
+calendarORGS/eventModifiers/token.json
 # Python
 __pycache__/
 *.py[cod]

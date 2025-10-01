@@ -16,49 +16,86 @@ parameters.
 """
 
 import json
-import os
+from pathlib import Path
 
-def loadConfig() -> dict:
-    """
-    Loads the application configuration from config.json file.
-
-    This function locates and loads the main configuration file from the project
-    root directory. It uses relative path resolution to ensure the config file
-    is found regardless of the current working directory.
-
-    Returns:
-        dict: Dictionary containing all configuration settings from config.json
-
-    Raises:
-        FileNotFoundError: If config.json is not found in the project root
-        json.JSONDecodeError: If config.json contains invalid JSON syntax
-
-    Example:
-        >>> config = loadConfig()
-        >>> access_token = config['ACCESS_TOKEN']
-        >>> db_path = config['DATABASE_PATH']
-
-    Note:
-        - The config.json file should be located in the project root directory
-        - Path resolution works from the utils/ subdirectory up to project root
-        - Configuration keys are case-sensitive
-    """
-    # Navigate from utils/ directory up to project root where config.json is located
-    configPath = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'configurations', 'config.json')
-
-    # Load and parse the JSON configuration file
-    with open(configPath) as f:
-        config = json.load(f)
-
-    return config
+from utils.projRoot import getProjRoot
 
 class Configs:
-    def __init__(self):
-        self.configDirPath = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'configurations')
-        self.mainConfig: dict = loadConfig()
-        self.colorSchemes: dict = self._colorScheme()
+    """
+    Singleton configuration manager for the lifeORGS application.
 
-    def _colorScheme(self) -> dict:
-        with open(os.path.join(self.configDirPath, 'colorSchemes.json')) as f:
-            colorSchemes = json.load(f)
-        return colorSchemes
+    This class implements the singleton pattern to ensure that configuration files
+    are loaded only once and shared across the entire application. It manages both
+    the main application configuration and color schemes for calendar generation.
+
+    Attributes:
+        configDirPath (Path): Path to the configurations directory
+        mainConfig (dict): Main application configuration from config.json
+        colorSchemes (dict): Color scheme configuration from colorSchemes.json
+
+    Example:
+        # Get configuration instance (creates singleton if first time)
+        config = Configs()
+
+        # Access main configuration
+        database_name = config.mainConfig['DATABASE_NAME']
+
+        # Access color schemes
+        primary_colors = config.colorSchemes['primary']
+    """
+    _instance = None
+
+    def __new__(cls, *args, **kwargs):
+        """
+        Create or return the singleton instance of the Configs class.
+
+        Implements the singleton pattern to ensure only one instance of the
+        configuration manager exists throughout the application lifecycle.
+
+        Returns:
+            Configs: The singleton instance of the Configs class
+        """
+        if cls._instance is None:
+            cls._instance = super(Configs, cls).__new__(cls)
+        return cls._instance
+
+    def __init__(self):
+        """
+        Initialize the configuration manager and load configuration files.
+
+        Sets up the path to the configurations directory and initializes empty
+        dictionaries for configuration data. Automatically loads configuration
+        files on first instantiation.
+
+        Note:
+            Due to singleton pattern, __init__ may be called multiple times but
+            configuration loading is protected against redundant operations.
+        """
+        self.configDirPath = Path(getProjRoot()) / "configurations"
+
+        self.mainConfig: dict = {}
+        self.colorSchemes: dict = {}
+
+        self._loadConfig()
+
+    def _loadConfig(self) -> None:
+        """
+        Load configuration files from the configurations directory.
+
+        Loads both config.json (main application configuration) and 
+        colorSchemes.json (color schemes for calendar generation) if they
+        haven't been loaded already. This method is protected against
+        redundant loading.
+
+        Raises:
+            FileNotFoundError: If configuration files are not found
+            json.JSONDecodeError: If configuration files contain invalid JSON
+            PermissionError: If configuration files cannot be read
+        """
+        if not self.mainConfig or not self.colorSchemes:
+
+            with open(self.configDirPath / "config.json") as f:
+                self.mainConfig = json.load(f)
+
+            with open(self.configDirPath / "colorSchemes.json") as f:
+                self.colorSchemes = json.load(f)

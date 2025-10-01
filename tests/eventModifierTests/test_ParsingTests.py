@@ -13,7 +13,7 @@ Classes:
 - ParsingTests: Main test class containing all parsing-related unit tests
 
 Test Coverage:
-- Event commands (ADD, REMOVE, MODIFY)
+- EventObj commands (ADD, REMOVE, MODIFY)
 - Task commands (ADD, REMOVE, MODIFY)
 - Block commands (ADD, REMOVE)
 - Calendar commands (VIEW, SCHEDULE)
@@ -39,7 +39,7 @@ class ParsingTests(unittest.TestCase):
     all major command categories and includes error handling tests.
 
     Test Categories:
-    - Event operations (ADD, REMOVE, MODIFY)
+    - EventObj operations (ADD, REMOVE, MODIFY)
     - Task operations (ADD, REMOVE, MODIFY)
     - Block operations (ADD, REMOVE)
     - Calendar operations (VIEW, SCHEDULE)
@@ -63,7 +63,7 @@ class ParsingTests(unittest.TestCase):
         """
         super().__init__(*args, **kwargs)
 
-        # Event command test strings
+        # EventObj command test strings
         self.addEventStr = 'EVENT ADD "meeting" 25/12/2023 14:00 25/12/2023 15:00 "Team meeting"'
         self.removeEventStr = 'EVENT REMOVE meeting'
         self.modEventStr = 'EVENT MODIFY "Meeting Name" STARTTIME 25/12/2023 15:00'
