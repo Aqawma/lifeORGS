@@ -112,9 +112,9 @@ class EventObj:
             self.startFromDay = self.start - TimeStarts(generationTime=self.start).today["start"]
             self.summary = event[5]
             self.location = event[4]
-
-        return EventObj(event)
-
+            return EventObj(event)
+        else:
+            return None
 class EventSorter:
     """
     Organizes and categorizes events by different time periods.
