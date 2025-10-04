@@ -15,6 +15,7 @@ application settings such as API tokens, database paths, and other configuration
 parameters.
 """
 
+import os
 import json
 from pathlib import Path
 
@@ -71,14 +72,18 @@ class Configs:
             Due to singleton pattern, __init__ may be called multiple times but
             configuration loading is protected against redundant operations.
         """
-        self.configDirPath = Path(getProjRoot()) / "configurations"
+        testing = os.getenv('LIFEORGS_TESTING', 'false').lower() == 'true'
+
+        self.configDirPath = Path(getProjRoot()) / "configurations" / "testConfigs" \
+            if testing else Path(getProjRoot()) / "configurations"
 
         self.mainConfig: dict = {}
         self.colorSchemes: dict = {}
 
-        self._loadConfig()
+        (self._loadConfig
+         (["config.json", "colorSchemes.json"] if not testing else ["testConfig.json", "testColorSchemes.json"]))
 
-    def _loadConfig(self) -> None:
+    def _loadConfig(self, fileNames: list) -> None:
         """
         Load configuration files from the configurations directory.
 
@@ -94,8 +99,8 @@ class Configs:
         """
         if not self.mainConfig or not self.colorSchemes:
 
-            with open(self.configDirPath / "config.json") as f:
+            with open(self.configDirPath / fileNames[0]) as f:
                 self.mainConfig = json.load(f)
 
-            with open(self.configDirPath / "colorSchemes.json") as f:
+            with open(self.configDirPath / fileNames[1]) as f:
                 self.colorSchemes = json.load(f)
