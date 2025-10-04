@@ -19,6 +19,6 @@ def generateID(seedStr: str):
             else:
                 continue
     finally:
-        connector.conn.close()
+        connector.dbCleanup()
 
 
