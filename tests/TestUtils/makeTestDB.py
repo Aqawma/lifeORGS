@@ -22,9 +22,8 @@ Usage:
     Or run directly to create a test database:
     $ python tests/TestUtils/makeTestDB.py
 """
-
+from tests.TestUtils.testEnv import setTestEnv
 from utils.dbUtils import ConnectDB
-from utils.dbUtils import setMode
 from utils.timeUtilitities.timeUtil import toSeconds, TimeConverter
 
 
@@ -42,6 +41,7 @@ class TestDBUtils:
     """
 
     @staticmethod
+    @setTestEnv
     def makeTestDB():
         """
         Creates a fresh test database with sample data for testing.
@@ -67,7 +67,6 @@ class TestDBUtils:
             # Creates fresh test database with sample data
         """
         # Enable test mode to use test database instead of production
-        setMode(True)
         connector = ConnectDB()
 
         # Drop existing tables to ensure clean state

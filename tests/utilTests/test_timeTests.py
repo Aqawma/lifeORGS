@@ -3,18 +3,20 @@ import os
 import unittest
 from datetime import datetime
 
+from tests.TestUtils.testEnv import setTestEnv
 from utils.jsonUtils import Configs
 from utils.timeUtilitities.startAndEndBlocks import TimeStarts
 from utils.timeUtilitities.timeDataClasses import UnixTimePeriods
 from utils.timeUtilitities.timeUtil import TimeConverter, TimeData, TokenizeToDatetime
 
-
+@setTestEnv
 class tokenizeToDatetimeTests(unittest.TestCase):
     def test_tokenizeToDatetime(self):
         tokenizedDatetime = TokenizeToDatetime("09/07/2025 14:00")
         datetimeObj = datetime(2025, 7, 9, 14, 0)
         self.assertEqual(tokenizedDatetime.datetimeObj, datetimeObj)
 
+@setTestEnv
 class TimeUtilityTests(unittest.TestCase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -30,6 +32,7 @@ class TimeUtilityTests(unittest.TestCase):
         print("For convertToUTC: Input: 09/07/2025 14:00 [EST-DST] Expected: 1703530800.0")
         timeUtility = TimeConverter(intoUnix="09/07/2025 14:00")
         self.assertEqual(timeUtility.convertToUTC(), 1752084000.0)
+        print(os.environ['LIFEORGS_TESTING'])
 
     def test_generateTimeDataObj(self):
         print("""For generateTimeDataObj: Input: 175208400\n Expected:\n
@@ -43,6 +46,11 @@ class TimeUtilityTests(unittest.TestCase):
         year=2025
         unixTimeUTC=1752084000.0""")
 
+        timeUtility = TimeConverter(unixtime=1752084000.0)
+        timeUtility.generateTimeDataObj()
+
+        actualTimezone = timeUtility.timeDataObj.timeZone
+        
         timeDataObj = TimeData(monthNum=7,
                                monthName="July",
                                dayOfWeek="Wednesday",
@@ -54,11 +62,11 @@ class TimeUtilityTests(unittest.TestCase):
                                year=2025,
                                hrTime="2:00 PM",
                                unixTimeUTC=1752084000.0,
-                               timeZone=Configs().mainConfig['USER_TIMEZONE'])
-        timeUtility = TimeConverter(unixtime=1752084000.0)
-        timeUtility.generateTimeDataObj()
+                               timeZone=actualTimezone)
+
         self.assertEqual(timeUtility.timeDataObj, timeDataObj)
 
+@setTestEnv
 class UnixTimePeriodsTests(unittest.TestCase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -80,6 +88,7 @@ class UnixTimePeriodsTests(unittest.TestCase):
         print("Expected: 604800")
         self.assertEqual(self.timePeriods.week, 604800)
 
+@setTestEnv
 class TimeStartsTests(unittest.TestCase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

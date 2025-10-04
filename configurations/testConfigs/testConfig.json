@@ -1,4 +1,4 @@
 {
     "DATABASE_NAME": "testCalendar.db",
-    "USER_TIMEZONE": "Asia/Tokyo"
+    "USER_TIMEZONE": "America/New_York"
 }

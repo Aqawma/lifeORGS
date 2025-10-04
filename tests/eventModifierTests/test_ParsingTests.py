@@ -28,8 +28,11 @@ Usage:
 """
 
 import unittest
+
+from tests.TestUtils.testEnv import setTestEnv
 from userInteraction.parsing.tokenize import CommandTokenizer
 
+@setTestEnv
 class ParsingTests(unittest.TestCase):
     """
     Comprehensive unit tests for command parsing functionality.

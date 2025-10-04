@@ -1,17 +1,17 @@
 import unittest
 
 from tests.TestUtils.makeTestDB import TestDBUtils
+from tests.TestUtils.testEnv import setTestEnv
 from userInteraction.parsing.tokenize import Tokens
 from calendarORGS.eventModifiers.tokenModify import TokenModify
 from utils.dbUtils import ConnectDB
-from utils.dbUtils import setMode
 from utils.timeUtilitities.timeUtil import TimeConverter
 
+@setTestEnv
 class ModifyTests(unittest.TestCase):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        setMode(True)
 
         self.tokenEventDisc = Tokens('EVENT',
                                      'MODIFY',

@@ -333,11 +333,11 @@ class CommandTokenizer:
             >>> tokenizer.location  # 'EVENT'
             >>> tokenizer.verb      # 'ADD'
         """
-        # try:
-        self.tokens = self._parseCommand(command)
-        self.location = self.tokens[0]
-        self.verb = self.tokens[1]
-        self.context = self._getContext(self.tokens)
-        self.tokenObject = self._createTokenObject()
-        # except:
-        #     self.tokenObject = None
+        try:
+            self.tokens = self._parseCommand(command)
+            self.location = self.tokens[0]
+            self.verb = self.tokens[1]
+            self.context = self._getContext(self.tokens)
+            self.tokenObject = self._createTokenObject()
+        except:
+            self.tokenObject = None
