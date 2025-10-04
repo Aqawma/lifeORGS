@@ -32,7 +32,6 @@ class TimeUtilityTests(unittest.TestCase):
         print("For convertToUTC: Input: 09/07/2025 14:00 [EST-DST] Expected: 1703530800.0")
         timeUtility = TimeConverter(intoUnix="09/07/2025 14:00")
         self.assertEqual(timeUtility.convertToUTC(), 1752084000.0)
-        print(os.environ['LIFEORGS_TESTING'])
 
     def test_generateTimeDataObj(self):
         print("""For generateTimeDataObj: Input: 175208400\n Expected:\n
